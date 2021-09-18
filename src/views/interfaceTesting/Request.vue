@@ -13,7 +13,7 @@
             <el-button type="primary" @click="sendRequest('form')" >Send</el-button>
             <el-button type="primary" @click="saveRequest">保存</el-button>
         </el-form-item>
-        <el-tabs type="border-card" style="max-height: 350px; overflow: auto;" @tab-click='handleClick'>
+        <el-tabs type="border-card" style="max-height: 300px; overflow: auto;" @tab-click='handleClick'>
             <!-- 请求头 -->
             <el-tab-pane label="Headers">
                 <Tables :TableData='headersTableData'/>
@@ -36,7 +36,6 @@
     </el-form>
     <el-divider></el-divider>
     <div>
-        <h2>Response 啦啦啦</h2>
         <Response/>
     </div>
     </div>
@@ -126,12 +125,13 @@ export default {
                         // const response_data = eval('(' + response.data + ')')
                         // console.log(response_data)
                         // console.log("ssssssssssssssssssssss")
-                        this.$bus.$emit('response',response.data.data)
+                        this.$bus.$emit('response',response.data)
                         this.$message({
                             message: '请求成功！',
                             type: 'success'
                             });
                     }).catch(error => {
+                        this.$bus.$emit('response',{})
                         console.log(error)
                         })
                 

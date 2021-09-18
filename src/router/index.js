@@ -69,10 +69,10 @@ export const constantRoutes = [
         meta: { title: '接口调试', icon: 'table' }
       },
       {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        path: 'myInterface',
+        name: 'myInterface',
+        component: () => import('@/views/myInterface/index'),
+        meta: { title: '我的接口', icon: 'el-icon-user-solid' }
       }
     ]
   },

@@ -1,10 +1,13 @@
 <template>
-   <vue-json-editor
-        v-model="resultInfo"
+    <div>
+      <h3>响应状态码：{{resultInfo.code}}</h3>
+      <vue-json-editor
+        v-model="resultInfo.data"
         :showBtns="false"    
         :mode="'code'"   
         lang="zh" 
         />
+    </div>
 </template>
 
 <script>

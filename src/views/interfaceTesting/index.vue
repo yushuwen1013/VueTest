@@ -19,6 +19,8 @@ export default {
     components:{Pesponse,Request},
     data() {
       return {
+        activeIndex: "1",
+        activeIndex: "2",
         editableTabsValue: '1',
         editableTabs: [{
           title: 'request 1',
