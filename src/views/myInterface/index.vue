@@ -7,6 +7,7 @@
         <el-button style="margin-left: 20px;margin-bottom: 20px;" type="primary" icon="el-icon-plus"  @click="addTab(editableTabsValue)">添加</el-button>
         <el-tabs v-model="editableTabsValue" type="border-card" closable @tab-remove="removeTab" tab-position="left" style="height: 800px;">
           <el-tab-pane
+
             v-for="(item) in editableTabs"
             :key="item.name"
             :label="item.title"
@@ -16,7 +17,6 @@
         </el-tabs>
       </div>
     </div>
-    
 </template>
 
 <script>
@@ -27,10 +27,11 @@
       return {
         tableData: [{
           name: '登录',
-          method: 'get',
-          url: 'http://127.0.0.1:8000/user/login',
-          body: `{"sss": "sdsd"}`,
-          params: "{}"
+          method: 'post',
+          url: 'http://127.',
+          headers: {sdsd: 'sdsdsd'},
+          body: {sss: "sdsd"},
+          params: {sdsd: '啊呜打我多'}
         }],
         editableTabsValue: '2',
         editableTabs: [{

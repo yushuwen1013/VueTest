@@ -11,17 +11,22 @@
     <el-table-column
         prop="method"
         label="method"
-        width="150">
+        width="100">
     </el-table-column>
     <el-table-column
         prop="url"
         label="url"
-        width="357">
+        width="300">
+    </el-table-column>
+    <el-table-column
+        prop="headers"
+        label="headers"
+        width="250">
     </el-table-column>
     <el-table-column
         prop="params"
         label="params"
-        width="300">
+        width="250">
     </el-table-column>
     <el-table-column
         prop="body"
@@ -54,6 +59,7 @@ export default {
         //查看接口
         viewRequest(row) {
             console.log(row);
+            this.$router.push({name: 'interfaceTesting', params:{requestData:row}})
         }
     }
 }

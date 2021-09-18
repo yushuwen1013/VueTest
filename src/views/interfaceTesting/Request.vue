@@ -149,7 +149,20 @@ export default {
                 message: '这是一条悲伤消息提示，因为这个功能没实现',
                 })
             },
-            },
+        },
+        mounted() {
+            console.log(this.$route.params.requestData)
+            const data = this.$route.params.requestData
+            if(data !== undefined){
+                this.form.requestType = data.method
+                this.form.requestUrl = data.url
+                this.headersTableData = data.headers
+                this.paramsTableData = data.params
+                this.bodyData = data.body
+                console.log("22222222222222", this.form.requestType,this.form.requestUrl,this.headersTableData, this.paramsTableData, this.bodyData)
+            }
+            
+        },
         
     }
 </script>
