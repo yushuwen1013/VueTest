@@ -17,25 +17,25 @@
             <el-input v-model="scope.row.description" placeholder="请输入内容"></el-input>
         </template>
         </el-table-column>
-            <el-table-column
-            fixed="right"
-            label="操作"
-            width="125">
-            <template slot-scope="scope">
-                <el-button
-                @click.native.prevent="addRow(scope.$index, tableData)"
-                type="text"
-                size="medium">
-                添加
-                </el-button>
-                <el-button
-                @click.native.prevent="deleteRow(scope.$index, tableData)"
-                type="text"
-                size="medium">
-                移除
-                </el-button>
-            </template>
-            </el-table-column>
+        <el-table-column
+        fixed="right"
+        label="操作"
+        width="125">
+        <template slot-scope="scope">
+            <el-button
+            @click.native.prevent="addRow(scope.$index, tableData)"
+            type="text"
+            size="medium">
+            添加
+            </el-button>
+            <el-button
+            @click.native.prevent="deleteRow(scope.$index, tableData)"
+            type="text"
+            size="medium">
+            移除
+            </el-button>
+        </template>
+        </el-table-column>
         </el-table>
 </template>
 

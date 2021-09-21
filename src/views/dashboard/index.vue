@@ -29,7 +29,7 @@
       return {
         editableTabsValue: '2',
         editableTabs: [{
-          title: 'Tab 1',
+          title: 'Tab 1daw ]]awdwa ',
           name: '1',
           content: 'Tab 1 content'
         }, {

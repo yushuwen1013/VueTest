@@ -9,9 +9,9 @@
             </el-select>
         </el-form-item>
         <el-form-item label="请求地址" prop="requestUrl">
-            <el-input v-model="form.requestUrl" placeholder="请输入请求地址" style="width: 832px;"></el-input>
-            <el-button type="primary" @click="sendRequest('form')" >Send</el-button>
-            <el-button type="primary" @click="saveRequest">保存</el-button>
+            <el-input v-model="form.requestUrl" placeholder="请输入请求地址" style="width: 500px;"></el-input>
+            <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')" >Send</el-button>
+            <el-button type="primary" @click="saveRequest">Save</el-button>
         </el-form-item>
         <el-tabs type="border-card" style="max-height: 300px; overflow: auto;" @tab-click='handleClick'>
             <!-- 请求头 -->
