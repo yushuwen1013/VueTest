@@ -8,10 +8,11 @@ export function request_debug(data) {
   })
 }
 //获取文件列表
-export function get_file_list() {
+export function get_file_list(data) {
   return request({
     url: '/request/get_file_list',
     method: 'get',
+    params: data
   })
 }
 
@@ -45,6 +46,15 @@ export function get_request_list(data) {
 export function update_request(data) {
   return request({
     url: '/request/update_request',
+    method: 'post',
+    data
+  })
+}
+
+//删除接口
+export function delete_request(data) {
+  return request({
+    url: '/request/delete_request',
     method: 'post',
     data
   })

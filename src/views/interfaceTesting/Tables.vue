@@ -12,26 +12,32 @@
             <el-input v-model="scope.row.value" placeholder="请输入value"></el-input>
         </template>
         </el-table-column>
-        <el-table-column  label="备注" show-overflow-tooltip>
+        <!-- <el-table-column  label="备注" show-overflow-tooltip>
         <template slot-scope="scope">
             <el-input v-model="scope.row.description" placeholder="请输入内容"></el-input>
         </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column
         fixed="right"
-        label="操作"
         width="125">
-        <template slot-scope="scope">
+        <template slot="header" slot-scope="scope">
+            <!-- <el-input
+            v-model="search"
+            size="mini"
+            placeholder="输入关键字搜索"/> -->
             <el-button
             @click.native.prevent="addRow(scope.$index, tableData)"
-            type="text"
+            type="primary"
             size="medium">
             添加
             </el-button>
+        </template>
+        <template slot-scope="scope">
             <el-button
             @click.native.prevent="deleteRow(scope.$index, tableData)"
             type="text"
-            size="medium">
+            size="medium"
+            >
             移除
             </el-button>
         </template>
