@@ -55,13 +55,6 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
-  //接口列表
-  // {
-  //   path: 'InterfaceList',
-  //   name: 'InterfaceList',
-  //   component: () => import('@/views/myInterface/InterfaceList'),
-  //   meta: { title: '接口列表', icon: 'el-icon-user-solid' },
-  // },
   //接口测试
   {
     path: '/interface',
@@ -70,33 +63,33 @@ export const constantRoutes = [
     name: 'interface',
     meta: { title: '接口测试', icon: 'el-icon-s-help' },
     children: [
+      //接口调试
       {
         path: 'interfaceTesting',
         name: 'interfaceTesting',
         component: () => import('@/views/interfaceTesting/index'),
         meta: { title: '接口调试', icon: 'table' }
       },
+      //我的接口
       {
         path: 'myInterface',
         name: 'myInterface',
         // alwaysShow: true,
         component: () => import('@/views/myInterface/index'),
         meta: { title: '我的接口', icon: 'el-icon-user-solid' },
-        // children:[
-        //   {
-        //     path: 'InterfaceList',
-        //     name: 'InterfaceList',
-        //     // component: () => import('@/views/myInterface/InterfaceList'),
-        //     component: InterfaceList
-        //   },
-        // ]
       },
       //接口列表
       {
         path: 'InterfaceList',
         name: 'InterfaceList',
         component: () => import('@/views/myInterface/InterfaceList'),
-        // meta: { title: '接口列表', icon: 'el-icon-user-solid' },
+      },
+      //变量管理
+      {
+        path: 'variableManage',
+        name: 'variableManage',
+        component: () => import('@/views/variableManage/index'),
+        meta: { title: '变量管理', icon: 'el-icon-user-solid' },
       },
     ]
   },
