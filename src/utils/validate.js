@@ -26,3 +26,15 @@ export function validVariable(str) {
   var reg=/[^\{\}]/;   /*定义验证表达式*/
   return reg.test(str);     /*进行验证*/
 }
+
+//校验特殊字符
+export function checkSymbol(val){ 
+  var regEn = /[`~!@#$%^&*()+<>?:"{},.\/;'[\]]/im,
+    regCn = /[·！#￥（——）：；“”‘、，|《。》？、【】[\]]/im;
+ 
+  if(regEn.test(val) || regCn.test(val)) {
+      return false;
+  }else{
+    return true;
+  }
+}

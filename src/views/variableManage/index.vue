@@ -68,6 +68,7 @@
 </template>
 
 <script>
+  import {checkSymbol} from '@/utils/validate'
   import {update_global_variable, get_global_variable, delete_global_variable} from '@/api/interfaceTesting'
   import Tables from '../interfaceTesting/Tables'
   export default {
@@ -168,45 +169,47 @@
       //确定添加变量
       addVariable(){
         console.log(this.updateForm)
-        if(this.updateForm.key.trim() == "" || this.updateForm.value.trim() == ""){
+        if(checkSymbol(this.updateForm.key)){
+            if(this.updateForm.key.trim() == "" || this.updateForm.value.trim() == ""){
               this.$message({
                   message: "key和value不能为空",
                   type: 'error'
                   });
-        }else{
-          update_global_variable(this.updateForm).then(response=>{
-          get_global_variable().then(response=>{
-              this.tableData = response.data
-            })
-          this.updateForm = {
-              key: "",
-              value: "",
-              description: ""
-              }
-          this.$message({
-                  message: response.data,
-                  type: 'success'
-                  });
-          this.dialogFormVisible = false
-          }).catch(error => {
-            console.log(error)
+            }else{
+              update_global_variable(this.updateForm).then(response=>{
+              get_global_variable().then(response=>{
+                  this.tableData = response.data
+                })
+              this.updateForm = {
+                  key: "",
+                  value: "",
+                  description: ""
+                  }
               this.$message({
-                  message: error.message,
-                  type: 'error'
-                  });
-              console.log(error)
-              })
+                      message: response.data,
+                      type: 'success'
+                      });
+              this.dialogFormVisible = false
+              }).catch(error => {
+                console.log(error)
+                  this.$message({
+                      message: error.message,
+                      type: 'error'
+                      });
+                  console.log(error)
+                  })
+            }
+        }else{
+            this.$message({
+                message: "key不能输入特殊字符",
+                type: 'error'
+                });
         }
       },
       //查询
       inquire(){
-        const a = /[^\{\}]*/
-        const str = "{}}"
-        console.log(a.test(str))
-        //  function validVariable(str) {
-        //   var reg=/[^\{\}]/;   /*定义验证表达式*/
-        //   console.log(reg.test(str));     /*进行验证*/
-        // }
+        const a = "sss}ss"
+        console.log(checkSymbol(a))
       },
       //重置
       reset(){
