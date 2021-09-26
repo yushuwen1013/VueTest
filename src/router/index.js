@@ -89,7 +89,7 @@ export const constantRoutes = [
         path: 'variableManage',
         name: 'variableManage',
         component: () => import('@/views/variableManage/index'),
-        meta: { title: '变量管理', icon: 'el-icon-user-solid' },
+        meta: { title: '变量管理', icon: 'el-icon-menu' },
       },
     ]
   },

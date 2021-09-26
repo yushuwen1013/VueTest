@@ -1,5 +1,5 @@
 <template>
-    <div style="width: 100%;left: 35px; margin-left: 35px;">
+    <div style="width: 100%;left: 35px; margin-left: 35px;overflow-y:auto;height: 800px">
         <el-form ref="form" :rules="rules" :model="form" label-width="80px" style="height: 400px;margin-top: 50px;">
         <!-- 请求类型和地址 -->
             <el-form-item label="接口名称" prop="request_name">
@@ -34,7 +34,7 @@
                     />
             </el-tab-pane>
         </el-tabs>
-        <div style="margin-top: 50px;margin-left: 35px;">
+        <div style="margin-top: 35px;margin-left: 35px;">
             <el-button type="primary" @click="Save">保 存</el-button>
             <el-button @click="back" style="margin-left: 35px;">取 消</el-button>
         </div>
