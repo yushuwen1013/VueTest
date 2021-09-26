@@ -12,6 +12,7 @@
             <el-input v-model="scope.row.value" placeholder="请输入value"></el-input>
         </template>
         </el-table-column>
+        <slot></slot>
         <!-- <el-table-column  label="备注" show-overflow-tooltip>
         <template slot-scope="scope">
             <el-input v-model="scope.row.description" placeholder="请输入内容"></el-input>

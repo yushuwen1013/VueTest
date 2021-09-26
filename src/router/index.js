@@ -63,6 +63,13 @@ export const constantRoutes = [
     name: 'interface',
     meta: { title: '接口测试', icon: 'el-icon-s-help' },
     children: [
+      //变量管理
+      {
+        path: 'variableManage',
+        name: 'variableManage',
+        component: () => import('@/views/variableManage/index'),
+        meta: { title: '变量管理', icon: 'el-icon-menu' },
+      },
       //接口调试
       {
         path: 'interfaceTesting',
@@ -83,13 +90,6 @@ export const constantRoutes = [
         path: 'InterfaceList',
         name: 'InterfaceList',
         component: () => import('@/views/myInterface/InterfaceList'),
-      },
-      //变量管理
-      {
-        path: 'variableManage',
-        name: 'variableManage',
-        component: () => import('@/views/variableManage/index'),
-        meta: { title: '变量管理', icon: 'el-icon-menu' },
       },
     ]
   },

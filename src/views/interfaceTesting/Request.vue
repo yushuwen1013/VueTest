@@ -39,10 +39,10 @@
         </div>
         <el-dialog title="保存" :visible.sync="dialogFormVisible">
         <el-form ref="saveForm" :model="saveForm" :rules="rules">
-          <el-form-item label="接口名称" label-width="120px" prop="request_name">
+          <el-form-item label="接口名称" label-width="80px" prop="request_name">
             <el-input v-model="saveForm.request_name"  placeholder="请输入接口名称"></el-input>
           </el-form-item>
-          <el-form-item label="保存到：" label-width="120px">
+          <el-form-item label="保存到：" label-width="80px">
            <el-table
             :row-key="getRowKeys" 
             @selection-change="handleSelectionChange"

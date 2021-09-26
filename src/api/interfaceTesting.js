@@ -59,3 +59,34 @@ export function delete_request(data) {
     data
   })
 }
+
+//更新或添加全局变量
+export function update_global_variable(data) {
+  return request({
+    url: '/request/update_global_variable',
+    method: 'post',
+    data
+  })
+}
+
+
+
+//获取全局变量列表
+export function get_global_variable(data) {
+  return request({
+    url: '/request/get_global_variable',
+    method: 'get',
+    params: data
+  })
+}
+
+
+
+//删除全局变量
+export function delete_global_variable(data) {
+  return request({
+    url: '/request/delete_global_variable',
+    method: 'post',
+    data
+  })
+}

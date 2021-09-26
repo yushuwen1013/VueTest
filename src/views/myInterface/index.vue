@@ -128,8 +128,6 @@ export default {
               message: '取消输入'
             });       
           })
-        
-        
       },
       //编辑文件
       editFile(index, row) {
@@ -201,7 +199,6 @@ export default {
             message: '已取消删除'
           });          
         });
-        
       },
       //双击进入接口列表
       showInterfaceList(row, column){
