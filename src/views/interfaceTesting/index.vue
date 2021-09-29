@@ -1,6 +1,7 @@
 <template>
-  <el-main>
-    <el-tabs v-model="editableTabsValue" type="card" editable @edit="handleTabsEdit" >
+  <el-main style='position: relative;'>
+    <!-- <el-button @click="addTab(editableTabsValue)" type="primary" icon="el-icon-plus"></el-button> -->
+    <el-tabs v-model="editableTabsValue" type="border-card" closable @tab-remove="removeTab">
       <el-tab-pane
       :key="item.name"
       v-for="(item) in editableTabs"
@@ -9,6 +10,7 @@
       <Request/>
       </el-tab-pane>
     </el-tabs>
+    <el-button @click="addTab(editableTabsValue)" size='mini' type="primary" icon="el-icon-plus" style='position: absolute;right:40px;top:26px;'>添加</el-button>
   </el-main>
 </template>
 
@@ -30,34 +32,31 @@ export default {
       }
     },
     methods:{
-      handleTabsEdit(targetName, action) {
-        console.log(targetName,action)
-        if (action === 'add') {
-          let newTabName = ++this.tabIndex + '';
-          this.editableTabs.push({
-            title: 'request'+newTabName,
-            name: newTabName,
-          });
-          this.editableTabsValue = newTabName;
-        }
-        if (action === 'remove') {
-          let tabs = this.editableTabs;
-          let activeName = this.editableTabsValue;
-          if (activeName === targetName) {
-            tabs.forEach((tab, index) => {
-              if (tab.name === targetName) {
-                let nextTab = tabs[index + 1] || tabs[index - 1];
-                if (nextTab) {
-                  activeName = nextTab.name;
-                }
-              }
-            });
-          }
-          this.editableTabsValue = activeName;
-          this.editableTabs = tabs.filter(tab => tab.name !== targetName);
-        }
+     addTab(targetName) {
+        let newTabName = ++this.tabIndex + '';
+        this.editableTabs.push({
+          title: 'New Tab',
+          name: newTabName,
+          content: 'New Tab content'
+        });
+        this.editableTabsValue = newTabName;
       },
-
+      removeTab(targetName) {
+        let tabs = this.editableTabs;
+        let activeName = this.editableTabsValue;
+        if (activeName === targetName) {
+          tabs.forEach((tab, index) => {
+            if (tab.name === targetName) {
+              let nextTab = tabs[index + 1] || tabs[index - 1];
+              if (nextTab) {
+                activeName = nextTab.name;
+              }
+            }
+          });
+        }
+        this.editableTabsValue = activeName;
+        this.editableTabs = tabs.filter(tab => tab.name !== targetName);
+      }
     }
   }
 </script>

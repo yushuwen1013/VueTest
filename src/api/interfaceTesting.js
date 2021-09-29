@@ -90,3 +90,34 @@ export function delete_global_variable(data) {
     data
   })
 }
+
+//更新或添加环境配置
+export function update_environment_configuration(data) {
+  return request({
+    url: '/request/update_environment_configuration',
+    method: 'post',
+    data
+  })
+}
+
+
+
+//获取环境配置列表
+export function get_environment_configuration(data) {
+  return request({
+    url: '/request/get_environment_configuration',
+    method: 'get',
+    params: data
+  })
+}
+
+
+
+//删除环境配置
+export function delete_environment_configuration(data) {
+  return request({
+    url: '/request/delete_environment_configuration',
+    method: 'post',
+    data
+  })
+}

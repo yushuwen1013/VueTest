@@ -1,91 +1,74 @@
 <template>
-  <div>
-    <template v-if="twoRouter">
-      <div style="background:#EAEAEA; height: 100%">
-        <div style="background:#fff">
-          <p
-            style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
-          >
-            <span style>全局变量</span>
-          </p>
-        </div>
-        <div>
-          <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-            <el-form-item label="变量名称">
-              <el-input v-model="seareVariableKey" placeholder="请输入变量名称"></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" @click="inquire">查询</el-button>
-              <el-button type="primary" @click="reset">重置</el-button>
-            </el-form-item>
-            <el-button
-              style="float: right;margin-bottom: 20px;margin-right: 50px;"
-              type="primary"
-              icon="el-icon-plus"
-              @click="dialogFormVisible = true"
-            >添加</el-button>
-          </el-form>
-          <el-table
-            height="600"
-            :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-            style="width: 100%;left: 20px;"
-          >
-            <el-table-column :show-overflow-tooltip="true" prop="key" label="变量名(Key)"></el-table-column>
-            <el-table-column :show-overflow-tooltip="true" prop="value" label="变量值(Value)"></el-table-column>
-            <el-table-column
-              :show-overflow-tooltip="true"
-              prop="description"
-              label="备注 -- 使用方法：${key}"
-            ></el-table-column>
-            <el-table-column width="225" label="操作">
-              <template slot-scope="scope">
-                <el-button size="mini" @click="clickEdit(scope.row)">编辑</el-button>
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="deleteVariable(scope.$index, scope.row)"
-                >删除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-          <!-- 分页显示 -->
-          <el-pagination
-            style="text-align:center"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[5, 10, 15, 20, 40]"
-            :page-size="pagesize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="tableData.length"
-          >//这是显示总共有多少数据，</el-pagination>
-        </div>
-        <el-dialog title="变量" :visible.sync="dialogFormVisible" width="30%">
-          <el-form :model="updateForm">
-            <el-form-item label="变量名" label-width="80px">
-              <el-input v-model="updateForm.key" autocomplete="off" placeholder="请输入变量名"></el-input>
-            </el-form-item>
-            <el-form-item label="变量值" label-width="80px">
-              <el-input v-model="updateForm.value" autocomplete="off" placeholder="请输入变量值"></el-input>
-            </el-form-item>
-            <el-form-item label="描述" label-width="80px">
-              <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="addVariable">确 定</el-button>
-          </div>
-        </el-dialog>
+  <div style="background:#EAEAEA; height: 100%">
+    <div style="background:#fff">
+      <p
+        style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
+      >
+        <span style>全局变量</span>
+      </p>
+    </div>
+    <div>
+      <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
+        <el-form-item label="变量名称">
+          <el-input v-model="seareVariableKey" placeholder="请输入变量名称"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="inquire">查询</el-button>
+          <el-button type="primary" @click="reset">重置</el-button>
+        </el-form-item>
+        <el-button
+          style="float: right;margin-bottom: 20px;margin-right: 50px;"
+          type="primary"
+          icon="el-icon-plus"
+          @click="dialogFormVisible = true"
+        >添加</el-button>
+      </el-form>
+      <el-table
+        height="600"
+        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+        style="width: 100%;left: 20px;"
+      >
+        <el-table-column :show-overflow-tooltip="true" prop="key" label="变量名(Key)"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="value" label="变量值(Value)"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="description" label="备注 -- 使用方法：${key}"></el-table-column>
+        <el-table-column width="225" label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" @click="clickEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="deleteVariable(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <!-- 分页显示 -->
+      <el-pagination
+        style="text-align:center"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[5, 10, 15, 20, 40]"
+        :page-size="pagesize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="tableData.length"
+      >//这是显示总共有多少数据，</el-pagination>
+    </div>
+    <el-dialog title="变量" :visible.sync="dialogFormVisible" width="30%">
+      <el-form :model="updateForm">
+        <el-form-item label="变量名" label-width="80px">
+          <el-input v-model="updateForm.key" autocomplete="off" placeholder="请输入变量名"></el-input>
+        </el-form-item>
+        <el-form-item label="变量值" label-width="80px">
+          <el-input v-model="updateForm.value" autocomplete="off" placeholder="请输入变量值"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" label-width="80px">
+          <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="addVariable">确 定</el-button>
       </div>
-    </template>
-    <template v-else>
-      <router-view />
-    </template>
+    </el-dialog>
   </div>
 </template>
-
-
 
 <script>
 import {
@@ -98,7 +81,6 @@ export default {
   components: { Tables },
   data() {
     return {
-      twoRouter: false,
       updateForm: {
         key: "",
         value: "",

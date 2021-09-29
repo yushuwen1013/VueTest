@@ -17,16 +17,8 @@
           <el-option label="POST" value="post"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="请求地址" prop="requestAddress">
-        <el-select v-model="form.environment.environment_id" clearable placeholder="请选择环境">
-          <el-option
-            v-for="item in environment_options"
-            :key="item.id"
-            :label="item.environment_name"
-            :value="item.id">
-          </el-option>
-        </el-select>
-        <el-input v-model="form.requestAddress" placeholder="请输入请求地址" style="width: 500px;"></el-input>
+      <el-form-item label="请求地址" prop="requestUrl">
+        <el-input v-model="form.requestUrl" placeholder="请输入请求地址" style="width: 500px;"></el-input>
         <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
       </el-form-item>
       <el-tabs type="border-card" style="height: 400px; overflow: auto;" @tab-click="handleClick">
@@ -53,28 +45,28 @@
       <br />
       <br />
       <br />
-      <span class="span">请求类型：{{resultInfo.request_method}}</span>
+      <span class="span">请求类型：{{form.requestType}}</span>
       <br />
       <br />
       <br />
-      <span class="span">请求地址：{{resultInfo.request_url}}</span>
+      <span class="span">请求地址：{{form.requestUrl}}</span>
       <br />
       <br />
       <br />
       <el-collapse v-model="activeNames">
         <el-collapse-item title="请求头" name="1">
-          <json-viewer :value="resultInfo.request_headers" :expand-depth="2" copyable sort></json-viewer>
+          <json-viewer :value="requestData.headers" :expand-depth="2" copyable sort></json-viewer>
         </el-collapse-item>
         <el-collapse-item title="请求参数" name="2">
           <json-viewer
-            :value="resultInfo.request_data"
+            :value="(requestData.dataState == '2')?requestData.body:requestData.params"
             :expand-depth="2"
             copyable
             sort
           ></json-viewer>
         </el-collapse-item>
         <el-collapse-item title="响应数据" name="3" visible="false">
-          <json-viewer :value="resultInfo.response_data" :expand-depth="2" copyable sort></json-viewer>
+          <json-viewer :value="resultInfo.data" :expand-depth="2" copyable sort></json-viewer>
         </el-collapse-item>
       </el-collapse>
     </el-drawer>
@@ -86,8 +78,7 @@ import vueJsonEditor from "vue-json-editor";
 import {
   request_debug,
   update_request,
-  get_request_list,
-  get_environment_configuration
+  get_request_list
 } from "@/api/interfaceTesting";
 import JsonViewer from "vue-json-viewer";
 import Response from "@/views/interfaceTesting/Response";
@@ -107,8 +98,6 @@ export default {
       }
     };
     return {
-      //环境选项
-      environment_options: [],
       requestData: {},
       //运行默认展开第三个响应数据
       activeNames: ["3"],
@@ -120,7 +109,7 @@ export default {
       dataStateCode: this.request_data.dataState,
       //:rules: rules表单规则校验
       rules: {
-        requestAddress: [{ required: true, trigger: "blur", validator: notNull }],
+        requestUrl: [{ required: true, trigger: "blur", validator: notNull }],
         request_name: [{ required: true, trigger: "blur", validator: notNull }]
       },
       bodyData: this.request_data.body,
@@ -131,14 +120,8 @@ export default {
       form: {
         //请求类型
         requestType: this.request_data.method,
-        //环境
-        environment: {
-          environment_id: this.request_data.environment_id,
-          environment_name: this.request_data.environment_name
-        },
         //请求Url
-        requestAddress: this.request_data.address,
-        //请求名称
+        requestUrl: this.request_data.url,
         request_name: this.request_data.requestName
       }
     };
@@ -177,13 +160,13 @@ export default {
             }
           });
           const request_data = {
-            environment_id: this.form.environment.environment_id,
-            address: this.form.requestAddress,
+            url: this.form.requestUrl,
             method: this.form.requestType,
             body: this.bodyData,
             headers: header,
             params: params,
             dataState: this.dataStateCode,
+            request_name: this.request_name
           };
           this.requestData = request_data;
           console.log(request_data, "++++++++++++++++++++");
@@ -228,8 +211,7 @@ export default {
         }
       });
       const request_data = {
-        environment_id: this.form.environment.environment_id,
-        address: this.form.requestAddress,
+        url: this.form.requestUrl,
         method: this.form.requestType,
         body: this.bodyData,
         headers: header,
@@ -289,11 +271,6 @@ export default {
       console.log(val);
       this.saveForm.multipleSelection = val;
     }
-  },
-  created(){
-    get_environment_configuration().then(response=>{
-      this.environment_options = response.data
-    })
   }
 };
 </script>

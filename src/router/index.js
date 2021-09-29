@@ -59,7 +59,7 @@ export const constantRoutes = [
   {
     path: '/interface',
     component: Layout,
-    redirect: '/interface/table',
+    redirect: '/interface/interfaceTesting',
     name: 'interface',
     meta: { title: '接口测试', icon: 'el-icon-s-help' },
     children: [
@@ -67,8 +67,25 @@ export const constantRoutes = [
       {
         path: 'variableManage',
         name: 'variableManage',
-        component: () => import('@/views/variableManage/index'),
+        component: () => import('@/views/variableManage'),
+        // redirect: '/interface/variableManage/globalVariable',
         meta: { title: '变量管理', icon: 'el-icon-menu' },
+        children: [
+          //全局变量
+          {
+            path: 'globalVariable',
+            name: 'globalVariable',
+            component: () => import('@/views/variableManage/globalVariable'),
+            meta: { title: '全局变量', icon: 'el-icon-menu' },
+          },
+          //环境配置
+          {
+            path: 'environmentConfiguration',
+            name: 'environmentConfiguration',
+            component: () => import('@/views/variableManage/environmentConfiguration'),
+            meta: { title: '环境配置', icon: 'el-icon-menu' },
+          }
+        ]
       },
       //接口调试
       {
@@ -91,28 +108,13 @@ export const constantRoutes = [
         name: 'InterfaceList',
         component: () => import('@/views/myInterface/InterfaceList'),
       },
-    ]
-  },
-  //例子
-  {
-    path: '/example',
-    component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: '例子', icon: 'el-icon-s-help' },
-    children: [
+      //我的接口
       {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
+        path: 'CaseManagement',
+        name: 'CaseManagement',
+        component: () => import('@/views/caseManagement/index'),
+        meta: { title: '用例管理', icon: 'el-icon-user-solid' },
       },
-      {
-        path: 'tree',
-        name: 'Tree',
-        component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
-      }
     ]
   },
 

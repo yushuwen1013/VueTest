@@ -1,8 +1,8 @@
 <template>
     <div>
-      <h3>响应状态码：{{resultInfo.code}}</h3>
+      <h3>响应状态码：{{resultInfo.response_code}}</h3>
       <vue-json-editor
-        v-model="resultInfo.data"
+        v-model="resultInfo.response_data"
         :showBtns="false"    
         :mode="'code'"   
         lang="zh" 

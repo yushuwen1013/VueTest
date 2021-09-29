@@ -1,72 +1,87 @@
 <template>
-  <div style="background:#EAEAEA; height: 100%">
-    <div style="background:#fff">
-     <p
-        style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
-      >
-        <span style>文件列表</span>
-      </p>
-    </div>
-    <div>
-      <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="文件名称">
-          <el-input v-model="seareFileName" placeholder="请输入文件名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="inquire">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-        </el-form-item>
-        <el-button
-          style="float: right;margin-bottom: 20px;margin-right: 50px;"
-          type="primary"
-          icon="el-icon-plus"
-          @click="addFile"
-        >添加</el-button>
-      </el-form>
-      <el-table
-        height="600"
-        @row-dblclick="showInterfaceList"
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-        style="width: 100%;left: 20px;"
-      >
-        <el-table-column :show-overflow-tooltip="true" prop="file_name" label="文件名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="interfaceNumber" label="接口数量"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
-        <el-table-column width="250" label="操作">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="showInterfaceList(scope.row)">查看</el-button>
-            <el-button size="mini" @click="editFile(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="deleteFile(scope.$index, scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页显示 -->
-      <el-pagination
-        style="text-align:center"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5, 10, 15, 20, 40]"
-        :page-size="pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.length"
-      >//这是显示总共有多少数据，</el-pagination>
+  <div>
+    <CaseDetails v-if="showCaseDetails"/>
+    <div style="background:#EAEAEA; height: 100%" v-else>
+      <div style="background:#fff">
+        <p
+          style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
+        >
+          <span style>用例管理</span>
+        </p>
+      </div>
+      <div>
+        <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
+          <el-form-item label="用例名称">
+            <el-input v-model="seareFileName" placeholder="请输入文件名称"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="inquire">查询</el-button>
+            <el-button type="primary" @click="reset">重置</el-button>
+          </el-form-item>
+          <el-button
+            style="float: right;margin-bottom: 20px;margin-right: 50px;"
+            type="primary"
+            icon="el-icon-plus"
+            @click="addFile"
+          >添加</el-button>
+        </el-form>
+        <el-table
+          height="600"
+          @row-dblclick="showInterfaceList"
+          :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+          style="width: 100%;left: 20px;"
+        >
+          <el-table-column :show-overflow-tooltip="true" prop="file_name" label="用例名称"></el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="interfaceNumber" label="接口数量"></el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
+          <el-table-column :show-overflow-tooltip="true" prop="execution_time" label="执行时间"></el-table-column>
+          <el-table-column width="350" label="操作">
+            <template slot-scope="scope">
+              <el-button size="mini" type="primary">查看结果</el-button>
+              <el-button size="mini" type="primary">执行</el-button>
+              <el-button size="mini" @click="showInterfaceList(scope.row)">编辑</el-button>
+              <el-button size="mini" type="danger" @click="deleteFile(scope.$index, scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <!-- 分页显示 -->
+        <el-pagination
+          style="text-align:center"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[5, 10, 15, 20, 40]"
+          :page-size="pagesize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="tableData.length"
+        >//这是显示总共有多少数据，</el-pagination>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import CaseDetails from './CaseDetails'
 import {
   get_file_list,
   create_file,
   delete_file
 } from "@/api/interfaceTesting";
 export default {
+  components: {CaseDetails},
   data() {
     return {
+      showCaseDetails: false,
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
-      tableData: [],
+      tableData: [
+        {
+          file_name: "用例名称",
+          interfaceNumber: 90,
+          create_time: "2021-09-23 11:06:27",
+          execution_time: "2021-09-23 11:06:27"
+        }
+      ],
       seareFileName: ""
     };
   },
@@ -218,9 +233,7 @@ export default {
     },
     //双击进入接口列表
     showInterfaceList(row, column) {
-      console.log(row, "----------", column);
-      localStorage.setItem("file_id", row.id);
-      this.$router.push({ name: "InterfaceList" });
+      this.showCaseDetails = true
     },
     // 初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function(size) {
@@ -231,23 +244,23 @@ export default {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
     }
-  },
-  // 创建之前发送请求
-  created() {
-    //获取文件列表
-    get_file_list()
-      .then(response => {
-        console.log(response.data);
-        this.tableData = response.data;
-      })
-      .catch(error => {
-        this.$message({
-          message: "获取失败",
-          type: "error"
-        });
-        console.log(error);
-      });
   }
+  // 创建之前发送请求
+  // created() {
+  //   //获取文件列表
+  //   get_file_list()
+  //     .then(response => {
+  //       console.log(response.data);
+  //       this.tableData = response.data;
+  //     })
+  //     .catch(error => {
+  //       this.$message({
+  //         message: "获取失败",
+  //         type: "error"
+  //       });
+  //       console.log(error);
+  //     });
+  // }
 };
 </script>
 
