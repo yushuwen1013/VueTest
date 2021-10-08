@@ -146,7 +146,7 @@ export default {
         {
           width: "60",
           label: "编号",
-          prop: "number"
+          prop: "serial_number"
         },
         {
           width: "150",
@@ -184,7 +184,7 @@ export default {
       tableData: [
         {
           id: 1,
-          number: "1",
+          serial_number: "1",
           request_name: "1111111",
           method: "111111111111",
           url: "11111111111",
@@ -194,7 +194,7 @@ export default {
         },
         {
           id: 2,
-          number: "2",
+          serial_number: "2",
           request_name: "2222222222222",
           method: "2222222222",
           url: "222222222222",
@@ -203,7 +203,7 @@ export default {
         },
         {
           id: 3,
-          number: "3",
+          serial_number: "3",
           request_name: "3333333",
           method: "33333333333333",
           url: "3333333333333",
@@ -340,11 +340,11 @@ export default {
     // 初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function(size) {
       this.pagesize = size;
-      console.log(this.pagesize); //每页下拉显示数据
+      // console.log(this.pagesize); //每页下拉显示数据
     },
     handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
-      console.log(this.currentPage); //点击第几页
+      // console.log(this.currentPage); //点击第几页
     },
     //行拖拽
     rowDrop() {
@@ -372,10 +372,10 @@ export default {
         const data = [];
         console.log("tableData被修改了", newValue);
         newValue.forEach((element, index) => {
-          element.number = index + 1;
+          element.serial_number = index + 1;
           data.push(element);
         });
-        console.log(data);
+        // console.log(data, "ssssssssssssssss");
       }
     }
   }

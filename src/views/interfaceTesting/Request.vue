@@ -56,9 +56,8 @@
           <el-table
             :row-key="getRowKeys"
             @selection-change="handleSelectionChange"
-            ref="multipleTable"
             :data="saveForm.tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-            style="width: 100%;left: 20px;"
+            style="width: 100%;"
           >
             <el-table-column :reserve-selection="true" prop="id" type="selection" width="55"></el-table-column>
             <el-table-column :show-overflow-tooltip="true" prop="file_name" label="文件名称"></el-table-column>
@@ -153,6 +152,7 @@ export default {
       saveForm: { 
         request_name: null,
         tableData: [],
+        //所选择的文件夹
         multipleSelection: ""
       }
     };
@@ -252,7 +252,7 @@ export default {
       if (form.request_name == "" || file_id.length === 0) {
         console.log("-----------");
         this.$message({
-          message: "接口名称和文件不能为空",
+          message: "接口名称或文件不能为空",
           type: "error"
         });
       } else {
@@ -310,6 +310,7 @@ export default {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
     },
+    //选择文件夹
     handleSelectionChange(val) {
       console.log(val);
       this.saveForm.multipleSelection = val;
