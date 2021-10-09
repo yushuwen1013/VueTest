@@ -381,6 +381,16 @@ export default {
             params[elem.key] = elem.value;
           }
         });
+        const assert = {
+                assert_type : this.assertType,
+              }
+          if(assert.assert_type == 1){
+              assert.response_assert_rules = this.responseAssertRules
+              assert.response_assert_content = this.responseAssertContent
+            }else if(assert.assert_type == 2){
+              assert.json_path = this.jsonAssertForm.json_path
+              assert.json_value = this.jsonAssertForm.json_value
+            }
         const request_data = {
           requestName: form.request_name,
           environment_id: this.form.environment,
@@ -390,7 +400,8 @@ export default {
           headers: header,
           params: params,
           dataState: this.dataStateCode,
-          file_id: file_id
+          file_id: file_id,
+          assert_: assert
         };
         console.log(request_data);
         //发送保存请求
