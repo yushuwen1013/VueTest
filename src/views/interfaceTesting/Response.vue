@@ -46,8 +46,8 @@
         </el-tab-pane>
       </el-tabs>
       <h4 style='position: absolute;right:40px;top:25px;'>Status：{{response.response_code}}</h4>
+      <h4 style='position: absolute;right:200px;top:25px;'>断言结果：{{response.assertion.assertion_results}}</h4>
     </template>
-    
   </div>
 </template>
 

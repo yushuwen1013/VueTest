@@ -31,14 +31,15 @@
           <Tables :TableData="headersTableData" />
         </el-tab-pane>
         <!-- 请求Params参数 -->
-        <el-tab-pane label="Params" name="Params">
+        <el-tab-pane label="Params">
           <Tables :TableData="paramsTableData" />
         </el-tab-pane>
         <!-- 请求Body Json参数 -->
-        <el-tab-pane label="Body" name="Body">
+        <el-tab-pane label="Body">
           <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" />
         </el-tab-pane>
-        <el-tab-pane label="断言" name="assert">
+        <!-- 断言 -->
+        <el-tab-pane label="断言">
           <template >
             <el-radio-group v-model="assertType" @change='assert'>
                <el-radio :label="1" border>响应断言</el-radio>
@@ -59,12 +60,48 @@
               ></el-input>
             </div>
             <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
-              <el-form label-position="top" label-width="80px" :model="jsonAssertFrom">
+              <el-form label-position="top" label-width="80px" :model="jsonAssertForm">
                 <el-form-item label="Json路径">
-                  <el-input v-model="jsonAssertFrom.json_path"></el-input>
+                  <el-input v-model="jsonAssertForm.json_path"></el-input>
                 </el-form-item>
                 <el-form-item label="预期值">
-                  <el-input v-model="jsonAssertFrom.json_value"></el-input>
+                  <el-input v-model="jsonAssertForm.json_value"></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+          </template>
+        </el-tab-pane>
+        <!-- 参数提取 -->
+        <el-tab-pane label="参数提取">
+          <template >
+            <el-radio-group v-model="assertType" @change='assert'>
+               <el-radio :label="1" border>正则表达式提取</el-radio>
+              <el-radio :label="2" border>Json提取</el-radio>
+            </el-radio-group>
+            <div v-if="showAssert == 0"></div>
+            <div v-if="showAssert == 1" style="margin-top: 20px;margin-left: 10px;">
+              <el-form label-position="right" label-width="90px" :model="regularExpressionForm">
+                <el-form-item label="引用名称">
+                  <el-input v-model="regularExpressionForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="正则表达式">
+                  <el-input v-model="regularExpressionForm.regular_expression"></el-input>
+                </el-form-item>
+                <el-form-item label="缺省值">
+                  <el-input v-model="regularExpressionForm.default_value"></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+             <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
+              <el-form label-position="right" label-width="90px" :model="jsonExtractForm">
+                <el-form-item label="引用名称">
+                  <el-input v-model="jsonExtractForm.name"></el-input>
+                </el-form-item>
+                <el-form-item label="Json路径">
+                  <el-input v-model="jsonExtractForm.json_path"></el-input>
+                </el-form-item>
+                <el-form-item label="缺省值">
+                  <el-input v-model="jsonExtractForm.default_value"></el-input>
                 </el-form-item>
               </el-form>
             </div>
@@ -138,8 +175,20 @@ export default {
       }
     };
     return {
+      //正则表达式提取表单
+      regularExpressionForm: {
+          name: '',
+          regular_expression: '',
+          default_value: ''
+        },
+      //Json提取表单
+      jsonExtractForm: {
+          name: '',
+          json_path: '',
+          default_value: ''
+        },
       //Json断言表单
-      jsonAssertFrom:{
+      jsonAssertForm:{
         json_path: "",
         json_value: ""
       },
@@ -249,8 +298,8 @@ export default {
               assert.response_assert_rules = this.responseAssertRules
               assert.response_assert_content = this.responseAssertContent
             }else if(assert.assert_type == 2){
-              assert.json_path = this.jsonAssertFrom.json_path
-              assert.json_value = this.jsonAssertFrom.json_value
+              assert.json_path = this.jsonAssertForm.json_path
+              assert.json_value = this.jsonAssertForm.json_value
             }
           console.log(assert)
           this.request_data = {
