@@ -1,4 +1,59 @@
 import request from '@/utils/request'
+
+//更新或添加全局变量
+export function update_global_variable(data) {
+  return request({
+    url: '/request/update_global_variable',
+    method: 'post',
+    data
+  })
+}
+
+//获取全局变量列表
+export function get_global_variable(data) {
+  return request({
+    url: '/request/get_global_variable',
+    method: 'get',
+    params: data
+  })
+}
+
+//删除全局变量
+export function delete_global_variable(data) {
+  return request({
+    url: '/request/delete_global_variable',
+    method: 'post',
+    data
+  })
+}
+
+//更新或添加环境配置
+export function update_environment_configuration(data) {
+  return request({
+    url: '/request/update_environment_configuration',
+    method: 'post',
+    data
+  })
+}
+
+//获取环境配置列表
+export function get_environment_configuration(data) {
+  return request({
+    url: '/request/get_environment_configuration',
+    method: 'get',
+    params: data
+  })
+}
+
+//删除环境配置
+export function delete_environment_configuration(data) {
+  return request({
+    url: '/request/delete_environment_configuration',
+    method: 'post',
+    data
+  })
+}
+
 // 接口调试
 export function request_debug(data) {
   return request({
@@ -7,6 +62,7 @@ export function request_debug(data) {
     data
   })
 }
+
 //获取文件列表
 export function get_file_list(data) {
   return request({
@@ -24,6 +80,7 @@ export function create_file(data) {
     data
   })
 }
+
 //删除文件
 export function delete_file(data) {
   return request({
@@ -60,64 +117,57 @@ export function delete_request(data) {
   })
 }
 
-//更新或添加全局变量
-export function update_global_variable(data) {
+//更新或新增用例
+export function update_use_case(data) {
   return request({
-    url: '/request/update_global_variable',
+    url: '/request/update_use_case',
     method: 'post',
     data
   })
 }
 
-
-
-//获取全局变量列表
-export function get_global_variable(data) {
+//删除用例
+export function delete_use_case(data) {
   return request({
-    url: '/request/get_global_variable',
+    url: '/request/delete_use_case',
+    method: 'post',
+    data
+  })
+}
+
+//获取用例列表
+export function get_use_case(data) {
+  return request({
+    url: '/request/get_use_case',
     method: 'get',
     params: data
   })
 }
 
 
-
-//删除全局变量
-export function delete_global_variable(data) {
+//新增或更新接口用例
+export function update_interface_use_case(data) {
   return request({
-    url: '/request/delete_global_variable',
+    url: '/request/update_interface_use_case',
     method: 'post',
     data
   })
 }
 
-//更新或添加环境配置
-export function update_environment_configuration(data) {
+//删除接口用例
+export function delete_interface_use_case(data) {
   return request({
-    url: '/request/update_environment_configuration',
+    url: '/request/delete_interface_use_case',
     method: 'post',
     data
   })
 }
 
-
-
-//获取环境配置列表
-export function get_environment_configuration(data) {
+//获取接口用例列表
+export function get_interface_use_case(data) {
   return request({
-    url: '/request/get_environment_configuration',
+    url: '/request/get_interface_use_case',
     method: 'get',
     params: data
-  })
-}
-
-
-
-//删除环境配置
-export function delete_environment_configuration(data) {
-  return request({
-    url: '/request/delete_environment_configuration',
-    method: 'post',
-    data
   })
 }

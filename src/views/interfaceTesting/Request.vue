@@ -40,9 +40,10 @@
         </el-tab-pane>
         <!-- 断言 -->
         <el-tab-pane label="断言">
-          <template >
-            <el-radio-group v-model="assertType" @change='assert'>
-               <el-radio :label="1" border>响应断言</el-radio>
+          <template>
+            <el-radio-group v-model="assertType" @change="assert">
+              <el-radio :label="0" border>关闭</el-radio>
+              <el-radio :label="1" border>响应断言</el-radio>
               <el-radio :label="2" border>Json断言</el-radio>
             </el-radio-group>
             <div v-if="showAssert == 0"></div>
@@ -73,9 +74,9 @@
         </el-tab-pane>
         <!-- 参数提取 -->
         <el-tab-pane label="参数提取">
-          <template >
-            <el-radio-group v-model="assertType" @change='assert'>
-               <el-radio :label="1" border>正则表达式提取</el-radio>
+          <template>
+            <el-radio-group v-model="assertType" @change="assert">
+              <el-radio :label="1" border>正则表达式提取</el-radio>
               <el-radio :label="2" border>Json提取</el-radio>
             </el-radio-group>
             <div v-if="showAssert == 0"></div>
@@ -92,7 +93,7 @@
                 </el-form-item>
               </el-form>
             </div>
-             <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
+            <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
               <el-form label-position="right" label-width="90px" :model="jsonExtractForm">
                 <el-form-item label="引用名称">
                   <el-input v-model="jsonExtractForm.name"></el-input>
@@ -175,20 +176,22 @@ export default {
       }
     };
     return {
+      //断言结果
+      assert_result: {},
       //正则表达式提取表单
       regularExpressionForm: {
-          name: '',
-          regular_expression: '',
-          default_value: ''
-        },
+        name: "",
+        regular_expression: "",
+        default_value: ""
+      },
       //Json提取表单
       jsonExtractForm: {
-          name: '',
-          json_path: '',
-          default_value: ''
-        },
+        name: "",
+        json_path: "",
+        default_value: ""
+      },
       //Json断言表单
-      jsonAssertForm:{
+      jsonAssertForm: {
         json_path: "",
         json_value: ""
       },
@@ -199,7 +202,7 @@ export default {
       //响应断言的内容
       responseAssertContent: "",
       //断言类型
-      assertType: 0, //1是响应断言，2是Json断言
+      assertType: 0, //0是不使用，1是响应断言，2是Json断言
       //环境选项
       environment_options: [],
       //请求数据状态码 1是params,2是Json
@@ -252,11 +255,13 @@ export default {
   },
   methods: {
     //判断断言类型切换断言的详情
-    assert(val){
-      if(val == 1){
-        this.showAssert = 1
-      }else{
-        this.showAssert = 2
+    assert(val) {
+      if(val == 0){
+        this.showAssert = 0;
+      }else if (val == 1) {
+        this.showAssert = 1;
+      } else {
+        this.showAssert = 2;
       }
     },
     //获取环境名称
@@ -292,16 +297,16 @@ export default {
             }
           });
           const assert = {
-                assert_type : this.assertType,
-              }
-          if(assert.assert_type == 1){
-              assert.response_assert_rules = this.responseAssertRules
-              assert.response_assert_content = this.responseAssertContent
-            }else if(assert.assert_type == 2){
-              assert.json_path = this.jsonAssertForm.json_path
-              assert.json_value = this.jsonAssertForm.json_value
-            }
-          console.log(assert)
+            assert_type: this.assertType
+          };
+          if (assert.assert_type == 1) {
+            assert.response_assert_rules = this.responseAssertRules;
+            assert.response_assert_content = this.responseAssertContent;
+          } else if (assert.assert_type == 2) {
+            assert.json_path = this.jsonAssertForm.json_path;
+            assert.json_value = this.jsonAssertForm.json_value;
+          }
+          console.log(assert);
           this.request_data = {
             environment_id: this.form.environment,
             address: this.form.requestAddress,
@@ -318,7 +323,7 @@ export default {
             .then(response => {
               console.log(response.data.data);
               this.$bus.$emit("response", response.data);
-              this.assert_result = response.data.assert_result
+              this.assert_result = response.data.assert_result;
               this.$message({
                 message: "请求成功！",
                 type: "success"
@@ -382,18 +387,6 @@ export default {
             params[elem.key] = elem.value;
           }
         });
-        const assert_details = {
-                assert_type : this.assertType,
-              }
-          if(assert_details.assert_type == 0){
-            assert_details = {}
-          }else if(assert_details.assert_type == 1){
-              assert_details.response_assert_rules = this.responseAssertRules
-              assert_details.response_assert_content = this.responseAssertContent
-            }else if(assert.assert_type == 2){
-              assert_details.json_path = this.jsonAssertForm.json_path
-              assert_details.json_value = this.jsonAssertForm.json_value
-            }
         const request_data = {
           requestName: form.request_name,
           environment_id: this.form.environment,
@@ -403,10 +396,26 @@ export default {
           headers: header,
           params: params,
           dataState: this.dataStateCode,
-          file_id: file_id,
-          assert_details: assert_details,
-          assert_result: this.assert_result
+          file_id: file_id
         };
+        var assert_details = {
+          assert_type: this.assertType
+        };
+        if(this.assert_result == undefined){
+          this.assert_result = {}
+        }
+        if (this.assertType == 1) {
+          assert_details.response_assert_rules = this.responseAssertRules;
+          assert_details.response_assert_content = this.responseAssertContent;
+          request_data.assert_details = assert_details;
+          request_data.assert_result = this.assert_result;
+        } else if (this.assertType == 2) {
+          assert_details.json_path = this.jsonAssertForm.json_path;
+          assert_details.json_value = this.jsonAssertForm.json_value;
+          request_data.assert_details = assert_details;
+          request_data.assert_result = this.assert_result;
+        }
+        console.log(this.assert_result,"this.assert_result;")
         console.log(request_data);
         //发送保存请求
         update_request(request_data)

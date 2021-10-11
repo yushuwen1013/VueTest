@@ -23,8 +23,8 @@
             v-for="item in environment_options"
             :key="item.id"
             :label="item.environment_name"
-            :value="item.id">
-          </el-option>
+            :value="item.id"
+          ></el-option>
         </el-select>
         <el-input v-model="form.requestAddress" placeholder="请输入请求地址" style="width: 500px;"></el-input>
         <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
@@ -42,6 +42,40 @@
         <el-tab-pane label="Body" name="Body">
           <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" />
         </el-tab-pane>
+        <!-- 断言 -->
+        <el-tab-pane label="断言">
+          <template>
+            <el-radio-group v-model="assertType" @change="assert">
+              <el-radio :label="0" border>关闭</el-radio>
+              <el-radio :label="1" border>响应断言</el-radio>
+              <el-radio :label="2" border>Json断言</el-radio>
+            </el-radio-group>
+            <div v-if="showAssert == 0"></div>
+            <div v-if="showAssert == 1" style="margin-top: 20px;margin-left: 10px;">
+              <template>
+                <el-radio v-model="responseAssertRules" :label="1">包含</el-radio>
+                <el-radio v-model="responseAssertRules" :label="2">匹配</el-radio>
+              </template>
+              <el-input
+                style="margin-top: 20px;"
+                type="textarea"
+                :rows="5"
+                placeholder="请输如响应断言内容"
+                v-model="responseAssertContent"
+              ></el-input>
+            </div>
+            <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
+              <el-form label-position="top" label-width="80px" :model="jsonAssertForm">
+                <el-form-item label="Json路径">
+                  <el-input v-model="jsonAssertForm.json_path"></el-input>
+                </el-form-item>
+                <el-form-item label="预期值">
+                  <el-input v-model="jsonAssertForm.json_value"></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
+          </template>
+        </el-tab-pane>
       </el-tabs>
       <div style="margin-top: 35px;margin-left: 35px;">
         <el-button type="primary" @click="Save">保 存</el-button>
@@ -52,13 +86,10 @@
       <span class="span">接口名称：{{form.request_name}}</span>
       <br />
       <br />
-      <br />
       <span class="span">请求类型：{{resultInfo.request_method}}</span>
       <br />
       <br />
-      <br />
       <span class="span">请求地址：{{resultInfo.request_url}}</span>
-      <br />
       <br />
       <br />
       <el-collapse v-model="activeNames">
@@ -66,14 +97,14 @@
           <json-viewer :value="resultInfo.request_headers" :expand-depth="2" copyable sort></json-viewer>
         </el-collapse-item>
         <el-collapse-item title="请求参数" name="2">
-          <json-viewer
-            :value="resultInfo.request_data"
-            :expand-depth="2"
-            copyable
-            sort
-          ></json-viewer>
+          <json-viewer :value="resultInfo.request_data" :expand-depth="2" copyable sort></json-viewer>
         </el-collapse-item>
-        <el-collapse-item title="响应数据" name="3" visible="false">
+        <el-collapse-item title="断言结果" name="3" v-show="assert_result">
+          <h5>断言类型：{{assert_result.assertion_type}}</h5>
+          <h5>断言结果：{{assert_result.assertion_results}}</h5>
+          <h5>断言内容：{{assert_result.assertion_content}}</h5>
+        </el-collapse-item>
+        <el-collapse-item title="响应数据" name="4">
           <json-viewer :value="resultInfo.response_data" :expand-depth="2" copyable sort></json-viewer>
         </el-collapse-item>
       </el-collapse>
@@ -107,11 +138,28 @@ export default {
       }
     };
     return {
+      //断言结果
+      assert_result: this.request_data.assert_result,
+      //Json断言表单
+      jsonAssertForm: {
+        json_path: this.request_data.assert_details.json_path,
+        json_value: this.request_data.assert_details.json_value
+      },
+      //根据断言类型显示断言内容
+      showAssert: this.request_data.assert_details.assert_type,
+      //响应断言规则
+      responseAssertRules: this.request_data.assert_details
+        .response_assert_rules,
+      //响应断言的内容
+      responseAssertContent: this.request_data.assert_details
+        .response_assert_content,
+      //断言类型
+      assertType: this.request_data.assert_details.assert_type, //0是不使用，1是响应断言，2是Json断言
       //环境选项
       environment_options: [],
       requestData: {},
       //运行默认展开第三个响应数据
-      activeNames: ["3"],
+      activeNames: ["3", "4"],
       //响应数据
       resultInfo: {},
       //运行结果展示
@@ -120,7 +168,9 @@ export default {
       dataStateCode: this.request_data.dataState,
       //:rules: rules表单规则校验
       rules: {
-        requestAddress: [{ required: true, trigger: "blur", validator: notNull }],
+        requestAddress: [
+          { required: true, trigger: "blur", validator: notNull }
+        ],
         request_name: [{ required: true, trigger: "blur", validator: notNull }]
       },
       bodyData: this.request_data.body,
@@ -144,6 +194,16 @@ export default {
     };
   },
   methods: {
+    //判断断言类型切换断言的详情
+    assert(val) {
+      if (val == 0) {
+        this.showAssert = 0;
+      } else if (val == 1) {
+        this.showAssert = 1;
+      } else {
+        this.showAssert = 2;
+      }
+    },
     //返回
     back() {
       this.$parent.showInterfaceEdit = false;
@@ -176,6 +236,17 @@ export default {
               params[elem.key] = elem.value;
             }
           });
+          const assert = {
+            assert_type: this.assertType
+          };
+          if (assert.assert_type == 1) {
+            assert.response_assert_rules = this.responseAssertRules;
+            assert.response_assert_content = this.responseAssertContent;
+          } else if (assert.assert_type == 2) {
+            assert.json_path = this.jsonAssertForm.json_path;
+            assert.json_value = this.jsonAssertForm.json_value;
+          }
+          console.log(assert);
           const request_data = {
             environment_id: this.form.environment.environment_id,
             address: this.form.requestAddress,
@@ -184,6 +255,7 @@ export default {
             headers: header,
             params: params,
             dataState: this.dataStateCode,
+            assert: assert
           };
           this.requestData = request_data;
           console.log(request_data, "++++++++++++++++++++");
@@ -192,6 +264,11 @@ export default {
             .then(response => {
               console.log(response.data.data);
               this.resultInfo = response.data;
+              this.assert_result = response.data.assert_result;
+              console.log(response.data.assert_result, "22222222222222222");
+              if (this.assert_result == undefined) {
+                this.assert_result = false;
+              }
               this.$message({
                 message: "请求成功！",
                 type: "success"
@@ -241,6 +318,23 @@ export default {
         request_data.id = this.request_data.id;
       }
       request_data.file_id = [this.request_data.file_id];
+      var assert_details = {
+        assert_type: this.assertType
+      };
+      if (this.assert_result == undefined) {
+        this.assert_result = {};
+      }
+      if (this.assertType == 1) {
+        assert_details.response_assert_rules = this.responseAssertRules;
+        assert_details.response_assert_content = this.responseAssertContent;
+        request_data.assert_details = assert_details;
+        request_data.assert_result = this.assert_result;
+      } else if (this.assertType == 2) {
+        assert_details.json_path = this.jsonAssertForm.json_path;
+        assert_details.json_value = this.jsonAssertForm.json_value;
+        request_data.assert_details = assert_details;
+        request_data.assert_result = this.assert_result;
+      }
       console.log(request_data, "+++++++++++++++++++++");
       //发送保存请求
       update_request(request_data)
@@ -290,10 +384,10 @@ export default {
       this.saveForm.multipleSelection = val;
     }
   },
-  created(){
-    get_environment_configuration().then(response=>{
-      this.environment_options = response.data
-    })
+  created() {
+    get_environment_configuration().then(response => {
+      this.environment_options = response.data;
+    });
   }
 };
 </script>

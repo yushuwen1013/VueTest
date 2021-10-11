@@ -1,6 +1,6 @@
 <template>
   <div>
-    <InterfaceEdit v-if="showInterfaceEdit" :request_data="request_data" />
+    <interfaceUseCaseEdit v-if="showInterfaceEdit" :request_data="request_data" />
     <div v-else>
       <div style="background:#EAEAEA; height: 100%">
         <div style="background:#fff">
@@ -96,29 +96,26 @@
           <span class="span">接口名称：{{requestData.request_name}}</span>
           <br />
           <br />
-          <br />
-          <span class="span">请求类型：{{requestData.method}}</span>
-          <br />
+          <span class="span">请求类型：{{resultInfo.request_method}}</span>
           <br />
           <br />
-          <span class="span">请求地址：{{requestData.url}}</span>
-          <br />
+          <span class="span">请求地址：{{resultInfo.request_url}}</span>
           <br />
           <br />
           <el-collapse v-model="activeNames">
             <el-collapse-item title="请求头" name="1">
-              <json-viewer :value="requestData.headers" :expand-depth="2" copyable sort></json-viewer>
+              <json-viewer :value="resultInfo.request_headers" :expand-depth="2" copyable sort></json-viewer>
             </el-collapse-item>
             <el-collapse-item title="请求参数" name="2">
-              <json-viewer
-                :value="(requestData.dataState == '2')?requestData.body:requestData.params"
-                :expand-depth="2"
-                copyable
-                sort
-              ></json-viewer>
+              <json-viewer :value="resultInfo.request_data" :expand-depth="2" copyable sort></json-viewer>
             </el-collapse-item>
-            <el-collapse-item title="响应数据" name="3" visible="false">
-              <json-viewer :value="resultInfo.data" :expand-depth="2" copyable sort></json-viewer>
+            <el-collapse-item title="断言结果" name="3" v-show="assert_result">
+              <h5>断言类型：{{assert_result.assertion_type}}</h5>
+              <h5>断言结果：{{assert_result.assertion_results}}</h5>
+              <h5>断言内容：{{assert_result.assertion_content}}</h5>
+            </el-collapse-item>
+            <el-collapse-item title="响应数据" name="4" visible="false">
+              <json-viewer :value="resultInfo.response_data" :expand-depth="2" copyable sort></json-viewer>
             </el-collapse-item>
           </el-collapse>
         </el-drawer>
@@ -129,16 +126,22 @@
 
 <script>
 import Sortable from "sortablejs";
-import { update_request, delete_request } from "@/api/interfaceTesting";
+import {
+  update_interface_use_case,
+  delete_interface_use_case,
+  get_interface_use_case
+} from "@/api/interfaceTesting";
 import JsonViewer from "vue-json-viewer";
 import vueJsonEditor from "vue-json-editor";
 import { request_debug } from "@/api/interfaceTesting";
-import InterfaceEdit from "./interfaceEdit";
+import interfaceUseCaseEdit from "./interfaceUseCaseEdit";
 export default {
   name: "InterfaceList",
-  components: { JsonViewer, vueJsonEditor, InterfaceEdit },
+  components: { JsonViewer, vueJsonEditor, interfaceUseCaseEdit },
   data() {
     return {
+       //断言结果
+      assert_result: {},
       //状态
       value: true,
       //表格列参数
@@ -157,6 +160,10 @@ export default {
           width: "120",
           label: "请求类型",
           prop: "method"
+        },
+        {
+          label: "请求环境",
+          prop: "environment_name"
         },
         {
           label: "请求地址",
@@ -178,46 +185,17 @@ export default {
       request_data: {},
       showInterfaceEdit: false,
       //默认展开第三个响应数据
-      activeNames: ["3"],
+      activeNames: ["3", "4"],
       resultInfo: {},
       drawer: false,
-      tableData: [
-        {
-          id: 1,
-          serial_number: "1",
-          request_name: "1111111",
-          method: "111111111111",
-          url: "11111111111",
-          headers:
-            "1111111111111111111111111111111111111111111111111111111111111111111111111111111111111sefseeeeeeeeeeeeeeeeeeeeeee1",
-          data: "1111111111"
-        },
-        {
-          id: 2,
-          serial_number: "2",
-          request_name: "2222222222222",
-          method: "2222222222",
-          url: "222222222222",
-          headers: "22222222",
-          data: "22222222222"
-        },
-        {
-          id: 3,
-          serial_number: "3",
-          request_name: "3333333",
-          method: "33333333333333",
-          url: "3333333333333",
-          headers: "333333",
-          data: "333333333"
-        }
-      ],
+      tableData: [], //接口用例数据
       requestData: {}
     };
   },
   methods: {
     //添加
     addRequest() {
-      const file_id = localStorage.getItem("file_id");
+      const use_case_id = localStorage.getItem("use_case_id");
       this.request_data = {
         requestName: "",
         url: "",
@@ -226,26 +204,43 @@ export default {
         headers: [{}],
         params: [{}],
         dataState: 2,
-        file_id: file_id
+        use_case_id: use_case_id,
+        assert_details: { assert_type: 0 },
+        assert_result: {}
       };
       this.showInterfaceEdit = true;
     },
     //运行  -  发送请求
     sendRequest(index, row) {
+      console.log(row);
+      if (row.assert_details == null) {
+        var assert_details = {
+          assert_type: 0
+        };
+      } else {
+        assert_details = new Function("return " + row.assert_details)();
+      }
       const request_data = {
-        url: row.url,
+        environment_id: row.environment_id,
+        address: row.address,
         method: row.method,
         body: new Function("return " + row.body)(),
         headers: new Function("return " + row.headers)(),
         params: new Function("return " + row.params)(),
         dataState: row.dataState,
-        request_name: row.request_name
+        request_name: row.request_name,
+        assert: assert_details
       };
       this.requestData = request_data;
       //发送请求，返回数据
       request_debug(request_data)
         .then(response => {
           this.resultInfo = response.data;
+          this.assert_result = response.data.assert_result;
+          console.log(this.assert_result, "5555555555555");
+          if (this.assert_result == undefined) {
+            this.assert_result = false;
+          }
           this.$message({
             message: "请求成功！",
             type: "success"
@@ -277,16 +272,29 @@ export default {
       Object.keys(sParams).forEach(elem => {
         params.push({ key: elem, value: sParams[elem] });
       });
+      if (row.assert_details == null) {
+        var assert_details = {
+          assert_type: 0
+        };
+        var assert_result = {};
+      } else {
+        (assert_details = new Function("return " + row.assert_details)()),
+          (assert_result = new Function("return " + row.assert_result)());
+      }
       this.request_data = {
         id: row.id,
         requestName: row.request_name,
-        url: row.url,
+        environment_id: row.environment_id,
+        environment_name: row.environment_name,
+        address: row.address,
         method: row.method,
         body: new Function("return " + row.body)(),
         headers: headers,
         params: params,
         dataState: row.dataState,
-        file_id: row.request_file_id
+        file_id: row.request_file_id,
+        assert_details: assert_details,
+        assert_result: assert_result
       };
       console.log("==============", this.request_data);
       this.showInterfaceEdit = true;
@@ -357,6 +365,28 @@ export default {
         }
       });
     }
+  },
+  created() {
+    const use_case_id = localStorage.getItem("use_case_id");
+    const data = { use_case_id: use_case_id };
+    // 获取用例接口列表
+    get_interface_use_case(data)
+      .then(response => {
+        const responseData = response.data;
+        responseData.forEach((elem, index) => {
+          if (elem.dataState == "2") {
+            elem["data"] = elem["body"];
+          } else {
+            elem["data"] = elem["params"];
+          }
+        });
+        console.log(responseData);
+        this.tableData = responseData;
+      })
+      .catch(error => {
+        this.$bus.$emit("response", {});
+        console.log(error);
+      });
   },
   mounted() {
     // 阻止默认行为

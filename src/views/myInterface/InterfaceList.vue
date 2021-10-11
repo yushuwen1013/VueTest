@@ -4,7 +4,11 @@
     <div v-else>
       <div style="background:#EAEAEA; height: 100%">
         <div style="background:#fff">
-          <p style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"><span style="">接口列表</span></p>
+          <p
+            style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
+          >
+            <span style>接口列表</span>
+          </p>
         </div>
         <div>
           <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
@@ -40,23 +44,26 @@
               prop="request_name"
               label="请求名称"
             ></el-table-column>
+            <el-table-column :show-overflow-tooltip="true" width="150" prop="method" label="请求类型"></el-table-column>
             <el-table-column
               :show-overflow-tooltip="true"
-              width="150"
-              prop="method"
-              label="请求类型"
-            ></el-table-column>
-            <el-table-column :show-overflow-tooltip="true" prop="environment, environment_url" label="请求环境" >
-              <template slot-scope="scope"> 
-                {{scope.row.environment_name}}：{{scope.row.environment_url}}
-              </template>
+              prop="environment, environment_url"
+              label="请求环境"
+            >
+              <template
+                slot-scope="scope"
+              >{{scope.row.environment_name}}：{{scope.row.environment_url}}</template>
             </el-table-column>
             <el-table-column :show-overflow-tooltip="true" prop="address" label="请求地址"></el-table-column>
             <el-table-column :show-overflow-tooltip="true" prop="headers" label="请求头部"></el-table-column>
             <el-table-column :show-overflow-tooltip="true" prop="data" label="请求参数"></el-table-column>
             <el-table-column width="250" label="操作">
               <template slot-scope="scope">
-                <el-button size="mini" type="primary" @click="sendRequest(scope.$index,scope.row)">运行</el-button>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="sendRequest(scope.$index,scope.row)"
+                >运行</el-button>
                 <el-button size="mini" @click="editInterface(scope.$index, scope.row)">编辑</el-button>
                 <el-button
                   size="mini"
@@ -82,13 +89,10 @@
           <span class="span">接口名称：{{requestData.request_name}}</span>
           <br />
           <br />
-          <br />
           <span class="span">请求类型：{{resultInfo.request_method}}</span>
           <br />
           <br />
-          <br />
           <span class="span">请求地址：{{resultInfo.request_url}}</span>
-          <br />
           <br />
           <br />
           <el-collapse v-model="activeNames">
@@ -96,13 +100,14 @@
               <json-viewer :value="resultInfo.request_headers" :expand-depth="2" copyable sort></json-viewer>
             </el-collapse-item>
             <el-collapse-item title="请求参数" name="2">
-              <json-viewer
-                :value="resultInfo.request_data"
-                :expand-depth="2"
-                copyable
-                sort></json-viewer>
+              <json-viewer :value="resultInfo.request_data" :expand-depth="2" copyable sort></json-viewer>
             </el-collapse-item>
-            <el-collapse-item title="响应数据" name="3" visible="false">
+            <el-collapse-item title="断言结果" name="3" v-show="assert_result">
+              <h5>断言类型：{{assert_result.assertion_type}}</h5>
+              <h5>断言结果：{{assert_result.assertion_results}}</h5>
+              <h5>断言内容：{{assert_result.assertion_content}}</h5>
+            </el-collapse-item>
+            <el-collapse-item title="响应数据" name="4" visible="false">
               <json-viewer :value="resultInfo.response_data" :expand-depth="2" copyable sort></json-viewer>
             </el-collapse-item>
           </el-collapse>
@@ -127,6 +132,8 @@ export default {
   components: { JsonViewer, vueJsonEditor, InterfaceEdit },
   data() {
     return {
+      //断言结果
+      assert_result: {},
       seareRequestName: "", //搜索值
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
@@ -134,7 +141,7 @@ export default {
       request_data: {},
       showInterfaceEdit: false,
       //默认展开第三个响应数据
-      activeNames: ["3"],
+      activeNames: ["3", "4"],
       resultInfo: {},
       drawer: false,
       tableData: [],
@@ -179,13 +186,22 @@ export default {
         headers: [{}],
         params: [{}],
         dataState: 2,
-        file_id: file_id
+        file_id: file_id,
+        assert_details: {assert_type: 0},
+        assert_result: {}
       };
       this.showInterfaceEdit = true;
     },
     //运行  -  发送请求
     sendRequest(index, row) {
-      console.log(row)
+      console.log(row);
+      if (row.assert_details == null) {
+        var assert_details = {
+          assert_type: 0
+        };
+      }else{
+        assert_details = new Function("return " + row.assert_details)()
+      }
       const request_data = {
         environment_id: row.environment_id,
         address: row.address,
@@ -194,13 +210,19 @@ export default {
         headers: new Function("return " + row.headers)(),
         params: new Function("return " + row.params)(),
         dataState: row.dataState,
-        request_name: row.request_name
+        request_name: row.request_name,
+        assert: assert_details
       };
       this.requestData = request_data;
       //发送请求，返回数据
       request_debug(request_data)
         .then(response => {
           this.resultInfo = response.data;
+          this.assert_result = response.data.assert_result;
+          console.log(this.assert_result, "5555555555555")
+          if (this.assert_result == undefined) {
+            this.assert_result = false;
+          }
           this.$message({
             message: "请求成功！",
             type: "success"
@@ -232,6 +254,15 @@ export default {
       Object.keys(sParams).forEach(elem => {
         params.push({ key: elem, value: sParams[elem] });
       });
+      if (row.assert_details == null) {
+        var assert_details = {
+          assert_type: 0
+        };
+        var assert_result = {};
+      } else {
+        (assert_details = new Function("return " + row.assert_details)()),
+          (assert_result = new Function("return " + row.assert_result)());
+      }
       this.request_data = {
         id: row.id,
         requestName: row.request_name,
@@ -243,7 +274,9 @@ export default {
         headers: headers,
         params: params,
         dataState: row.dataState,
-        file_id: row.request_file_id
+        file_id: row.request_file_id,
+        assert_details: assert_details,
+        assert_result: assert_result
       };
       console.log("==============", this.request_data);
       this.showInterfaceEdit = true;

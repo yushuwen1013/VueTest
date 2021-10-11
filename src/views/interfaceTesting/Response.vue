@@ -69,7 +69,11 @@ export default {
         response_code: "",
         response_data : "{}",
         response_headers : "{}",
-        assert_result: {}
+        assert_result: {
+          assertion_type: "",
+          assertion_results: "",
+          assertion_content: ""
+        }
       }
     };
   },
@@ -86,11 +90,11 @@ export default {
   mounted() {
     this.$bus.$on("response", data => {
       console.log("Pesponse，收到了数据", data);
-      this.response = {
-        response_data : JSON.stringify(data.response_data),
-        response_headers : data.response_headers,
-        response_code: data.response_code,
-        assert_result: data.assert_result,
+      this.response.response_data = JSON.stringify(data.response_data)
+      this.response.response_headers = data.response_headers
+      this.response.response_code = data.response_code
+      if(data.assert_result != undefined){
+        this.response.assert_result = data.assert_result
       }
     });
   },
