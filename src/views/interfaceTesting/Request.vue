@@ -318,6 +318,7 @@ export default {
             .then(response => {
               console.log(response.data.data);
               this.$bus.$emit("response", response.data);
+              this.assert_result = response.data.assert_result
               this.$message({
                 message: "请求成功！",
                 type: "success"
@@ -381,15 +382,17 @@ export default {
             params[elem.key] = elem.value;
           }
         });
-        const assert = {
+        const assert_details = {
                 assert_type : this.assertType,
               }
-          if(assert.assert_type == 1){
-              assert.response_assert_rules = this.responseAssertRules
-              assert.response_assert_content = this.responseAssertContent
+          if(assert_details.assert_type == 0){
+            assert_details = {}
+          }else if(assert_details.assert_type == 1){
+              assert_details.response_assert_rules = this.responseAssertRules
+              assert_details.response_assert_content = this.responseAssertContent
             }else if(assert.assert_type == 2){
-              assert.json_path = this.jsonAssertForm.json_path
-              assert.json_value = this.jsonAssertForm.json_value
+              assert_details.json_path = this.jsonAssertForm.json_path
+              assert_details.json_value = this.jsonAssertForm.json_value
             }
         const request_data = {
           requestName: form.request_name,
@@ -401,7 +404,8 @@ export default {
           params: params,
           dataState: this.dataStateCode,
           file_id: file_id,
-          assert_: assert
+          assert_details: assert_details,
+          assert_result: this.assert_result
         };
         console.log(request_data);
         //发送保存请求

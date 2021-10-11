@@ -40,13 +40,13 @@
             </json-viewer>
         </el-tab-pane>
         <el-tab-pane label="断言结果" name="assertionResults">
-           <h5>断言类型：{{response.assertion.assertion_type}}</h5>
-           <h5>断言结果：{{response.assertion.assertion_results}}</h5>
-           <h5>断言内容：{{response.assertion.assertion_content}}</h5>
+           <h5>断言类型：{{response.assert_result.assertion_type}}</h5>
+           <h5>断言结果：{{response.assert_result.assertion_results}}</h5>
+           <h5>断言内容：{{response.assert_result.assertion_content}}</h5>
         </el-tab-pane>
       </el-tabs>
       <h4 style='position: absolute;right:40px;top:25px;'>Status：{{response.response_code}}</h4>
-      <h4 style='position: absolute;right:200px;top:25px;'>断言结果：{{response.assertion.assertion_results}}</h4>
+      <h4 style='position: absolute;right:200px;top:25px;'>断言结果：{{response.assert_result.assertion_results}}</h4>
     </template>
   </div>
 </template>
@@ -69,7 +69,7 @@ export default {
         response_code: "",
         response_data : "{}",
         response_headers : "{}",
-        assertion: ""
+        assert_result: {}
       }
     };
   },
@@ -90,7 +90,7 @@ export default {
         response_data : JSON.stringify(data.response_data),
         response_headers : data.response_headers,
         response_code: data.response_code,
-        assertion: data.assertion,
+        assert_result: data.assert_result,
       }
     });
   },
