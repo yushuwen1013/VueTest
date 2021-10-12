@@ -291,6 +291,7 @@ export default {
     },
     //保存
     Save() {
+      const use_case_id = localStorage.getItem("use_case_id");
       console.log(this.request_data);
       const header = {};
       this.headersTableData.forEach((elem, index) => {
@@ -312,13 +313,12 @@ export default {
         headers: header,
         params: params,
         dataState: this.dataStateCode,
-        requestName: this.form.request_name,
-        serial_number: 1
+        requestName: this.form.request_name
       };
       if (this.request_data.id != undefined) {
         request_data.id = this.request_data.id;
       }
-      request_data.use_case_id = [this.request_data.use_case_id];
+      request_data.use_case_id = use_case_id;
       var assert_details = {
         assert_type: this.assertType
       };
@@ -337,37 +337,50 @@ export default {
         request_data.assert_result = this.assert_result;
       }
       console.log(request_data, "+++++++++++++++++++++");
-      //发送保存请求
-      update_interface_use_case(request_data)
+      //发送请求
+      request_debug(request_data)
         .then(response => {
-          console.log(response);
-          this.$bus.$emit("response", response.data);
-          this.$message({
-            message: "修改成功！",
-            type: "success"
-          });
-          //切换回接口列表页面
-          this.$parent.showInterfaceEdit = false;
-          //获取接口列表
-          const use_case_id = localStorage.getItem("use_case_id");
-          const data = { use_case_id: use_case_id };
-          get_interface_use_case(data).then(response => {
-            const responseData = response.data;
-            responseData.forEach((elem, index) => {
-              if (elem.dataState == "2") {
-                elem["data"] = elem["body"];
-              } else {
-                elem["data"] = elem["params"];
-              }
+          console.log(response.data.data);
+          this.resultInfo = response.data;
+          //发送保存请求
+          update_interface_use_case(request_data)
+            .then(response => {
+              console.log(response);
+              this.$bus.$emit("response", response.data);
+              this.$message({
+                message: "保存成功！",
+                type: "success"
+              });
+              //切换回接口列表页面
+              this.$parent.showInterfaceEdit = false;
+              //获取接口列表
+              const data = { use_case_id: use_case_id };
+              get_interface_use_case(data).then(response => {
+                const responseData = response.data;
+                responseData.forEach((elem, index) => {
+                  if (elem.dataState == "2") {
+                    elem["data"] = elem["body"];
+                  } else {
+                    elem["data"] = elem["params"];
+                  }
+                });
+                this.$parent.tableData = responseData;
+              });
+            })
+            .catch(error => {
+              this.$message({
+                message: "参数错误！",
+                type: "error"
+              });
+              console.log(error);
             });
-            this.$parent.tableData = responseData;
-          });
         })
         .catch(error => {
           this.$message({
-            message: "参数错误！",
+            message: "请求错误,请运行成功后保存",
             type: "error"
           });
+          this.$bus.$emit("response", {});
           console.log(error);
         });
     },

@@ -171,3 +171,30 @@ export function get_interface_use_case(data) {
     params: data
   })
 }
+
+//更新接口用例顺序
+export function update_interface_use_case_serial_number(data) {
+  return request({
+    url: '/request/update_interface_use_case_serial_number',
+    method: 'post',
+    data
+  })
+}
+
+//更新请求默认值
+export function update_request_defaults(data) {
+  return request({
+    url: '/request/update_request_defaults',
+    method: 'post',
+    data
+  })
+}
+
+//获取请求默认值
+export function get_request_defaults(data) {
+  return request({
+    url: '/request/get_request_defaults',
+    method: 'get',
+    params: data
+  })
+}

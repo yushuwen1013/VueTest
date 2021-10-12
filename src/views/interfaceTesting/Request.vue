@@ -256,9 +256,9 @@ export default {
   methods: {
     //判断断言类型切换断言的详情
     assert(val) {
-      if(val == 0){
+      if (val == 0) {
         this.showAssert = 0;
-      }else if (val == 1) {
+      } else if (val == 1) {
         this.showAssert = 1;
       } else {
         this.showAssert = 2;
@@ -361,7 +361,6 @@ export default {
     },
     //确定保存
     sureSave(form) {
-      console.log(form);
       const file_id = [];
       if (form.multipleSelection) {
         form.multipleSelection.forEach((elem, index) => {
@@ -369,7 +368,6 @@ export default {
         });
       }
       if (form.request_name == "" || file_id.length === 0) {
-        console.log("-----------");
         this.$message({
           message: "接口名称或文件不能为空",
           type: "error"
@@ -401,8 +399,8 @@ export default {
         var assert_details = {
           assert_type: this.assertType
         };
-        if(this.assert_result == undefined){
-          this.assert_result = {}
+        if (this.assert_result == undefined) {
+          this.assert_result = {};
         }
         if (this.assertType == 1) {
           assert_details.response_assert_rules = this.responseAssertRules;
@@ -415,25 +413,37 @@ export default {
           request_data.assert_details = assert_details;
           request_data.assert_result = this.assert_result;
         }
-        console.log(this.assert_result,"this.assert_result;")
         console.log(request_data);
-        //发送保存请求
-        update_request(request_data)
+        //发送请求，返回数据
+        request_debug(request_data)
           .then(response => {
-            console.log(response);
+            console.log(response.data.data);
             this.$bus.$emit("response", response.data);
-            this.$message({
-              message: "保存成功！",
-              type: "success"
-            });
-            // 关闭保存弹窗
-            this.dialogFormVisible = false;
+            this.assert_result = response.data.assert_result;
+            //发送保存请求
+            update_request(request_data)
+              .then(response => {
+                this.$message({
+                  message: "保存成功！",
+                  type: "success"
+                });
+                // 关闭保存弹窗
+                this.dialogFormVisible = false;
+              })
+              .catch(error => {
+                this.$message({
+                  message: "保存参数错误",
+                  type: "error"
+                });
+                console.log(error);
+              });
           })
           .catch(error => {
             this.$message({
-              message: "参数错误！",
+              message: "请求错误,请运行成功后保存",
               type: "error"
             });
+            this.$bus.$emit("response", {});
             console.log(error);
           });
       }
