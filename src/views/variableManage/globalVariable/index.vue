@@ -27,6 +27,7 @@
         height="600"
         :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
         style="width: 100%;left: 20px;"
+        :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
         <el-table-column :show-overflow-tooltip="true" prop="key" label="变量名(Key)"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="value" label="变量值(Value)"></el-table-column>

@@ -33,6 +33,7 @@
             >添加</el-button>
           </el-form>
           <el-table
+            :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
             :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
             height="600"
             style="width: 100%;left: 20px;"
@@ -187,7 +188,7 @@ export default {
         params: [{}],
         dataState: 2,
         file_id: file_id,
-        assert_details: {assert_type: 0},
+        assert_details: { assert_type: 0 },
         assert_result: {}
       };
       this.showInterfaceEdit = true;
@@ -199,8 +200,8 @@ export default {
         var assert_details = {
           assert_type: 0
         };
-      }else{
-        assert_details = new Function("return " + row.assert_details)()
+      } else {
+        assert_details = new Function("return " + row.assert_details)();
       }
       const request_data = {
         environment_id: row.environment_id,
@@ -219,7 +220,7 @@ export default {
         .then(response => {
           this.resultInfo = response.data;
           this.assert_result = response.data.assert_result;
-          console.log(this.assert_result, "5555555555555")
+          console.log(this.assert_result, "5555555555555");
           if (this.assert_result == undefined) {
             this.assert_result = false;
           }

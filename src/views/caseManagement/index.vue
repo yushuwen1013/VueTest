@@ -1,6 +1,6 @@
 <template>
   <div>
-    <CaseDetails v-if="showCaseDetails"/>
+    <CaseDetails v-if="showCaseDetails" />
     <div style="background:#EAEAEA; height: 100%" v-else>
       <div style="background:#fff">
         <p
@@ -26,6 +26,7 @@
           >添加</el-button>
         </el-form>
         <el-table
+          :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
           height="600"
           @row-dblclick="showInterfaceList"
           :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
@@ -39,7 +40,11 @@
               <el-button size="mini" type="primary">查看结果</el-button>
               <el-button size="mini" type="primary">执行</el-button>
               <el-button size="mini" @click="edit_use_case(scope.$index, scope.row)">编辑</el-button>
-              <el-button size="mini" type="danger" @click="delete_use_case(scope.$index, scope.row)">删除</el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                @click="delete_use_case(scope.$index, scope.row)"
+              >删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -60,14 +65,14 @@
 </template>
 
 <script>
-import CaseDetails from './CaseDetails'
+import CaseDetails from "./CaseDetails";
 import {
   update_use_case,
   delete_use_case,
   get_use_case
 } from "@/api/interfaceTesting";
 export default {
-  components: {CaseDetails},
+  components: { CaseDetails },
   data() {
     return {
       showCaseDetails: false,
@@ -112,7 +117,8 @@ export default {
             return "输入不能为空";
           }
         }
-      }).then(({ value }) => {
+      })
+        .then(({ value }) => {
           //接口参数
           const createData = { use_case_name: value };
           //发送新增文件接口
@@ -154,7 +160,8 @@ export default {
             return "输入不能为空";
           }
         }
-      }).then(({ value }) => {
+      })
+        .then(({ value }) => {
           const data = {
             use_case_name: value,
             id: row.id
@@ -225,7 +232,7 @@ export default {
     showInterfaceList(row, column) {
       console.log(row, "----------", column);
       localStorage.setItem("use_case_id", row.id);
-      this.showCaseDetails = true
+      this.showCaseDetails = true;
     },
     // 初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function(size) {

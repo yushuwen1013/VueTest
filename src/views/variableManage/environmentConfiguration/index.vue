@@ -27,6 +27,7 @@
         height="600"
         :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
         style="width: 100%;left: 20px;"
+        :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
         <el-table-column :show-overflow-tooltip="true" prop="environment_name" label="环境名称"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="environment_url" label="环境地址"></el-table-column>

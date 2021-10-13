@@ -207,6 +207,9 @@ export default {
     //返回
     back() {
       this.$parent.showInterfaceEdit = false;
+      setTimeout(() => {
+        this.$parent.disableDefaultBehavior(); //阻止默认行为
+      }, 500);
     },
     //获取row的id
     getRowKeys(row) {
@@ -351,6 +354,10 @@ export default {
                 message: "保存成功！",
                 type: "success"
               });
+              //返回后阻止默认行为
+              setTimeout(() => {
+                this.$parent.disableDefaultBehavior(); //阻止默认行为
+              }, 500);
               //切换回接口列表页面
               this.$parent.showInterfaceEdit = false;
               //获取接口列表

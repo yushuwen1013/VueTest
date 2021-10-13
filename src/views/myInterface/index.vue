@@ -1,7 +1,7 @@
 <template>
   <div style="background:#EAEAEA; height: 100%">
     <div style="background:#fff">
-     <p
+      <p
         style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
       >
         <span style>文件列表</span>
@@ -24,6 +24,7 @@
         >添加</el-button>
       </el-form>
       <el-table
+        :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
         height="600"
         @row-dblclick="showInterfaceList"
         :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
