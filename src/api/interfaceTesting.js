@@ -198,3 +198,32 @@ export function get_request_defaults(data) {
     params: data
   })
 }
+
+
+
+//更新项目
+export function updata_project(data) {
+  return request({
+    url: '/request/updata_project',
+    method: 'post',
+    data
+  })
+}
+
+//获取项目列表
+export function get_project_list(data) {
+  return request({
+    url: '/request/get_project_list',
+    method: 'get',
+    params: data
+  })
+}
+
+//删除项目
+export function delete_project(data) {
+  return request({
+    url: '/request/delete_project',
+    method: 'post',
+    data
+  })
+}

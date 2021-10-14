@@ -1,5 +1,5 @@
 <template>
-  <div style="background:#EAEAEA; height: 850px">
+  <div>
     <CaseDetails v-if="showCaseDetails" />
     <div v-else>
       <div style="background:#fff">
@@ -17,22 +17,18 @@
               ></el-option>
             </el-select>
           </span>
-          <el-button style="margin-left: 10px;" type="primary">添加模块</el-button>
           <span style="margin-left: 400px;">项目用例管理</span>
         </p>
       </div>
-      <div>
+      <!-- <div>
         <el-container>
           <el-aside
-            width="270px"
+            width="250px"
             style="background-color: #ffffff;margin-left: 20px;margin-right: 20px;height: 750px;"
           >
-            <div class="custom-tree-container">
-              <p style="text-align: center">模块列表</p>
+            <div class="custom-tree-container" style="width: 250px;height:100%">
               <div class="block">
                 <el-tree
-                  highlight-current
-                  ref="dataConfigTree"
                   :data="data"
                   @node-click="getInterfaceUseCaseList"
                   node-key="id"
@@ -45,7 +41,7 @@
                       {{ node.label }}
                     </span>
                     <span>
-                      <el-button type="text" size="mini" @click="() => append(data)">编辑</el-button>
+                      <el-button type="text" size="mini" @click="() => append(data)">添加</el-button>
                       <el-button type="text" size="mini" @click="() => remove(node, data)">删除</el-button>
                     </span>
                   </span>
@@ -105,6 +101,87 @@
             </div>
           </el-main>
         </el-container>
+      </div>-->
+      <div style="background:#EAEAEA; height: 800px">
+        <el-container style="height: 500px; border: 1px solid #eee">
+          <el-aside width="200px" style="background-color: rgb(238, 241, 246);margin-right: 15px;height: 750px;">
+            <el-menu :default-openeds="['1']">
+              <el-submenu index="1">
+                <template slot="title">
+                  <i class="el-icon-folder"></i>WebPro
+                </template>
+                <el-menu-item-group>
+                  <el-menu-item index="1-1" @click="aaa()">登录</el-menu-item>
+                  <el-menu-item index="1-2">注册</el-menu-item>
+                  <el-menu-item index="1-3">首页</el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
+              <el-submenu index="2">
+                <template slot="title">
+                  <i class="el-icon-folder"></i>接口平台
+                </template>
+                <el-menu-item-group>
+                  <el-menu-item index="2-1">新增</el-menu-item>
+                  <el-menu-item index="2-2">编辑页面</el-menu-item>
+                  <el-menu-item index="2-3">用户管理</el-menu-item>
+                </el-menu-item-group>
+              </el-submenu>
+            </el-menu>
+          </el-aside>
+          <el-container>
+            <el-main style="background-color: #ffffff;margin-right: 20px;height: 750px;">
+              <div>
+                <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
+                  <el-form-item label="用例名称">
+                    <el-input v-model="seareFileName" placeholder="请输入文件名称"></el-input>
+                  </el-form-item>
+                  <el-form-item>
+                    <el-button type="primary" @click="inquire">查询</el-button>
+                    <el-button type="primary" @click="reset">重置</el-button>
+                  </el-form-item>
+                  <el-button
+                    style="float: right;margin-bottom: 20px;margin-right: 50px;"
+                    type="primary"
+                    icon="el-icon-plus"
+                    @click="add_use_case"
+                  >添加</el-button>
+                </el-form>
+                <el-table
+                  :header-cell-style="{background:'#EBEEF5',color:'#303133'}"
+                  height="600"
+                  @row-dblclick="showInterfaceList"
+                  :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+                  style="width: 100%;left: 20px;"
+                >
+                  <el-table-column :show-overflow-tooltip="true" prop="use_case_name" label="用例名称"></el-table-column>
+                  <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
+                  <el-table-column width="350" label="操作">
+                    <template slot-scope="scope">
+                      <el-button size="mini" type="primary">查看结果</el-button>
+                      <el-button size="mini" type="primary">执行</el-button>
+                      <el-button size="mini" @click="edit_use_case(scope.$index, scope.row)">编辑</el-button>
+                      <el-button
+                        size="mini"
+                        type="danger"
+                        @click="delete_use_case(scope.$index, scope.row)"
+                      >删除</el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <el-pagination
+                  style="text-align:center"
+                  @size-change="handleSizeChange"
+                  @current-change="handleCurrentChange"
+                  :current-page="currentPage"
+                  :page-sizes="[5, 10, 15, 20, 40]"
+                  :page-size="pagesize"
+                  layout="total, sizes, prev, pager, next, jumper"
+                  :total="tableData.length"
+                >//这是显示总共有多少数据，</el-pagination>
+              </div>
+            </el-main>
+          </el-container>
+        </el-container>
       </div>
     </div>
   </div>
@@ -120,19 +197,21 @@ import {
 export default {
   components: { CaseDetails },
   data() {
-    const data = [
-      {
-        id: 1,
-        label: "WebPro",
-      },
-      {
-        id: 2,
-        label: "nansdnasndasd",
-      }
-    ];
+    // const data = [
+    //   {
+    //     id: 1,
+    //     label: "登录"
+    //   }
+    // ];
+    const item = {
+      date: "2016-05-02",
+      name: "王小虎",
+      address: "上海市普陀区金沙江路 1518 弄"
+    };
     return {
-      data: JSON.parse(JSON.stringify(data)),
-      data: JSON.parse(JSON.stringify(data)),
+      // data: JSON.parse(JSON.stringify(data)),
+      // data: JSON.parse(JSON.stringify(data)),
+      // tableData: Array(20).fill(item),
       options: [
         {
           value: "选项1",
@@ -164,9 +243,11 @@ export default {
     };
   },
   methods: {
-    getInterfaceUseCaseList(node) {
+    aaa(index){
+      console.log("ssssssssssssssss", index)
+    },
+    getInterfaceUseCaseList(data) {
       console.log(data, "22222222222");
-      this.$refs.dataConfigTree.setCurrentKey(node.id)
     },
     append(data) {
       console.log(data);
@@ -385,17 +466,28 @@ export default {
   font-size: 14px;
   padding-right: 8px;
 }
+el-tree {
+  background-color: #055cb6;
+  color: #fff;
+}
 
 .el-tree-node {
   border: 1px solid rgb(218, 218, 218);
 }
 
 .el-tree-node__content {
-  background-color: #ffffff;
   height: 60px;
 }
 
-.el-tree--highlight-current .el-tree-node.is-current>.el-tree-node__content{
-background-color: rgb(209, 209, 209) !important;
+.el-tree-node__content:hover {
+  background-color: #e4e7ed;
+}
+
+.el-tree-node:focus > .el-tree-node__content {
+  background-color: #dcdfe6;
+}
+
+.el-aside {
+  color: #333;
 }
 </style>

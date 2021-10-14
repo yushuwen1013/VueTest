@@ -63,6 +63,13 @@ export const constantRoutes = [
     name: 'interface',
     meta: { title: '接口测试', icon: 'el-icon-s-help' },
     children: [
+       //项目管理
+       {
+        path: 'ProjectManage',
+        name: 'projectManage',
+        component: () => import('@/views/ProjectManage/index'),
+        meta: { title: '项目管理', icon: 'el-icon-s-management' }
+      },
       //变量管理
       {
         path: 'variableManage',
