@@ -55,6 +55,18 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
+  //首页
+  {
+    path: '/',
+    component: Layout,
+    redirect: '/ProjectManagement',
+    children: [{
+      path: 'ProjectManagement',
+      name: 'projectManagement',
+      component: () => import('@/views/ProjectManagement/index'),
+      meta: { title: '项目管理', icon: 'el-icon-s-management' }
+    },]
+  },
   //接口测试
   {
     path: '/interface',
@@ -63,37 +75,51 @@ export const constantRoutes = [
     name: 'interface',
     meta: { title: '接口测试', icon: 'el-icon-s-help' },
     children: [
-       //项目管理
-       {
-        path: 'ProjectManage',
-        name: 'projectManage',
-        component: () => import('@/views/ProjectManage/index'),
-        meta: { title: '项目管理', icon: 'el-icon-s-management' }
-      },
-      //变量管理
+      // //项目管理
+      // {
+      //   path: 'ProjectManagement',
+      //   name: 'projectManagement',
+      //   component: () => import('@/views/ProjectManagement/index'),
+      //   meta: { title: '项目管理', icon: 'el-icon-s-management' }
+      // },
+      //环境配置
       {
-        path: 'variableManage',
-        name: 'variableManage',
-        component: () => import('@/views/variableManage'),
-        // redirect: '/interface/variableManage/globalVariable',
-        meta: { title: '变量管理', icon: 'el-icon-menu' },
-        children: [
-          //全局变量
-          {
-            path: 'globalVariable',
-            name: 'globalVariable',
-            component: () => import('@/views/variableManage/globalVariable'),
-            meta: { title: '全局变量', icon: 'el-icon-menu' },
-          },
-          //环境配置
-          {
-            path: 'environmentConfiguration',
-            name: 'environmentConfiguration',
-            component: () => import('@/views/variableManage/environmentConfiguration'),
-            meta: { title: '环境配置', icon: 'el-icon-menu' },
-          }
-        ]
+        path: 'environmentConfiguration',
+        name: 'environmentConfiguration',
+        component: () => import('@/views/variableManage/environmentConfiguration'),
+        meta: { title: '环境配置', icon: 'el-icon-menu' },
       },
+      //全局变量
+      {
+        path: 'globalVariable',
+        name: 'globalVariable',
+        component: () => import('@/views/variableManage/globalVariable'),
+        meta: { title: '全局变量', icon: 'el-icon-menu' },
+      },
+      // //变量管理
+      // {
+      //   path: 'variableManage',
+      //   name: 'variableManage',
+      //   component: () => import('@/views/variableManage'),
+      //   // redirect: '/interface/variableManage/globalVariable',
+      //   meta: { title: '变量管理', icon: 'el-icon-menu' },
+      //   children: [
+      //     //全局变量
+      //     {
+      //       path: 'globalVariable',
+      //       name: 'globalVariable',
+      //       component: () => import('@/views/variableManage/globalVariable'),
+      //       meta: { title: '全局变量', icon: 'el-icon-menu' },
+      //     },
+      //     //环境配置
+      //     {
+      //       path: 'environmentConfiguration',
+      //       name: 'environmentConfiguration',
+      //       component: () => import('@/views/variableManage/environmentConfiguration'),
+      //       meta: { title: '环境配置', icon: 'el-icon-menu' },
+      //     }
+      //   ]
+      // },
       //接口调试
       {
         path: 'interfaceTesting',
