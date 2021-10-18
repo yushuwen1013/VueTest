@@ -55,9 +55,9 @@ export const constantRoutes = [
       meta: { title: '首页', icon: 'dashboard' }
     }]
   },
-  //首页
+  //项目管理
   {
-    path: '/',
+    path: '/project',
     component: Layout,
     redirect: '/ProjectManagement',
     children: [{
@@ -84,16 +84,16 @@ export const constantRoutes = [
       // },
       //环境配置
       {
-        path: 'environmentConfiguration',
+        path: '/environmentConfiguration',
         name: 'environmentConfiguration',
-        component: () => import('@/views/variableManage/environmentConfiguration'),
+        component: () => import('@/views/environmentConfiguration'),
         meta: { title: '环境配置', icon: 'el-icon-menu' },
       },
       //全局变量
       {
-        path: 'globalVariable',
+        path: '/globalVariable',
         name: 'globalVariable',
-        component: () => import('@/views/variableManage/globalVariable'),
+        component: () => import('@/views/globalVariable'),
         meta: { title: '全局变量', icon: 'el-icon-menu' },
       },
       // //变量管理

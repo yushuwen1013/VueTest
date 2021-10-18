@@ -4,13 +4,13 @@
       <p
         style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
       >
-        <span style>环境配置</span>
+        <span style>全局变量</span>
       </p>
     </div>
     <div>
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="环境名称">
-          <el-input v-model="seareEnvironment_name" placeholder="请输入环境名称"></el-input>
+        <el-form-item label="变量名称">
+          <el-input v-model="seareVariableKey" placeholder="请输入变量名称"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="inquire">查询</el-button>
@@ -29,9 +29,9 @@
         style="width: 100%;left: 20px;"
         :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
-        <el-table-column :show-overflow-tooltip="true" prop="environment_name" label="环境名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="environment_url" label="环境地址"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="key" label="变量名(Key)"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="value" label="变量值(Value)"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="description" label="备注 -- 使用方法：${key}"></el-table-column>
         <el-table-column width="225" label="操作">
           <template slot-scope="scope">
             <el-button size="mini" @click="clickEdit(scope.row)">编辑</el-button>
@@ -51,13 +51,13 @@
         :total="tableData.length"
       >//这是显示总共有多少数据，</el-pagination>
     </div>
-    <el-dialog title="环境配置" :visible.sync="dialogFormVisible" width="30%">
+    <el-dialog title="变量" :visible.sync="dialogFormVisible" width="30%">
       <el-form :model="updateForm">
-        <el-form-item label="环境名称" label-width="80px">
-          <el-input v-model="updateForm.environment_name" autocomplete="off" placeholder="请输入环境名称"></el-input>
+        <el-form-item label="变量名" label-width="80px">
+          <el-input v-model="updateForm.key" autocomplete="off" placeholder="请输入变量名"></el-input>
         </el-form-item>
-        <el-form-item label="环境地址" label-width="80px">
-          <el-input v-model="updateForm.environment_url" autocomplete="off" placeholder="请输入环境地址"></el-input>
+        <el-form-item label="变量值" label-width="80px">
+          <el-input v-model="updateForm.value" autocomplete="off" placeholder="请输入变量值"></el-input>
         </el-form-item>
         <el-form-item label="描述" label-width="80px">
           <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
@@ -73,25 +73,25 @@
 
 <script>
 import {
-  update_environment_configuration,
-  get_environment_configuration,
-  delete_environment_configuration
+  update_global_variable,
+  get_global_variable,
+  delete_global_variable
 } from "@/api/interfaceTesting";
-import Tables from "@/views/interfaceTesting/Tables";
 export default {
-  components: { Tables },
   data() {
     return {
+      project_id : localStorage.getItem('project_id'),
       updateForm: {
-        environment_name: "",
-        environment_url: "",
-        description: ""
+        key: "",
+        value: "",
+        description: "",
+        project_id: localStorage.getItem('project_id'),
       },
       dialogFormVisible: false, //添加或编辑弹窗
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
       tableData: [],
-      seareEnvironment_name: "" //搜索框的值
+      seareVariableKey: "" //搜索框的值
     };
   },
   methods: {
@@ -115,10 +115,10 @@ export default {
         .then(() => {
           //删除变量接口
           const id = { id: row.id };
-          delete_environment_configuration(id)
+          delete_global_variable(id)
             .then(response => {
               console.log(response.data);
-              get_environment_configuration().then(response => {
+              get_global_variable({project_id: this.project_id,}).then(response => {
                 this.tableData = response.data;
               });
             })
@@ -143,35 +143,39 @@ export default {
     },
     //点击编辑
     clickEdit(row) {
+      
       this.dialogFormVisible = true;
       this.updateForm = {
-        environment_name: row.environment_name,
-        environment_url: row.environment_url,
+        key: row.key,
+        value: row.value,
         description: row.description,
+        project_id: localStorage.getItem('project_id'),
         id: row.id
       };
     },
     //确定添加变量
     addVariable() {
+      console.log(this.project_id)
       console.log(this.updateForm);
       if (
-        this.updateForm.environment_name.trim() == "" ||
-        this.updateForm.environment_url.trim() == ""
+        this.updateForm.key.trim() == "" ||
+        this.updateForm.value.trim() == ""
       ) {
         this.$message({
-          message: "名称和地址不能为空",
+          message: "key和value不能为空",
           type: "error"
         });
       } else {
-        update_environment_configuration(this.updateForm)
+        update_global_variable(this.updateForm)
           .then(response => {
-            get_environment_configuration().then(response => {
+            get_global_variable({project_id: this.project_id}).then(response => {
               this.tableData = response.data;
             });
             this.updateForm = {
-              environment_name: "",
-              environment_url: "",
-              description: ""
+              key: "",
+              value: "",
+              description: "",
+              project_id: localStorage.getItem('project_id'),
             };
             this.$message({
               message: response.data,
@@ -192,22 +196,23 @@ export default {
     //查询
     inquire() {
       const request_data = {
-        environment_name: this.seareEnvironment_name
+        project_id: this.project_id,
+        variable_key: this.seareVariableKey
       };
-      get_environment_configuration(request_data).then(response => {
+      get_global_variable(request_data).then(response => {
         this.tableData = response.data;
       });
     },
     //重置
     reset() {
-      get_environment_configuration().then(response => {
+      get_global_variable({project_id: this.project_id,}).then(response => {
         this.tableData = response.data;
-        this.seareEnvironment_name = "";
+        this.seareVariableKey = "";
       });
     }
   },
   created() {
-    get_environment_configuration().then(response => {
+    get_global_variable({project_id: this.project_id}).then(response => {
       this.tableData = response.data;
     });
   }

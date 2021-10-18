@@ -21,26 +21,22 @@
         <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
         <el-button type="primary" @click="save(form)">Save</el-button>
       </el-form-item>
-      <el-tabs
-        type="border-card"
-        style="max-height: 320px; overflow: auto;"
-        @tab-click="handleClick"
-      >
+      <el-tabs type="border-card" @tab-click="handleClick">
         <!-- 请求头 -->
-        <el-tab-pane label="Headers">
+        <el-tab-pane style="max-height: 260px; overflow: auto;" label="Headers">
           <Tables :TableData="headersTableData" />
         </el-tab-pane>
         <!-- 请求Params参数 -->
-        <el-tab-pane label="Params">
+        <el-tab-pane style="max-height: 260px; overflow: auto;" label="Params">
           <Tables :TableData="paramsTableData" />
         </el-tab-pane>
         <!-- 请求Body Json参数 -->
-        <el-tab-pane label="Body">
+        <el-tab-pane style="max-height: 260px; overflow: auto;" label="Body">
           <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" />
         </el-tab-pane>
         <!-- 断言 -->
-        <el-tab-pane label="断言">
-          <template>
+        <el-tab-pane style="max-height: 260px; overflow: auto;" label="断言">
+          <!-- <template>
             <el-radio-group v-model="assertType" @change="assert">
               <el-radio :label="0" border>关闭</el-radio>
               <el-radio :label="1" border>响应断言</el-radio>
@@ -70,10 +66,64 @@
                 </el-form-item>
               </el-form>
             </div>
+          </template>-->
+          <template height="250">
+            <el-table :data="assertData" style="width: 100%">
+              <el-table-column label="断言类型" width="200">
+                <template slot-scope="scope">
+                  <el-select v-model="scope.row.assertType" placeholder="请选择断言类型">
+                    <el-option label="响应内容" :value="1"></el-option>
+                    <el-option label="响应体（正则）" :value="2"></el-option>
+                    <el-option label="响应体（JSON）" :value="3"></el-option>
+                    <el-option label="响应状态码" :value="4"></el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="提取表达式">
+                <template slot-scope="scope">
+                  <el-input
+                    :disabled="scope.row.assertType==1?true:false"
+                    placeholder="请输入表达式"
+                    v-model="scope.row.assertExtractExpression"
+                    clearable
+                  ></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="期望关系" width="200">
+                <template slot-scope="scope">
+                  <el-select v-model="scope.row.relation" placeholder="请选择断言类型">
+                    <el-option label="包含" :value="1"></el-option>
+                    <el-option label="匹配" :value="2"></el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="期望值">
+                <template slot-scope="scope">
+                  <el-input placeholder="请输入期望值" v-model="scope.row.expectancyValue" clearable></el-input>
+                </template>
+              </el-table-column>
+              <slot></slot>
+              <el-table-column fixed="right" width="125">
+                <template slot="header" slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="addRow(scope.$index, assertData)"
+                    type="primary"
+                    size="medium"
+                  >添加</el-button>
+                </template>
+                <template slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="deleteRow(scope.$index, assertData)"
+                    type="text"
+                    size="medium"
+                  >移除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
           </template>
         </el-tab-pane>
         <!-- 参数提取 -->
-        <el-tab-pane label="参数提取">
+        <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
           <template>
             <el-radio-group v-model="assertType" @change="assert">
               <el-radio :label="1" border>正则表达式提取</el-radio>
@@ -110,7 +160,7 @@
         </el-tab-pane>
       </el-tabs>
     </el-form>
-    <div style="margin-top: 40px;">
+    <div style="margin-top: 55px;">
       <el-divider></el-divider>
       <Response />
     </div>
@@ -176,6 +226,39 @@ export default {
       }
     };
     return {
+      //期望值
+      expectancyValue: "",
+      //断言提取表达式
+      assertExtractExpression: "",
+      //断言类型选项
+      assertTypeOptions: [
+        {
+          assertType: "1",
+          assertTypeLabel: "响应断言"
+        },
+        {
+          assertType: "2",
+          assertTypeLabel: "Json断言"
+        }
+      ],
+      //断言关系表达式
+      relation: "",
+      assertData: [
+        {
+          //断言类型
+          assertType: 1,
+          //断言提取表达式
+          assertExtractExpression: "",
+          //期望值
+          expectancyValue: "",
+          //关系
+          relation: 1,
+          //断言提取表达式
+          assertExtractExpression: ""
+        }
+      ],
+      //项目id
+      project_id: localStorage.getItem("project_id"),
       //断言结果
       assert_result: {},
       //正则表达式提取表单
@@ -254,6 +337,34 @@ export default {
     };
   },
   methods: {
+    //删除table
+    deleteRow(index, rows) {
+      rows.splice(index, 1);
+      this.$message({
+        message: "移除成功！",
+        type: "success"
+      });
+    },
+    // 添加table
+    addRow(index, rows) {
+      this.assertData.push({
+        //断言类型
+        assertType: 1,
+        //断言提取表达式
+        assertExtractExpression: "",
+        //期望值
+        expectancyValue: "",
+        //关系
+        relation: 1,
+        //断言提取表达式
+        assertExtractExpression: ""
+      });
+      this.$message({
+        message: "添加成功！",
+        type: "success"
+      });
+      
+    },
     //判断断言类型切换断言的详情
     assert(val) {
       if (val == 0) {
@@ -274,14 +385,15 @@ export default {
     },
     //判断请求数据的状态
     handleClick(tab, event) {
-      if (tab.name == "Params") {
+      if (tab.label == "Params") {
         this.dataStateCode = 1;
-      } else if (tab.name == "Body") {
+      } else if (tab.label == "Body") {
         this.dataStateCode = 2;
       }
     },
     //发送请求方法
     sendRequest(formName) {
+      console.log(this.assertData, "22222222222222222222222222222222222222222222")
       this.$refs[formName].validate(valid => {
         if (valid) {
           const header = {};
@@ -464,9 +576,11 @@ export default {
     }
   },
   created() {
-    get_environment_configuration().then(response => {
-      this.environment_options = response.data;
-    });
+    get_environment_configuration({ project_id: this.project_id }).then(
+      response => {
+        this.environment_options = response.data;
+      }
+    );
   }
 };
 </script>
