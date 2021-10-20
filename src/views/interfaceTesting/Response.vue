@@ -6,21 +6,20 @@
     <template>
       <el-tabs style="margin-left: 10px;" v-model="activeName">
         <el-tab-pane label="请求信息">
-          <span
-            v-show="response.request_method"
-            class="el-tag el-tag--success el-tag--small el-tag--dark"
-          >{{response.request_method}}</span>
-          <span style="font-size: 14px; margin-left: 8px;">{{response.request_url}}</span>
-          <el-collapse v-model="activeNames" @change="handleChange">
-            <el-collapse-item title="Headers" name="1">
-              <json-viewer :value="response.request_headers" :expand-depth="2" copyable sort></json-viewer>
-            </el-collapse-item>
-            <el-collapse-item :title="response.dataState==2?'Body': 'Params'" name="2">
-              <json-viewer :value="response.request_data" :expand-depth="2" copyable sort></json-viewer>
-            </el-collapse-item>
-          </el-collapse>
-          <br />
-          <br />
+          <div>
+            <span
+              class="el-tag el-tag--success el-tag--small el-tag--dark"
+            >{{responseData.request_method}}</span>
+            <span style="font-size: 14px; margin-left: 8px;">{{responseData.request_url}}</span>
+            <el-collapse style="margin-top: 10px;" v-model="activeNames" @change="handleChange">
+              <el-collapse-item title="Headers" name="1">
+                <json-viewer :value="responseData.request_headers" :expand-depth="2" copyable sort></json-viewer>
+              </el-collapse-item>
+              <el-collapse-item :title="responseData.dataState==2?'Body': 'Params'" name="2">
+                <json-viewer :value="responseData.request_data" :expand-depth="2" copyable sort></json-viewer>
+              </el-collapse-item>
+            </el-collapse>
+          </div>
         </el-tab-pane>
         <el-tab-pane label="Body" name="Body">
           <template>
@@ -35,12 +34,12 @@
               type="textarea"
               :rows="8"
               placeholder="响应数据"
-              v-model="response.response_data"
+              v-model="responseData.response_data"
             ></el-input>
             <json-viewer
               v-else
               style="max-height:200px;overflow:auto;"
-              :value="JSON.parse(response.response_data)"
+              :value="JSON.parse(responseData.response_data)"
               :expand-depth="2"
               copyable
               sort
@@ -50,22 +49,48 @@
         <el-tab-pane label="Headers" name="Headers">
           <json-viewer
             style="max-height:200px;overflow:auto;"
-            :value="response.response_headers"
+            :value="responseData.response_headers"
             :expand-depth="2"
             copyable
             sort
           ></json-viewer>
         </el-tab-pane>
         <el-tab-pane label="断言结果" name="assertionResults">
-          <h5>断言类型：{{response.assert_result.assertion_type}}</h5>
-          <h5>断言结果：{{response.assert_result.assertion_results}}</h5>
-          <h5>断言内容：{{response.assert_result.assertion_content}}</h5>
+          <div>
+            <template height="250">
+              <el-table :data="responseData.assert_result" border style="width: 100%">
+                <el-table-column prop="assertType" label="断言类型" width="180" align="center"></el-table-column>
+                <el-table-column
+                  prop="assertExtractExpression"
+                  label="提取表达式"
+                  width="300"
+                  align="center"
+                ></el-table-column>
+                <el-table-column prop="resultValue" label="实际值" align="center"></el-table-column>
+                <el-table-column prop="relation" label="期望关系" width="150" align="center">
+                  <template slot-scope="scope">
+                    <el-tag v-show="scope.row.relation" disable-transitions>{{scope.row.relation}}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="expectancyValue" label="期望值"></el-table-column>
+                <el-table-column prop="assertion_results" label="断言结果" width="150">
+                  <template slot-scope="scope">
+                    <el-tag
+                      :type="scope.row.assertion_results? 'success' : 'danger'"
+                      disable-transitions
+                    >{{scope.row.assertion_results? "成功": "失败"}}</el-tag>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </template>
+          </div>
         </el-tab-pane>
       </el-tabs>
-      <h4 style="position: absolute;right:40px;top:25px;">Status：{{response.response_code}}</h4>
-      <h4
+      <h4 style="position: absolute;right:40px;top:25px;">Status：{{responseData.response_code}}</h4>
+      <!-- <h4
+        v-show="response.assert_result.assertion_results"
         style="position: absolute;right:200px;top:25px;"
-      >断言结果：{{response.assert_result.assertion_results}}</h4>
+      >断言结果：{{response.assert_result.assertion_results}}</h4>-->
     </template>
   </div>
 </template>
@@ -74,6 +99,7 @@
 import JsonViewer from "vue-json-viewer";
 import vueJsonEditor from "vue-json-editor";
 export default {
+  props: ["responseData"],
   name: "Response",
   components: {
     vueJsonEditor,
@@ -81,34 +107,29 @@ export default {
   },
   data() {
     return {
-      activeNames: ['1'],
+      tableData: [
+        {
+          assertType: 2,
+          assertExtractExpression: "code",
+          assertion_results: true,
+          expectancyValue: "400",
+          relation: 1,
+          resultValue: 400
+        }
+      ],
+      activeNames: ["1"],
       //响应数据类型
       responseDataType: 1,
       //显示响应数据类型
       showResponseDataType: true,
       activeName: "Body",
-      //响应数据
-      response: {
-        request_headers:"",
-        request_data: "",
-        request_url: "",
-        request_method: "",
-        response_code: "",
-        response_data: "{}",
-        response_headers: "{}",
-        dataState: "",
-        assert_result: {
-          assertion_type: "",
-          assertion_results: "",
-          assertion_content: ""
-        }
-      }
+      // response: this.responseData
     };
   },
   methods: {
     handleChange(val) {
-        console.log(val);
-      },
+      console.log(val);
+    },
     //切换响应数据
     ResponseDataType(val) {
       if (val == 1) {
@@ -118,32 +139,6 @@ export default {
       }
     }
   },
-  mounted() {
-    this.$bus.$on("response", data => {
-      console.log("Pesponse，收到了数据", data);
-      this.response = data
-      this.response.request_headers = data.request_headers
-      this.response.request_data = data.request_data;
-      this.response.request_method = data.request_method;
-      this.response.request_url = data.request_url;
-      this.response.response_data = JSON.stringify(data.response_data);
-      this.response.response_headers = data.response_headers;
-      this.response.response_code = data.response_code;
-      this.response.dataState = data.dataState
-      if (data.assert_result != undefined) {
-        this.response.assert_result = data.assert_result;
-      }else{
-        this.response.assert_result  =  {
-          assertion_type: "",
-          assertion_results: "",
-          assertion_content: ""
-        }
-      }
-    });
-  },
-  beforeDestroy() {
-    this.$bus.$off("response");
-  }
 };
 </script>
 

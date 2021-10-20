@@ -7,9 +7,10 @@
           <el-option label="GET" value="get"></el-option>
           <el-option label="POST" value="post"></el-option>
         </el-select>
+        <el-switch style="left: 50px;" v-model="isEnvironment" active-text="引用环境"></el-switch>
       </el-form-item>
       <el-form-item label="请求地址" prop="requestAddress">
-        <el-select v-model="form.environment" clearable placeholder="请选择环境">
+        <el-select v-show="isEnvironment" v-model="form.environment" clearable placeholder="请选择环境">
           <el-option
             v-for="item in environment_options"
             :key="item.id"
@@ -17,7 +18,7 @@
             :value="item.id"
           ></el-option>
         </el-select>
-        <el-input v-model="form.requestAddress" placeholder="请输入地址" style="width: 500px;"></el-input>
+        <el-input v-model="form.requestAddress" placeholder="请输入地址" :style="isEnvironment? 'width: 500px;': 'width: 702px;'"></el-input>
         <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
         <el-button type="primary" @click="save(form)">Save</el-button>
       </el-form-item>
@@ -36,74 +37,46 @@
         </el-tab-pane>
         <!-- 断言 -->
         <el-tab-pane style="max-height: 260px; overflow: auto;" label="断言">
-          <!-- <template>
-            <el-radio-group v-model="assertType" @change="assert">
-              <el-radio :label="0" border>关闭</el-radio>
-              <el-radio :label="1" border>响应断言</el-radio>
-              <el-radio :label="2" border>Json断言</el-radio>
-            </el-radio-group>
-            <div v-if="showAssert == 0"></div>
-            <div v-if="showAssert == 1" style="margin-top: 20px;margin-left: 10px;">
-              <template>
-                <el-radio v-model="responseAssertRules" :label="1">包含</el-radio>
-                <el-radio v-model="responseAssertRules" :label="2">匹配</el-radio>
-              </template>
-              <el-input
-                style="margin-top: 20px;"
-                type="textarea"
-                :rows="5"
-                placeholder="请输如响应断言内容"
-                v-model="responseAssertContent"
-              ></el-input>
-            </div>
-            <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
-              <el-form label-position="top" label-width="80px" :model="jsonAssertForm">
-                <el-form-item label="Json路径">
-                  <el-input v-model="jsonAssertForm.json_path"></el-input>
-                </el-form-item>
-                <el-form-item label="预期值">
-                  <el-input v-model="jsonAssertForm.json_value"></el-input>
-                </el-form-item>
-              </el-form>
-            </div>
-          </template>-->
           <template height="250">
             <el-table :data="assertData" style="width: 100%">
-              <el-table-column label="断言类型" width="200">
+              <el-table-column label="断言类型" width="200" align="center">
                 <template slot-scope="scope">
                   <el-select v-model="scope.row.assertType" placeholder="请选择断言类型">
-                    <el-option label="响应内容" :value="1"></el-option>
-                    <el-option label="响应体（正则）" :value="2"></el-option>
-                    <el-option label="响应体（JSON）" :value="3"></el-option>
-                    <el-option label="响应状态码" :value="4"></el-option>
+                    <el-option label="响应文本（正则）" :value="1"></el-option>
+                    <el-option label="响应文本（JSON）" :value="2"></el-option>
+                    <el-option label="响应状态码" :value="3"></el-option>
                   </el-select>
                 </template>
               </el-table-column>
-              <el-table-column label="提取表达式">
+              <el-table-column label="提取表达式" align="center">
                 <template slot-scope="scope">
                   <el-input
-                    :disabled="scope.row.assertType==1?true:false"
+                    :disabled="scope.row.assertType==3?true:false"
                     placeholder="请输入表达式"
                     v-model="scope.row.assertExtractExpression"
                     clearable
                   ></el-input>
                 </template>
               </el-table-column>
-              <el-table-column label="期望关系" width="200">
+              <el-table-column label="期望关系" width="200" align="center">
                 <template slot-scope="scope">
-                  <el-select v-model="scope.row.relation" placeholder="请选择断言类型">
+                  <el-select
+                    :disabled="scope.row.assertType == 3? true: false"
+                    v-model="scope.row.relation"
+                    placeholder="请选择断言类型"
+                  >
                     <el-option label="包含" :value="1"></el-option>
                     <el-option label="匹配" :value="2"></el-option>
                   </el-select>
                 </template>
               </el-table-column>
-              <el-table-column label="期望值">
+              <el-table-column label="期望值" align="center">
                 <template slot-scope="scope">
                   <el-input placeholder="请输入期望值" v-model="scope.row.expectancyValue" clearable></el-input>
                 </template>
               </el-table-column>
               <slot></slot>
-              <el-table-column fixed="right" width="125">
+              <el-table-column fixed="right" width="125" align="center">
                 <template slot="header" slot-scope="scope">
                   <el-button
                     @click.native.prevent="addRow(scope.$index, assertData)"
@@ -123,46 +96,13 @@
           </template>
         </el-tab-pane>
         <!-- 参数提取 -->
-        <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
-          <template>
-            <el-radio-group v-model="assertType" @change="assert">
-              <el-radio :label="1" border>正则表达式提取</el-radio>
-              <el-radio :label="2" border>Json提取</el-radio>
-            </el-radio-group>
-            <div v-if="showAssert == 0"></div>
-            <div v-if="showAssert == 1" style="margin-top: 20px;margin-left: 10px;">
-              <el-form label-position="right" label-width="90px" :model="regularExpressionForm">
-                <el-form-item label="引用名称">
-                  <el-input v-model="regularExpressionForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="正则表达式">
-                  <el-input v-model="regularExpressionForm.regular_expression"></el-input>
-                </el-form-item>
-                <el-form-item label="缺省值">
-                  <el-input v-model="regularExpressionForm.default_value"></el-input>
-                </el-form-item>
-              </el-form>
-            </div>
-            <div v-if="showAssert == 2" style="margin-top: 20px;margin-left: 10px;">
-              <el-form label-position="right" label-width="90px" :model="jsonExtractForm">
-                <el-form-item label="引用名称">
-                  <el-input v-model="jsonExtractForm.name"></el-input>
-                </el-form-item>
-                <el-form-item label="Json路径">
-                  <el-input v-model="jsonExtractForm.json_path"></el-input>
-                </el-form-item>
-                <el-form-item label="缺省值">
-                  <el-input v-model="jsonExtractForm.default_value"></el-input>
-                </el-form-item>
-              </el-form>
-            </div>
-          </template>
-        </el-tab-pane>
+        <!-- <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
+        </el-tab-pane>-->
       </el-tabs>
     </el-form>
     <div style="margin-top: 55px;">
       <el-divider></el-divider>
-      <Response />
+      <Response :responseData="responseData" />
     </div>
     <el-dialog title="保存" :visible.sync="dialogFormVisible">
       <el-form ref="saveForm" :model="saveForm" :rules="rules">
@@ -226,66 +166,37 @@ export default {
       }
     };
     return {
-      //期望值
-      expectancyValue: "",
-      //断言提取表达式
-      assertExtractExpression: "",
-      //断言类型选项
-      assertTypeOptions: [
-        {
-          assertType: "1",
-          assertTypeLabel: "响应断言"
-        },
-        {
-          assertType: "2",
-          assertTypeLabel: "Json断言"
-        }
-      ],
-      //断言关系表达式
-      relation: "",
+      //使用环境
+      isEnvironment: true,
+      //响应数据
+      responseData: {
+        request_headers: "",
+        request_data: "",
+        request_url: "",
+        request_method: "",
+        response_code: "",
+        response_data: "",
+        response_headers: "{}",
+        dataState: "",
+        assert_result: []
+      },
+      //项目id
+      project_id: localStorage.getItem("project_id"),
+      //断言表单
       assertData: [
         {
           //断言类型
-          assertType: 1,
+          assertType: "",
           //断言提取表达式
           assertExtractExpression: "",
           //期望值
           expectancyValue: "",
           //关系
-          relation: 1,
-          //断言提取表达式
-          assertExtractExpression: ""
+          relation: ""
         }
       ],
       //项目id
       project_id: localStorage.getItem("project_id"),
-      //断言结果
-      assert_result: {},
-      //正则表达式提取表单
-      regularExpressionForm: {
-        name: "",
-        regular_expression: "",
-        default_value: ""
-      },
-      //Json提取表单
-      jsonExtractForm: {
-        name: "",
-        json_path: "",
-        default_value: ""
-      },
-      //Json断言表单
-      jsonAssertForm: {
-        json_path: "",
-        json_value: ""
-      },
-      //根据断言类型显示断言内容
-      showAssert: 0,
-      //响应断言规则
-      responseAssertRules: 1,
-      //响应断言的内容
-      responseAssertContent: "",
-      //断言类型
-      assertType: 0, //0是不使用，1是响应断言，2是Json断言
       //环境选项
       environment_options: [],
       //请求数据状态码 1是params,2是Json
@@ -349,13 +260,13 @@ export default {
     addRow(index, rows) {
       this.assertData.push({
         //断言类型
-        assertType: 1,
+        assertType: "",
         //断言提取表达式
         assertExtractExpression: "",
         //期望值
         expectancyValue: "",
         //关系
-        relation: 1,
+        relation: "",
         //断言提取表达式
         assertExtractExpression: ""
       });
@@ -363,7 +274,6 @@ export default {
         message: "添加成功！",
         type: "success"
       });
-      
     },
     //判断断言类型切换断言的详情
     assert(val) {
@@ -393,7 +303,7 @@ export default {
     },
     //发送请求方法
     sendRequest(formName) {
-      console.log(this.assertData, "22222222222222222222222222222222222222222222")
+      console.log(this.value1, "22222222222");
       this.$refs[formName].validate(valid => {
         if (valid) {
           const header = {};
@@ -408,42 +318,71 @@ export default {
               params[elem.key] = elem.value;
             }
           });
-          const assert = {
-            assert_type: this.assertType
-          };
-          if (assert.assert_type == 1) {
-            assert.response_assert_rules = this.responseAssertRules;
-            assert.response_assert_content = this.responseAssertContent;
-          } else if (assert.assert_type == 2) {
-            assert.json_path = this.jsonAssertForm.json_path;
-            assert.json_value = this.jsonAssertForm.json_value;
-          }
-          console.log(assert);
           this.request_data = {
+            isEnvironment: this.isEnvironment,
+            project_id: this.project_id,
             environment_id: this.form.environment,
             address: this.form.requestAddress,
             method: this.form.requestType,
             body: this.bodyData,
             headers: header,
             params: params,
-            dataState: this.dataStateCode,
-            assert: assert
+            dataState: this.dataStateCode
           };
-          console.log(this.request_data);
+          this.assertDatas = [];
+          this.assertData.forEach((ele, index) => {
+            if (ele.assertType != 3) {
+              if (
+                ele.assertType != "" &&
+                ele.relation != "" &&
+                ele.expectancyValue != ""
+              ) {
+                this.assertDatas.push(ele);
+              }
+            } else {
+              if (ele.assertType != "" && ele.expectancyValue != "") {
+                this.assertDatas.push(ele);
+              }
+            }
+          });
+          this.request_data.assert = this.assertDatas;
+          console.log(this.request_data, "请求数据");
           //发送请求，返回数据
           request_debug(this.request_data)
             .then(response => {
-              console.log(response.data.data);
-              this.$bus.$emit("response", response.data);
-              this.assert_result = response.data.assert_result;
+              this.responseData = response.data;
+              console.log(this.responseData, "响应数据");
+              // this.$bus.$emit("response", response.data);
+              // this.assert_result = response.data.assert_result;
+              if (this.responseData.assert_result) {
+                this.responseData.assert_result.forEach(ele => {
+                  if (ele.assertType == 1) {
+                    ele.assertType = "响应文本(正则)";
+                  } else if (ele.assertType == 2) {
+                    ele.assertType = "响应文本(JSON)";
+                  } else if (ele.assertType == 3) {
+                    ele.assertType = "响应状态码";
+                  }
+                  if (ele.relation == 1) {
+                    ele.relation = "包含";
+                  } else if (ele.relation == 2) {
+                    ele.relation = "匹配";
+                  }
+                });
+              }
+              this.responseData.response_data = JSON.stringify(
+                this.responseData.response_data
+              );
+              console.log(this.responseData, "响应数据处理后的样子");
               this.$message({
                 message: "请求成功！",
                 type: "success"
               });
             })
             .catch(error => {
+              console.log(error)
               this.$message({
-                message: "参数错误！",
+                message: error.message,
                 type: "error"
               });
               this.$bus.$emit("response", {});
@@ -511,20 +450,22 @@ export default {
         var assert_details = {
           assert_type: this.assertType
         };
-        if (this.assert_result == undefined) {
-          this.assert_result = {};
-        }
-        if (this.assertType == 1) {
-          assert_details.response_assert_rules = this.responseAssertRules;
-          assert_details.response_assert_content = this.responseAssertContent;
-          request_data.assert_details = assert_details;
-          request_data.assert_result = this.assert_result;
-        } else if (this.assertType == 2) {
-          assert_details.json_path = this.jsonAssertForm.json_path;
-          assert_details.json_value = this.jsonAssertForm.json_value;
-          request_data.assert_details = assert_details;
-          request_data.assert_result = this.assert_result;
-        }
+        // if (this.assert_result == undefined) {
+        //   this.assert_result = {};
+        // }
+        // if (this.assertType == 1) {
+        //   assert_details.response_assert_rules = this.responseAssertRules;
+        //   assert_details.response_assert_content = this.responseAssertContent;
+        //   request_data.assert_details = assert_details;
+        //   request_data.assert_result = this.assert_result;
+        // } else if (this.assertType == 2) {
+        //   assert_details.json_path = this.jsonAssertForm.json_path;
+        //   assert_details.json_value = this.jsonAssertForm.json_value;
+        //   request_data.assert_details = assert_details;
+        //   request_data.assert_result = this.assert_result;
+        // }
+        request_data.assert_details = this.assertData;
+
         console.log(request_data);
         //发送请求，返回数据
         request_debug(request_data)

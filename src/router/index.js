@@ -5,7 +5,6 @@ Vue.use(Router)
 
 /* Layout */
 import Layout from '@/layout'
-import InterfaceList from '@/views/myInterface/InterfaceList'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -125,7 +124,7 @@ export const constantRoutes = [
         path: 'interfaceTesting',
         name: 'interfaceTesting',
         component: () => import('@/views/interfaceTesting/index'),
-        meta: { title: '接口调试', icon: 'table' }
+        meta: { title: '接口调试', icon: 'table' ,keepAlive: true}
       },
       //我的接口
       {
@@ -135,12 +134,12 @@ export const constantRoutes = [
         component: () => import('@/views/myInterface/index'),
         meta: { title: '我的接口', icon: 'el-icon-user-solid' },
       },
-      //接口列表
-      {
-        path: 'InterfaceList',
-        name: 'InterfaceList',
-        component: () => import('@/views/myInterface/InterfaceList'),
-      },
+      // //接口列表
+      // {
+      //   path: 'InterfaceList',
+      //   name: 'InterfaceList',
+      //   component: () => import('@/views/myInterface/InterfaceList'),
+      // },
       //我的接口
       {
         path: 'CaseManagement',

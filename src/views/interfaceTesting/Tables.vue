@@ -11,17 +11,8 @@
       </template>
     </el-table-column>
     <slot></slot>
-    <!-- <el-table-column  label="备注" show-overflow-tooltip>
-        <template slot-scope="scope">
-            <el-input v-model="scope.row.description" placeholder="请输入内容"></el-input>
-        </template>
-    </el-table-column>-->
     <el-table-column fixed="right" width="125">
       <template slot="header" slot-scope="scope">
-        <!-- <el-input
-            v-model="search"
-            size="mini"
-        placeholder="输入关键字搜索"/>-->
         <el-button
           @click.native.prevent="addRow(scope.$index, tableData)"
           type="primary"

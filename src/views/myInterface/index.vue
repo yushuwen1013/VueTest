@@ -1,80 +1,243 @@
 <template>
-  <div style="background:#EAEAEA; height: 100%">
-    <div style="background:#fff">
-      <p
-        style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
-      >
-        <span style>文件列表</span>
-      </p>
-    </div>
-    <div>
-      <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="文件名称">
-          <el-input v-model="seareFileName" placeholder="请输入文件名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="inquire">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-        </el-form-item>
-        <el-button
-          style="float: right;margin-bottom: 20px;margin-right: 50px;"
-          type="primary"
-          icon="el-icon-plus"
-          @click="addFile"
-        >添加</el-button>
-      </el-form>
-      <el-table
-        :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
-        height="600"
-        @row-dblclick="showInterfaceList"
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-        style="width: 100%;left: 20px;"
-      >
-        <el-table-column :show-overflow-tooltip="true" prop="file_name" label="文件名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="interfaceNumber" label="接口数量"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
-        <el-table-column width="250" label="操作">
-          <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="showInterfaceList(scope.row)">查看</el-button>
-            <el-button size="mini" @click="editFile(scope.$index, scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="deleteFile(scope.$index, scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <!-- 分页显示 -->
-      <el-pagination
-        style="text-align:center"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[5, 10, 15, 20, 40]"
-        :page-size="pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.length"
-      >//这是显示总共有多少数据，</el-pagination>
+  <div style="background:#EAEAEA; height: 850px">
+    <InterfaceEdit v-if="showInterfaceEdit" :request_data="request_data" />
+    <div v-else>
+      <div style="background:#fff">
+        <p
+          style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;text-align: center;"
+        >
+          <el-button
+            style="margin-left: 10px;float: left;margin-top: 10px;"
+            type="primary"
+            @click="addFile"
+          >添加文件</el-button>
+          <span>我的接口</span>
+        </p>
+      </div>
+      <div>
+        <el-container>
+          <el-aside
+            width="270px"
+            style="background-color: #ffffff;margin-left: 20px;
+            margin-right: 20px;height: 750px;"
+          >
+            <div class="custom-tree-container">
+              <p style="text-align: center">接口文件</p>
+              <div class="block">
+                <el-tree
+                  highlight-current
+                  ref="dataConfigTree"
+                  :data="fileData"
+                  @node-click="getInterfaceUseCaseList"
+                  node-key="id"
+                  default-expand-all
+                  :expand-on-click-node="false"
+                >
+                  <span class="custom-tree-node" slot-scope="{ node }">
+                    <span class="tmp" :title="node.data.file_name">
+                      <i class="el-icon-folder"></i>
+                      {{ node.data.file_name }}
+                    </span>
+                    <span>
+                      <el-button type="text" size="mini" @click="() => editFile(node)">编辑</el-button>
+                      <el-button type="text" size="mini" @click="() => deleteFile(node)">删除</el-button>
+                    </span>
+                  </span>
+                </el-tree>
+              </div>
+            </div>
+          </el-aside>
+          <el-main style="background-color: #ffffff;margin-right: 20px;">
+            <div>
+              <div>
+                <div style="background:#EAEAEA; height: 100%">
+                  <div>
+                    <el-form
+                      :inline="true"
+                      class="demo-form-inline"
+                      style="margin-left: 35px;padding-top: 20px"
+                    >
+                      <el-form-item label="接口名称" style="margin-left: 70px;">
+                        <el-input v-model="seareRequestName" placeholder="请输入接口名称"></el-input>
+                      </el-form-item>
+                      <el-form-item>
+                        <el-button type="primary" @click="inquire">查询</el-button>
+                        <el-button type="primary" @click="reset">重置</el-button>
+                      </el-form-item>
+                      <el-button
+                        style="float: right;margin-bottom: 20px;margin-right: 50px;"
+                        type="primary"
+                        icon="el-icon-plus"
+                        @click="addRequest"
+                      >添加</el-button>
+                    </el-form>
+                    <el-table
+                      :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
+                      :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+                      height="600"
+                      style="left: 20px;width: 1300px;"
+                    >
+                      <el-table-column
+                        :show-overflow-tooltip="true"
+                        max-height="100"
+                        width="180"
+                        prop="request_name"
+                        label="请求名称"
+                      ></el-table-column>
+                      <el-table-column
+                        :show-overflow-tooltip="true"
+                        width="150"
+                        prop="method"
+                        label="请求类型"
+                      ></el-table-column>
+                      <el-table-column
+                        :show-overflow-tooltip="true"
+                        prop="environment, environment_url"
+                        label="请求环境"
+                      >
+                        <template
+                          slot-scope="scope"
+                        >{{scope.row.environment_name}}：{{scope.row.environment_url}}</template>
+                      </el-table-column>
+                      <el-table-column :show-overflow-tooltip="true" prop="address" label="请求地址"></el-table-column>
+                      <el-table-column :show-overflow-tooltip="true" prop="headers" label="请求头部"></el-table-column>
+                      <el-table-column :show-overflow-tooltip="true" prop="data" label="请求参数"></el-table-column>
+                      <el-table-column width="250" label="操作">
+                        <template slot-scope="scope">
+                          <el-button
+                            size="mini"
+                            type="primary"
+                            @click="sendRequest(scope.$index,scope.row)"
+                          >运行</el-button>
+                          <el-button size="mini" @click="editInterface(scope.$index, scope.row)">编辑</el-button>
+                          <el-button
+                            size="mini"
+                            type="danger"
+                            @click="deleteInterface(scope.$index, scope.row)"
+                          >删除</el-button>
+                        </template>
+                      </el-table-column>
+                    </el-table>
+                    <!-- 分页显示 -->
+                    <el-pagination
+                      style="text-align:center"
+                      @size-change="handleSizeChange"
+                      @current-change="handleCurrentChange"
+                      :current-page="currentPage"
+                      :page-sizes="[5, 10, 15, 20, 40]"
+                      :page-size="pagesize"
+                      layout="total, sizes, prev, pager, next, jumper"
+                      :total="tableData.length"
+                    >//这是显示总共有多少数据，</el-pagination>
+                  </div>
+                  <el-drawer title="接口信息" :visible.sync="drawer">
+                    <span class="span">接口名称：{{requestData.request_name}}</span>
+                    <br />
+                    <br />
+                    <span class="span">请求类型：{{resultInfo.request_method}}</span>
+                    <br />
+                    <br />
+                    <span class="span">请求地址：{{resultInfo.request_url}}</span>
+                    <br />
+                    <br />
+                    <el-collapse v-model="activeNames">
+                      <el-collapse-item title="请求头" name="1">
+                        <json-viewer
+                          :value="resultInfo.request_headers"
+                          :expand-depth="2"
+                          copyable
+                          sort
+                        ></json-viewer>
+                      </el-collapse-item>
+                      <el-collapse-item title="请求参数" name="2">
+                        <json-viewer
+                          :value="resultInfo.request_data"
+                          :expand-depth="2"
+                          copyable
+                          sort
+                        ></json-viewer>
+                      </el-collapse-item>
+                      <el-collapse-item title="断言结果" name="3" v-show="assert_result">
+                        <h5>断言类型：{{assert_result.assertion_type}}</h5>
+                        <h5>断言结果：{{assert_result.assertion_results}}</h5>
+                        <h5>断言内容：{{assert_result.assertion_content}}</h5>
+                      </el-collapse-item>
+                      <el-collapse-item title="响应数据" name="4" visible="false">
+                        <json-viewer
+                          :value="resultInfo.response_data"
+                          :expand-depth="2"
+                          copyable
+                          sort
+                        ></json-viewer>
+                      </el-collapse-item>
+                    </el-collapse>
+                  </el-drawer>
+                </div>
+              </div>
+            </div>
+          </el-main>
+        </el-container>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import {
+  get_request_list,
+  update_request,
+  delete_request
+} from "@/api/interfaceTesting";
+import JsonViewer from "vue-json-viewer";
+import vueJsonEditor from "vue-json-editor";
+import { request_debug } from "@/api/interfaceTesting";
+import InterfaceEdit from "./interfaceEdit";
+//__________________
+import {
   get_file_list,
   create_file,
   delete_file
 } from "@/api/interfaceTesting";
 export default {
+  components: { InterfaceEdit },
   data() {
     return {
+      //文件id
+      file_id: "",
+      //断言结果
+      assert_result: {},
+      seareRequestName: "", //搜索值
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
+      //编辑页面使用的数据
+      request_data: {},
+      showInterfaceEdit: false,
+      //默认展开第三个响应数据
+      activeNames: ["3", "4"],
+      resultInfo: {},
+      drawer: false,
       tableData: [],
+      requestData: {},
+      //______________________
+      //项目id
+      project_id: localStorage.getItem("project_id"),
+      //文件数据
+      fileData: [],
+      value: "",
+      showCaseDetails: false,
+      currentPage: 1, //初始页
+      pagesize: 10, //    每页的数据
       seareFileName: ""
     };
   },
   methods: {
     //查询
     inquire() {
-      get_file_list({ file_name: this.seareFileName })
+      const file_id = localStorage.getItem("file_id");
+      get_request_list({
+        file_id: file_id,
+        request_name: this.seareRequestName
+      })
         .then(response => {
           this.tableData = response.data;
         })
@@ -88,10 +251,165 @@ export default {
     },
     //重置
     reset() {
-      this.seareFileName = "";
-      get_file_list().then(response => {
+      this.seareRequestName = "";
+      const file_id = localStorage.getItem("file_id");
+      get_request_list({ file_id }).then(response => {
         this.tableData = response.data;
       });
+    },
+    //添加
+    addRequest() {
+      this.request_data = {
+        requestName: "",
+        url: "",
+        method: "get",
+        body: {},
+        headers: [{}],
+        params: [{}],
+        dataState: 2,
+        file_id: this.file_id,
+        assert_details: { assert_type: 0 },
+        assert_result: {}
+      };
+      this.showInterfaceEdit = true;
+    },
+    //运行  -  发送请求
+    sendRequest(index, row) {
+      console.log(row);
+      if (row.assert_details == null) {
+        var assert_details = {
+          assert_type: 0
+        };
+      } else {
+        assert_details = new Function("return " + row.assert_details)();
+      }
+      const request_data = {
+        environment_id: row.environment_id,
+        address: row.address,
+        method: row.method,
+        body: new Function("return " + row.body)(),
+        headers: new Function("return " + row.headers)(),
+        params: new Function("return " + row.params)(),
+        dataState: row.dataState,
+        request_name: row.request_name,
+        assert: assert_details
+      };
+      this.requestData = request_data;
+      //发送请求，返回数据
+      request_debug(request_data)
+        .then(response => {
+          this.resultInfo = response.data;
+          this.assert_result = response.data.assert_result;
+          console.log(this.assert_result, "5555555555555");
+          if (this.assert_result == undefined) {
+            this.assert_result = false;
+          }
+          this.$message({
+            message: "请求成功！",
+            type: "success"
+          });
+          //右侧弹窗显示信息
+          this.drawer = true;
+        })
+        .catch(error => {
+          this.$message({
+            message: "请求失败！",
+            type: "error"
+          });
+          console.log(error);
+        });
+    },
+    //编辑接口
+    editInterface(index, row) {
+      const headers = [];
+      const params = [];
+      const sHeaders = new Function("return " + row.headers)();
+      const sParams = new Function("return " + row.params)();
+      Object.keys(sHeaders).forEach(elem => {
+        headers.push({ key: elem, value: sHeaders[elem] });
+      });
+      Object.keys(sParams).forEach(elem => {
+        params.push({ key: elem, value: sParams[elem] });
+      });
+      if (row.assert_details == null) {
+        var assert_details = {
+          assert_type: 0
+        };
+        var assert_result = {};
+      } else {
+        (assert_details = new Function("return " + row.assert_details)()),
+          (assert_result = new Function("return " + row.assert_result)());
+      }
+      this.request_data = {
+        id: row.id,
+        requestName: row.request_name,
+        environment_id: row.environment_id,
+        environment_name: row.environment_name,
+        address: row.address,
+        method: row.method,
+        body: new Function("return " + row.body)(),
+        headers: headers,
+        params: params,
+        dataState: row.dataState,
+        file_id: row.request_file_id,
+        assert_details: assert_details,
+        assert_result: assert_result
+      };
+      console.log("==============", this.request_data);
+      this.showInterfaceEdit = true;
+    },
+    //删除接口
+    deleteInterface(index, row) {
+      console.log(index, row);
+      this.$confirm("此操作将永久删除该接口, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          delete_request({ id: row.id })
+            .then(response => {
+              this.$message({
+                type: "success",
+                message: "删除成功!"
+              });
+              const file_id = localStorage.getItem("file_id");
+              const data = { file_id: file_id };
+              // 获取接口列表
+              get_request_list(data).then(response => {
+                const responseData = response.data;
+                responseData.forEach((elem, index) => {
+                  if (elem.dataState == "2") {
+                    elem["data"] = elem["body"];
+                  } else {
+                    elem["data"] = elem["params"];
+                  }
+                });
+                console.log(responseData);
+                this.tableData = responseData;
+              });
+            })
+            .catch(erro => {
+              console.log(erro);
+              this.$message({
+                type: "error",
+                message: erro
+              });
+            });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
+    //_________________________
+    //点击文件
+    getInterfaceUseCaseList(node) {
+      this.$refs.dataConfigTree.setCurrentKey(node.id);
+      console.log(node);
+      this.file_id = node.id
     },
     //添加文件
     addFile() {
@@ -109,12 +427,12 @@ export default {
       })
         .then(({ value }) => {
           //接口参数
-          const createData = { fileName: value };
+          const createData = { fileName: value, project_id: this.project_id };
           //发送新增文件接口
           create_file(createData)
             .then(response => {
-              get_file_list().then(response => {
-                this.tableData = response.data;
+              get_file_list({ project_id: this.project_id }).then(response => {
+                this.fileData = response.data;
               });
             })
             .catch(error => {
@@ -137,11 +455,12 @@ export default {
         });
     },
     //编辑文件
-    editFile(index, row) {
+    editFile(node) {
+      console.log(node, "2222222222222");
       this.$prompt("请输入文件名", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        inputValue: row.file_name,
+        inputValue: node.data.file_name,
         inputErrorMessage: "输入不能为空",
         inputValidator: value => {
           // 点击按钮时，对文本框里面的值进行验证
@@ -153,12 +472,12 @@ export default {
         .then(({ value }) => {
           const data = {
             fileName: value,
-            id: row.id
+            id: node.data.id
           };
           create_file(data)
             .then(response => {
-              get_file_list().then(response => {
-                this.tableData = response.data;
+              get_file_list({ project_id: this.project_id }).then(response => {
+                this.fileData = response.data;
               });
             })
             .catch(error => {
@@ -181,8 +500,8 @@ export default {
         });
     },
     //删除文件
-    deleteFile(index, row) {
-      console.log(index, row);
+    deleteFile(node) {
+      console.log(node);
       this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
@@ -190,12 +509,12 @@ export default {
       })
         .then(() => {
           //删除文件接口
-          const id = { id: row.id };
+          const id = { id: node.data.id };
           delete_file(id)
             .then(response => {
               console.log(response.data);
-              get_file_list().then(response => {
-                this.tableData = response.data;
+              get_file_list({ project_id: this.project_id }).then(response => {
+                this.fileData = response.data;
               });
             })
             .catch(error => {
@@ -217,12 +536,6 @@ export default {
           });
         });
     },
-    //双击进入接口列表
-    showInterfaceList(row, column) {
-      console.log(row, "----------", column);
-      localStorage.setItem("file_id", row.id);
-      this.$router.push({ name: "InterfaceList" });
-    },
     // 初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function(size) {
       this.pagesize = size;
@@ -236,10 +549,10 @@ export default {
   // 创建之前发送请求
   created() {
     //获取文件列表
-    get_file_list()
+    get_file_list({ project_id: this.project_id })
       .then(response => {
         console.log(response.data);
-        this.tableData = response.data;
+        this.fileData = response.data;
       })
       .catch(error => {
         this.$message({
@@ -248,6 +561,42 @@ export default {
         });
         console.log(error);
       });
+    //请求参数
+    // console.log(this.$route.params, "--------------")
+  },
+  mounted() {
+    setTimeout(() => {
+      if (this.fileData.length != 0) {
+        this.$refs.dataConfigTree.setCurrentKey(this.fileData[0].id);
+        console.log(this.fileData[0].id);
+        this.file_id = this.fileData[0].id;
+      }
+    }, 100);
+  },
+  watch: {
+    file_id(val) {
+      console.log(val, "监听");
+      // const file_id = localStorage.getItem("file_id");
+      const data = { file_id: this.file_id };
+      // 获取接口列表
+      get_request_list(data)
+        .then(response => {
+          const responseData = response.data;
+          responseData.forEach((elem, index) => {
+            if (elem.dataState == "2") {
+              elem["data"] = elem["body"];
+            } else {
+              elem["data"] = elem["params"];
+            }
+          });
+          console.log(responseData);
+          this.tableData = responseData;
+        })
+        .catch(error => {
+          this.$bus.$emit("response", {});
+          console.log(error);
+        });
+    }
   }
 };
 </script>
@@ -264,5 +613,36 @@ export default {
 }
 .el-table__header {
   height: 60px;
+}
+.custom-tree-node {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 14px;
+  padding-right: 8px;
+}
+
+.el-tree-node {
+  border: 1px solid rgb(218, 218, 218);
+}
+
+.el-tree-node__content {
+  background-color: #ffffff;
+  height: 50px;
+}
+
+.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+  background-color: rgb(209, 209, 209) !important;
+}
+.tmp {
+  white-space: nowrap; /*强制单行显示*/
+  text-overflow: ellipsis; /*超出部分省略号表示*/
+  overflow: hidden; /*超出部分隐藏*/
+  width: 150px; /*设置显示的最大宽度*/
+  display: inline-block;
+}
+.tmp-next {
+  vertical-align: top;
 }
 </style>
