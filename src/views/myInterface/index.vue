@@ -57,7 +57,7 @@
                       class="demo-form-inline"
                       style="margin-left: 35px;padding-top: 20px"
                     >
-                      <el-form-item label="接口名称" style="margin-left: 70px;">
+                      <el-form-item label="接口名称">
                         <el-input v-model="seareRequestName" placeholder="请输入接口名称"></el-input>
                       </el-form-item>
                       <el-form-item>
@@ -89,15 +89,37 @@
                         width="150"
                         prop="method"
                         label="请求类型"
-                      ></el-table-column>
+                      >
+                        <template slot-scope="scope">
+                          <el-tag
+                            :type="scope.row.method == 'get'? 'success': ''"
+                          >{{scope.row.method}}</el-tag>
+                        </template>
+                      </el-table-column>
                       <el-table-column
                         :show-overflow-tooltip="true"
                         prop="environment, environment_url"
                         label="请求环境"
                       >
-                        <template
-                          slot-scope="scope"
-                        >{{scope.row.environment_name}}：{{scope.row.environment_url}}</template>
+                        <!-- <template slot-scope="scope">
+                          <el-tag
+                            v-if="scope.row.environment_name == '没有引用环境'"
+                            type="danger"
+                          >{{scope.row.environment_name}}</el-tag>
+                          <span>{{scope.row.environment_name == '没有引用环境'? "": scope.row.environment_name}} {{scope.row.environment_url}}</span>
+                        </template>-->
+                        <template slot-scope="scope">
+                          <el-tooltip
+                            class="item"
+                            effect="dark"
+                            :content="scope.row.environment_url"
+                            placement="top-start"
+                          >
+                            <el-tag
+                              :type="scope.row.environment_name == '没有引用环境'? 'danger': 'success'"
+                            >{{scope.row.environment_name}}</el-tag>
+                          </el-tooltip>
+                        </template>
                       </el-table-column>
                       <el-table-column :show-overflow-tooltip="true" prop="address" label="请求地址"></el-table-column>
                       <el-table-column :show-overflow-tooltip="true" prop="headers" label="请求头部"></el-table-column>
@@ -130,48 +152,9 @@
                       :total="tableData.length"
                     >//这是显示总共有多少数据，</el-pagination>
                   </div>
-                  <el-drawer title="接口信息" :visible.sync="drawer">
-                    <span class="span">接口名称：{{requestData.request_name}}</span>
-                    <br />
-                    <br />
-                    <span class="span">请求类型：{{resultInfo.request_method}}</span>
-                    <br />
-                    <br />
-                    <span class="span">请求地址：{{resultInfo.request_url}}</span>
-                    <br />
-                    <br />
-                    <el-collapse v-model="activeNames">
-                      <el-collapse-item title="请求头" name="1">
-                        <json-viewer
-                          :value="resultInfo.request_headers"
-                          :expand-depth="2"
-                          copyable
-                          sort
-                        ></json-viewer>
-                      </el-collapse-item>
-                      <el-collapse-item title="请求参数" name="2">
-                        <json-viewer
-                          :value="resultInfo.request_data"
-                          :expand-depth="2"
-                          copyable
-                          sort
-                        ></json-viewer>
-                      </el-collapse-item>
-                      <el-collapse-item title="断言结果" name="3" v-show="assert_result">
-                        <h5>断言类型：{{assert_result.assertion_type}}</h5>
-                        <h5>断言结果：{{assert_result.assertion_results}}</h5>
-                        <h5>断言内容：{{assert_result.assertion_content}}</h5>
-                      </el-collapse-item>
-                      <el-collapse-item title="响应数据" name="4" visible="false">
-                        <json-viewer
-                          :value="resultInfo.response_data"
-                          :expand-depth="2"
-                          copyable
-                          sort
-                        ></json-viewer>
-                      </el-collapse-item>
-                    </el-collapse>
-                  </el-drawer>
+                  <el-dialog title="响应数据" :visible.sync="drawer" width="55%">
+                    <Response :responseData="responseData" />
+                  </el-dialog>
                 </div>
               </div>
             </div>
@@ -192,6 +175,7 @@ import JsonViewer from "vue-json-viewer";
 import vueJsonEditor from "vue-json-editor";
 import { request_debug } from "@/api/interfaceTesting";
 import InterfaceEdit from "./interfaceEdit";
+import Response from "../interfaceTesting/Response";
 //__________________
 import {
   get_file_list,
@@ -199,9 +183,21 @@ import {
   delete_file
 } from "@/api/interfaceTesting";
 export default {
-  components: { InterfaceEdit },
+  components: { InterfaceEdit, Response },
   data() {
     return {
+      //响应数据
+      responseData: {
+        request_headers: "",
+        request_data: "",
+        request_url: "",
+        request_method: "",
+        response_code: "",
+        response_data: "",
+        response_headers: "{}",
+        dataState: "",
+        assert_result: []
+      },
       //文件id
       file_id: "",
       //断言结果
@@ -216,8 +212,8 @@ export default {
       activeNames: ["3", "4"],
       resultInfo: {},
       drawer: false,
+      //接口列表
       tableData: [],
-      requestData: {},
       //______________________
       //项目id
       project_id: localStorage.getItem("project_id"),
@@ -233,9 +229,8 @@ export default {
   methods: {
     //查询
     inquire() {
-      const file_id = localStorage.getItem("file_id");
       get_request_list({
-        file_id: file_id,
+        file_id: this.file_id,
         request_name: this.seareRequestName
       })
         .then(response => {
@@ -252,37 +247,38 @@ export default {
     //重置
     reset() {
       this.seareRequestName = "";
-      const file_id = localStorage.getItem("file_id");
-      get_request_list({ file_id }).then(response => {
+      get_request_list({ file_id: this.file_id }).then(response => {
         this.tableData = response.data;
       });
     },
     //添加
     addRequest() {
       this.request_data = {
-        requestName: "",
-        url: "",
+        isEnvironment: true,
+        address: "",
+        assert_details: [],
+        assert_result: [],
+        dataState: "2",
+        environment_id: null,
+        environment_name: "",
+        environment_url: "",
+        headers: [
+          {
+            key: "Content-Type",
+            value: "application/json"
+          }
+        ],
+        request_file_id: this.file_id,
         method: "get",
-        body: {},
-        headers: [{}],
         params: [{}],
-        dataState: 2,
-        file_id: this.file_id,
-        assert_details: { assert_type: 0 },
-        assert_result: {}
+        request_name: "",
+        body: {}
       };
       this.showInterfaceEdit = true;
     },
     //运行  -  发送请求
     sendRequest(index, row) {
       console.log(row);
-      if (row.assert_details == null) {
-        var assert_details = {
-          assert_type: 0
-        };
-      } else {
-        assert_details = new Function("return " + row.assert_details)();
-      }
       const request_data = {
         environment_id: row.environment_id,
         address: row.address,
@@ -292,18 +288,34 @@ export default {
         params: new Function("return " + row.params)(),
         dataState: row.dataState,
         request_name: row.request_name,
-        assert: assert_details
+        assert: new Function("return " + row.assert_details)(),
+        isEnvironment: row.isEnvironment
       };
-      this.requestData = request_data;
       //发送请求，返回数据
       request_debug(request_data)
         .then(response => {
-          this.resultInfo = response.data;
-          this.assert_result = response.data.assert_result;
-          console.log(this.assert_result, "5555555555555");
-          if (this.assert_result == undefined) {
-            this.assert_result = false;
+          this.responseData = response.data;
+          console.log(this.responseData, "响应数据");
+          if (this.responseData.assert_result) {
+            this.responseData.assert_result.forEach(ele => {
+              if (ele.assertType == 1) {
+                ele.assertType = "响应文本(正则)";
+              } else if (ele.assertType == 2) {
+                ele.assertType = "响应文本(JSON)";
+              } else if (ele.assertType == 3) {
+                ele.assertType = "响应状态码";
+              }
+              if (ele.relation == 1) {
+                ele.relation = "包含";
+              } else if (ele.relation == 2) {
+                ele.relation = "匹配";
+              }
+            });
           }
+          this.responseData.response_data = JSON.stringify(
+            this.responseData.response_data
+          );
+          console.log(this.responseData, "响应数据处理后的样子");
           this.$message({
             message: "请求成功！",
             type: "success"
@@ -321,42 +333,63 @@ export default {
     },
     //编辑接口
     editInterface(index, row) {
+      this.request_data = row;
+      console.log(row, "row");
       const headers = [];
       const params = [];
       const sHeaders = new Function("return " + row.headers)();
       const sParams = new Function("return " + row.params)();
+      // const sHeaders = eval("(" + row.headers + ")");
+      // const sParams = eval("(" + row.params + ")");
       Object.keys(sHeaders).forEach(elem => {
         headers.push({ key: elem, value: sHeaders[elem] });
       });
       Object.keys(sParams).forEach(elem => {
         params.push({ key: elem, value: sParams[elem] });
       });
-      if (row.assert_details == null) {
-        var assert_details = {
-          assert_type: 0
-        };
-        var assert_result = {};
-      } else {
-        (assert_details = new Function("return " + row.assert_details)()),
-          (assert_result = new Function("return " + row.assert_result)());
-      }
-      this.request_data = {
-        id: row.id,
-        requestName: row.request_name,
-        environment_id: row.environment_id,
-        environment_name: row.environment_name,
-        address: row.address,
-        method: row.method,
-        body: new Function("return " + row.body)(),
-        headers: headers,
-        params: params,
-        dataState: row.dataState,
-        file_id: row.request_file_id,
-        assert_details: assert_details,
-        assert_result: assert_result
-      };
-      console.log("==============", this.request_data);
+      console.log(row.headers, row.params);
+      console.log(headers, params);
+      this.request_data.headers = headers;
+      this.request_data.params = params;
+      this.request_data.assert_details = new Function(
+        "return " + row.assert_details
+      )();
+      // this.request_data.assert_result = new Function(
+      //   "return " + row.assert_result
+      // )();
+      this.request_data.body = new Function("return " + row.body)();
+      // this.request_data.data = new Function("return " + row.data)();
+      // this.request_data.assert_details = new Function("return " + row.assert_details)();;
+      // this.request_data.assert_details = new Function("return " + row.assert_details)();;
+      // this.request_data.assert_details = new Function("return " + row.assert_details)();;
+
+      // if (row.assert_details == null) {
+      //   var assert_details = {
+      //     assert_type: 0
+      //   };
+      //   var assert_result = {};
+      // } else {
+      //   (assert_details = new Function("return " + row.assert_details)()),
+      //     (assert_result = new Function("return " + row.assert_result)());
+      // }
+      // this.request_data = {
+      //   id: row.id,
+      //   requestName: row.request_name,
+      //   environment_id: row.environment_id,
+      //   environment_name: row.environment_name,
+      //   address: row.address,
+      //   method: row.method,
+      //   body: new Function("return " + row.body)(),
+      //   headers: headers,
+      //   params: params,
+      //   dataState: row.dataState,
+      //   file_id: row.request_file_id,
+      //   assert_details: assert_details,
+      //   assert_result: assert_result
+      // };
       this.showInterfaceEdit = true;
+      console.log(this.tableData, "22222222222222");
+      console.log("==============", this.request_data);
     },
     //删除接口
     deleteInterface(index, row) {
@@ -373,8 +406,7 @@ export default {
                 type: "success",
                 message: "删除成功!"
               });
-              const file_id = localStorage.getItem("file_id");
-              const data = { file_id: file_id };
+              const data = { file_id: this.file_id };
               // 获取接口列表
               get_request_list(data).then(response => {
                 const responseData = response.data;
@@ -409,7 +441,7 @@ export default {
     getInterfaceUseCaseList(node) {
       this.$refs.dataConfigTree.setCurrentKey(node.id);
       console.log(node);
-      this.file_id = node.id
+      this.file_id = node.id;
     },
     //添加文件
     addFile() {
@@ -442,6 +474,8 @@ export default {
               });
               console.log(error);
             });
+          this.selected();
+          console.log("ssssssss");
           this.$message({
             type: "success",
             message: "文件名称是: " + value
@@ -516,6 +550,13 @@ export default {
               get_file_list({ project_id: this.project_id }).then(response => {
                 this.fileData = response.data;
               });
+              setTimeout(() => {
+                if (this.fileData.length != 0) {
+                  this.$refs.dataConfigTree.setCurrentKey(this.fileData[0].id);
+                  console.log(this.fileData[0].id);
+                  this.file_id = this.fileData[0].id;
+                }
+              }, 100);
             })
             .catch(error => {
               this.$message({
@@ -544,6 +585,14 @@ export default {
     handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
+    },
+    //选中状态
+    selected() {
+      setTimeout(() => {
+        if (this.fileData.length != 0) {
+          this.$refs.dataConfigTree.setCurrentKey(this.file_id);
+        }
+      }, 50);
     }
   },
   // 创建之前发送请求
@@ -576,7 +625,6 @@ export default {
   watch: {
     file_id(val) {
       console.log(val, "监听");
-      // const file_id = localStorage.getItem("file_id");
       const data = { file_id: this.file_id };
       // 获取接口列表
       get_request_list(data)
@@ -593,7 +641,6 @@ export default {
           this.tableData = responseData;
         })
         .catch(error => {
-          this.$bus.$emit("response", {});
           console.log(error);
         });
     }

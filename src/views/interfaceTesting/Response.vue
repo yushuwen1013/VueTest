@@ -38,7 +38,7 @@
             ></el-input>
             <json-viewer
               v-else
-              style="max-height:200px;overflow:auto;"
+              style="max-height:400px;overflow:auto;"
               :value="JSON.parse(responseData.response_data)"
               :expand-depth="2"
               copyable
@@ -48,7 +48,7 @@
         </el-tab-pane>
         <el-tab-pane label="Headers" name="Headers">
           <json-viewer
-            style="max-height:200px;overflow:auto;"
+            style="max-height:400px;overflow:auto;"
             :value="responseData.response_headers"
             :expand-depth="2"
             copyable

@@ -2,7 +2,7 @@
   <div>
     <el-form ref="form" :rules="rules" :model="form" label-width="80px" style="height: 400px">
       <!-- 请求类型和地址 -->
-      <el-form-item label="请求参数">
+      <el-form-item label="请求类型">
         <el-select v-model="form.requestType" placeholder="请选择请求类型" style="width: 147px;">
           <el-option label="GET" value="get"></el-option>
           <el-option label="POST" value="post"></el-option>
@@ -18,7 +18,11 @@
             :value="item.id"
           ></el-option>
         </el-select>
-        <el-input v-model="form.requestAddress" placeholder="请输入地址" :style="isEnvironment? 'width: 500px;': 'width: 702px;'"></el-input>
+        <el-input
+          v-model="form.requestAddress"
+          placeholder="请输入地址"
+          :style="isEnvironment? 'width: 500px;': 'width: 702px;'"
+        ></el-input>
         <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
         <el-button type="primary" @click="save(form)">Save</el-button>
       </el-form-item>
@@ -352,8 +356,6 @@ export default {
             .then(response => {
               this.responseData = response.data;
               console.log(this.responseData, "响应数据");
-              // this.$bus.$emit("response", response.data);
-              // this.assert_result = response.data.assert_result;
               if (this.responseData.assert_result) {
                 this.responseData.assert_result.forEach(ele => {
                   if (ele.assertType == 1) {
@@ -380,7 +382,7 @@ export default {
               });
             })
             .catch(error => {
-              console.log(error)
+              console.log(error);
               this.$message({
                 message: error.message,
                 type: "error"
@@ -398,7 +400,7 @@ export default {
       this.dialogFormVisible = true;
       //获取文件列表
       this.saveForm.request_name = this.form.requestAddress;
-      get_file_list()
+      get_file_list({ project_id: this.project_id })
         .then(response => {
           this.saveForm.tableData = response.data;
         })
@@ -445,34 +447,53 @@ export default {
           headers: header,
           params: params,
           dataState: this.dataStateCode,
-          file_id: file_id
+          file_id: file_id,
+          assert_details: this.assertData,
+          assert_result: this.responseData.assert_result,
+          isEnvironment: this.isEnvironment
         };
-        var assert_details = {
-          assert_type: this.assertType
-        };
-        // if (this.assert_result == undefined) {
-        //   this.assert_result = {};
-        // }
-        // if (this.assertType == 1) {
-        //   assert_details.response_assert_rules = this.responseAssertRules;
-        //   assert_details.response_assert_content = this.responseAssertContent;
-        //   request_data.assert_details = assert_details;
-        //   request_data.assert_result = this.assert_result;
-        // } else if (this.assertType == 2) {
-        //   assert_details.json_path = this.jsonAssertForm.json_path;
-        //   assert_details.json_value = this.jsonAssertForm.json_value;
-        //   request_data.assert_details = assert_details;
-        //   request_data.assert_result = this.assert_result;
-        // }
-        request_data.assert_details = this.assertData;
-
+        this.assertDatas = [];
+        this.assertData.forEach((ele, index) => {
+          if (ele.assertType != 3) {
+            if (
+              ele.assertType != "" &&
+              ele.relation != "" &&
+              ele.expectancyValue != ""
+            ) {
+              this.assertDatas.push(ele);
+            }
+          } else {
+            if (ele.assertType != "" && ele.expectancyValue != "") {
+              this.assertDatas.push(ele);
+            }
+          }
+        });
+        request_data.assert_details = this.assertDatas;
+        request_data.assert = this.assertDatas;
         console.log(request_data);
         //发送请求，返回数据
         request_debug(request_data)
           .then(response => {
-            console.log(response.data.data);
-            this.$bus.$emit("response", response.data);
-            this.assert_result = response.data.assert_result;
+            this.responseData = response.data;
+            if (this.responseData.assert_result) {
+              this.responseData.assert_result.forEach(ele => {
+                if (ele.assertType == 1) {
+                  ele.assertType = "响应文本(正则)";
+                } else if (ele.assertType == 2) {
+                  ele.assertType = "响应文本(JSON)";
+                } else if (ele.assertType == 3) {
+                  ele.assertType = "响应状态码";
+                }
+                if (ele.relation == 1) {
+                  ele.relation = "包含";
+                } else if (ele.relation == 2) {
+                  ele.relation = "匹配";
+                }
+              });
+            }
+            this.responseData.response_data = JSON.stringify(
+              this.responseData.response_data
+            );
             //发送保存请求
             update_request(request_data)
               .then(response => {
