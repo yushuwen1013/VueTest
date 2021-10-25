@@ -182,6 +182,7 @@ import {
   create_file,
   delete_file
 } from "@/api/interfaceTesting";
+import { parse } from "path-to-regexp";
 export default {
   components: { InterfaceEdit, Response },
   data() {
@@ -206,7 +207,9 @@ export default {
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
       //编辑页面使用的数据
-      request_data: {},
+      request_data: {
+        aa: "222222"
+      },
       showInterfaceEdit: false,
       //默认展开第三个响应数据
       activeNames: ["3", "4"],
@@ -272,7 +275,7 @@ export default {
         method: "get",
         params: [{}],
         request_name: "",
-        body: {}
+        body: "{}"
       };
       this.showInterfaceEdit = true;
     },
@@ -315,6 +318,9 @@ export default {
           this.responseData.response_data = JSON.stringify(
             this.responseData.response_data
           );
+          this.responseData.response_headers = JSON.stringify(
+            this.responseData.response_headers
+          );
           console.log(this.responseData, "响应数据处理后的样子");
           this.$message({
             message: "请求成功！",
@@ -333,63 +339,39 @@ export default {
     },
     //编辑接口
     editInterface(index, row) {
-      this.request_data = row;
-      console.log(row, "row");
       const headers = [];
       const params = [];
       const sHeaders = new Function("return " + row.headers)();
       const sParams = new Function("return " + row.params)();
-      // const sHeaders = eval("(" + row.headers + ")");
-      // const sParams = eval("(" + row.params + ")");
+      console.log(Object.keys(sHeaders), "Object.keys(sHeaders)");
       Object.keys(sHeaders).forEach(elem => {
         headers.push({ key: elem, value: sHeaders[elem] });
+        console.log(elem, sHeaders[elem], "22222222222");
       });
       Object.keys(sParams).forEach(elem => {
         params.push({ key: elem, value: sParams[elem] });
       });
-      console.log(row.headers, row.params);
-      console.log(headers, params);
-      this.request_data.headers = headers;
-      this.request_data.params = params;
-      this.request_data.assert_details = new Function(
-        "return " + row.assert_details
-      )();
-      // this.request_data.assert_result = new Function(
-      //   "return " + row.assert_result
-      // )();
-      this.request_data.body = new Function("return " + row.body)();
-      // this.request_data.data = new Function("return " + row.data)();
-      // this.request_data.assert_details = new Function("return " + row.assert_details)();;
-      // this.request_data.assert_details = new Function("return " + row.assert_details)();;
-      // this.request_data.assert_details = new Function("return " + row.assert_details)();;
-
-      // if (row.assert_details == null) {
-      //   var assert_details = {
-      //     assert_type: 0
-      //   };
-      //   var assert_result = {};
-      // } else {
-      //   (assert_details = new Function("return " + row.assert_details)()),
-      //     (assert_result = new Function("return " + row.assert_result)());
-      // }
-      // this.request_data = {
-      //   id: row.id,
-      //   requestName: row.request_name,
-      //   environment_id: row.environment_id,
-      //   environment_name: row.environment_name,
-      //   address: row.address,
-      //   method: row.method,
-      //   body: new Function("return " + row.body)(),
-      //   headers: headers,
-      //   params: params,
-      //   dataState: row.dataState,
-      //   file_id: row.request_file_id,
-      //   assert_details: assert_details,
-      //   assert_result: assert_result
-      // };
+      console.log(row.body, "body")
+      this.request_data = {
+        isEnvironment: row.isEnvironment,
+        address: row.address,
+        assert_details: new Function("return " + row.assert_details)(),
+        assert_result: new Function("return " + row.assert_result)(),
+        dataState: row.dataState,
+        environment_id: row.environment_id,
+        environment_name: row.environment_name,
+        environment_url: row.environment_url,
+        headers: headers,
+        request_file_id: this.file_id,
+        id: row.id,
+        method: row.method,
+        params: params,
+        request_file_id: row.request_file_id,
+        request_name: row.request_name,
+        body: JSON.stringify(JSON.parse(row.body), null, 2)
+      };
+      console.log(this.request_data, "this.request_data");
       this.showInterfaceEdit = true;
-      console.log(this.tableData, "22222222222222");
-      console.log("==============", this.request_data);
     },
     //删除接口
     deleteInterface(index, row) {

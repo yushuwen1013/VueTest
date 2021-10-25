@@ -34,8 +34,8 @@
               :style="isEnvironment? 'width: 500px;': 'width: 702px;'"
             ></el-input>
             <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
-            <el-button type="primary" @click="sureSave(form)">确定保存</el-button>
-            <el-button type="primary" @click="back">取消保存</el-button>
+            <el-button type="primary" @click="sureSave(form)">保存</el-button>
+            <el-button type="primary" @click="back">取消</el-button>
           </el-form-item>
           <el-tabs type="border-card" @tab-click="handleClick">
             <!-- 请求头 -->
@@ -48,7 +48,8 @@
             </el-tab-pane>
             <!-- 请求Body Json参数 -->
             <el-tab-pane style="max-height: 260px; overflow: auto;" label="Body">
-              <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" />
+              <!-- <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" /> -->
+              <b-ace-editor v-model="bodyData" lang="json" width="100%" height="250"></b-ace-editor>
             </el-tab-pane>
             <!-- 断言 -->
             <el-tab-pane style="max-height: 260px; overflow: auto;" label="断言">
@@ -111,8 +112,52 @@
               </template>
             </el-tab-pane>
             <!-- 参数提取 -->
-            <!-- <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
-            </el-tab-pane>-->
+            <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
+              <template height="250">
+                <el-table :data="parameterExtractionData" style="width: 100%">
+                  <el-table-column label="提取类型" width="300" align="center">
+                    <template slot-scope="scope">
+                      <el-select v-model="scope.row.extractionType" placeholder="请选择提取类型">
+                        <el-option label="响应文本（正则）" :value="1"></el-option>
+                        <el-option label="响应文本（JSON）" :value="2"></el-option>
+                        <!-- <el-option label="响应状态码" :value="3"></el-option> -->
+                      </el-select>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="提取表达式" align="center">
+                    <template slot-scope="scope">
+                      <el-input
+                        placeholder="请输入表达式"
+                        v-model="scope.row.parameterExtractExpression"
+                        clearable
+                      ></el-input>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="变量名称" width="300" align="center">
+                    <template slot-scope="scope">
+                      <el-input placeholder="请输入变量名称" v-model="scope.row.variableName" clearable></el-input>
+                    </template>
+                  </el-table-column>
+                  <slot></slot>
+                  <el-table-column fixed="right" width="125" align="center">
+                    <template slot="header" slot-scope="scope">
+                      <el-button
+                        @click.native.prevent="addParameterExtraction(scope.$index, parameterExtractionData)"
+                        type="primary"
+                        size="medium"
+                      >添加</el-button>
+                    </template>
+                    <template slot-scope="scope">
+                      <el-button
+                        @click.native.prevent="deleteParameterExtraction(scope.$index, parameterExtractionData)"
+                        type="text"
+                        size="medium"
+                      >移除</el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </template>
+            </el-tab-pane>
           </el-tabs>
         </el-form>
         <div style="margin-top: 130px;">
@@ -151,7 +196,7 @@
             <el-button @click="dialogFormVisible = false">取 消</el-button>
             <el-button type="primary" @click="sureSave(saveForm)">确 定</el-button>
           </div>
-        </el-dialog> -->
+        </el-dialog>-->
       </div>
     </el-main>
   </div>
@@ -197,6 +242,17 @@ export default {
         dataState: "",
         assert_result: []
       },
+      //参数提取表单
+      parameterExtractionData: [
+        { 
+          //提取类型
+          extractionType: "",
+          //参数提取表达式
+          parameterExtractExpression: "",
+          //变量名称
+          variableName: ""
+        }
+      ],
       //断言表单
       assertData: this.request_data.assert_details,
       //项目id
@@ -231,7 +287,7 @@ export default {
       //保存
       dialogFormVisible: false, // 保存表单显隐
       currentPage: 1, //初始页
-      pagesize: 5, //    每页的数据
+      pagesize: 5 //    每页的数据
       // //保存的表单
       // saveForm: {
       //   request_name: null,
@@ -265,7 +321,6 @@ export default {
             console.log(error);
           });
       }
-      console.log(this.$parent.tableData, "22222222222222");
     },
     //删除断言
     deleteAssert(index, rows) {
@@ -275,7 +330,7 @@ export default {
         type: "success"
       });
     },
-    // 添加table
+    // 添加断言
     addAssert(index, rows) {
       this.assertData.push({
         //断言类型
@@ -289,6 +344,29 @@ export default {
         //断言提取表达式
         assertExtractExpression: ""
       });
+      this.$message({
+        message: "添加成功！",
+        type: "success"
+      });
+    },
+     //删除参数提取
+    deleteParameterExtraction(index, rows) {
+      rows.splice(index, 1);
+      this.$message({
+        message: "移除成功！",
+        type: "success"
+      });
+    },
+    // 添加参数提取
+    addParameterExtraction(index, rows) {
+      this.parameterExtractionData.push({ 
+          //提取类型
+          extractionType: "",
+          //参数提取表达式
+          parameterExtractExpression: "",
+          //变量名称
+          variableName: ""
+        });
       this.$message({
         message: "添加成功！",
         type: "success"
@@ -343,11 +421,12 @@ export default {
             environment_id: this.form.environment,
             address: this.form.requestAddress,
             method: this.form.requestType,
-            body: this.bodyData,
+            body: new Function("return " + this.bodyData)(),
             headers: header,
             params: params,
             dataState: this.dataStateCode
           };
+          //////////////////////////////////////
           this.assertDatas = [];
           this.assertData.forEach((ele, index) => {
             if (ele.assertType != 3) {
@@ -365,6 +444,19 @@ export default {
             }
           });
           request_data.assert = this.assertDatas;
+          ////////////////////////////////////////////////
+          this.parameterExtractionDatas = [];
+          this.parameterExtractionData.forEach((ele, index) => {
+            if (
+              ele.extractionType != "" &&
+              ele.parameterExtractExpression != "" &&
+              ele.variableName != ""
+            ) {
+              this.parameterExtractionDatas.push(ele);
+            }
+          });
+          request_data.parameterExtractionData = this.parameterExtractionDatas;
+          ////////////////////////////////////////
           console.log(request_data, "请求数据");
           //发送请求，返回数据
           request_debug(request_data)
@@ -389,6 +481,9 @@ export default {
               }
               this.responseData.response_data = JSON.stringify(
                 this.responseData.response_data
+              );
+              this.responseData.response_headers = JSON.stringify(
+                this.responseData.response_headers
               );
               console.log(this.responseData, "响应数据处理后的样子");
               this.$message({
@@ -453,7 +548,7 @@ export default {
           environment_id: this.form.environment,
           address: this.form.requestAddress,
           method: this.form.requestType,
-          body: this.bodyData,
+          body: new Function("return " + this.bodyData)(),
           headers: header,
           params: params,
           dataState: this.dataStateCode,
@@ -562,7 +657,7 @@ export default {
     handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
-    },
+    }
   },
   created() {
     get_environment_configuration({ project_id: this.project_id }).then(

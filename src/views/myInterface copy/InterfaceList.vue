@@ -195,7 +195,7 @@ export default {
     },
     //运行  -  发送请求
     sendRequest(index, row) {
-      console.log(row);
+      console.log(row, "啦啦啦");
       if (row.assert_details == null) {
         var assert_details = {
           assert_type: 0

@@ -37,7 +37,13 @@
         </el-tab-pane>
         <!-- 请求Body Json参数 -->
         <el-tab-pane style="max-height: 260px; overflow: auto;" label="Body">
-          <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" />
+          <!-- <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" /> -->
+          <b-ace-editor
+            v-model="bodyData"
+            lang="json"
+            width="100%"
+            height="250"
+          ></b-ace-editor>
         </el-tab-pane>
         <!-- 断言 -->
         <el-tab-pane style="max-height: 260px; overflow: auto;" label="断言">
@@ -212,7 +218,7 @@ export default {
         ],
         request_name: [{ required: true, trigger: "blur", validator: notNull }]
       },
-      bodyData: {},
+      bodyData: "{}",
       //请求头数据
       headersTableData: [
         {
@@ -328,7 +334,7 @@ export default {
             environment_id: this.form.environment,
             address: this.form.requestAddress,
             method: this.form.requestType,
-            body: this.bodyData,
+            body: new Function("return " + this.bodyData)(),
             headers: header,
             params: params,
             dataState: this.dataStateCode
@@ -375,7 +381,10 @@ export default {
               this.responseData.response_data = JSON.stringify(
                 this.responseData.response_data
               );
-              console.log(this.responseData, "响应数据处理后的样子");
+              this.responseData.response_headers = JSON.stringify(
+                this.responseData.response_headers
+              );
+             
               this.$message({
                 message: "请求成功！",
                 type: "success"
@@ -443,7 +452,7 @@ export default {
           environment_id: this.form.environment,
           address: this.form.requestAddress,
           method: this.form.requestType,
-          body: this.bodyData,
+          body: new Function("return " + this.bodyData)(),
           headers: header,
           params: params,
           dataState: this.dataStateCode,
