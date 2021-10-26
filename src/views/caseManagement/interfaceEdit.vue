@@ -205,9 +205,13 @@
 import vueJsonEditor from "vue-json-editor";
 import {
   request_debug,
+  update_interface_use_case,
+  get_interface_use_case,
+  get_environment_configuration
+} from "@/api/interfaceTesting";
+import {
   get_file_list,
   update_request,
-  get_environment_configuration,
   get_request_list
 } from "@/api/interfaceTesting";
 import Response from "../interfaceTesting/Response";
@@ -278,13 +282,6 @@ export default {
       dialogFormVisible: false, // 保存表单显隐
       currentPage: 1, //初始页
       pagesize: 5 //    每页的数据
-      // //保存的表单
-      // saveForm: {
-      //   request_name: null,
-      //   tableData: [],
-      //   //所选择的文件夹
-      //   multipleSelection: ""
-      // }
     };
   },
   methods: {
@@ -293,9 +290,10 @@ export default {
       this.$parent.showInterfaceEdit = false;
       this.$parent.selected();
       if (this.request_data.id) {
-        // 获取接口列表
-        get_request_list({ file_id: this.$parent.file_id })
+        // 获取接口用例列表
+        get_interface_use_case({ use_case_id: this.$parent.use_case_id })
           .then(response => {
+            console.log(response, "responseresponseresponseresponse");
             const responseData = response.data;
             responseData.forEach((elem, index) => {
               if (elem.dataState == "2") {
@@ -305,12 +303,15 @@ export default {
               }
             });
             console.log(responseData);
-            this.$parent.tableData = responseData;
+            this.$$parent.tableData = responseData;
           })
           .catch(error => {
             console.log(error);
           });
       }
+      setTimeout(() => {
+        this.$parent.disableDefaultBehavior(); //阻止默认行为
+      }, 500);
     },
     //删除断言
     deleteAssert(index, rows) {
@@ -479,27 +480,10 @@ export default {
         }
       });
     },
-    // //保存表单
-    // save(form) {
-    //   this.dialogFormVisible = true;
-    //   //获取文件列表
-    //   this.saveForm.request_name = this.form.requestAddress;
-    //   get_file_list({ project_id: this.project_id })
-    //     .then(response => {
-    //       this.saveForm.tableData = response.data;
-    //     })
-    //     .catch(error => {
-    //       this.$message({
-    //         message: "获取失败",
-    //         type: "error"
-    //       });
-    //       console.log(error);
-    //     });
-    // },
     //确定保存
     sureSave(form) {
-      const file_id = [this.$parent.file_id];
-      if (form.request_name == "" || file_id.length === 0) {
+      const use_case_id = this.$parent.use_case_id;
+      if (form.request_name == "") {
         this.$message({
           message: "接口名称或文件不能为空",
           type: "error"
@@ -526,7 +510,7 @@ export default {
           headers: header,
           params: params,
           dataState: this.dataStateCode,
-          file_id: file_id,
+          use_case_id: use_case_id,
           isEnvironment: this.isEnvironment
         };
         if (this.request_data.id) {
@@ -578,44 +562,49 @@ export default {
             this.responseData.response_headers = JSON.stringify(
               this.responseData.response_headers
             );
-            request_data.extraction_result = this.responseData.extraction_result
-            request_data.assert_result = this.responseData.assert_result,
-            //发送保存请求
-            update_request(request_data)
-              .then(response => {
-                this.$message({
-                  message: "保存成功！",
-                  type: "success"
-                });
-                // 切换到我的接口列表
-                this.$parent.showInterfaceEdit = false;
-                // 获取接口列表
-                get_request_list({ file_id: this.$parent.file_id })
-                  .then(response => {
-                    const responseData = response.data;
-                    responseData.forEach((elem, index) => {
-                      if (elem.dataState == "2") {
-                        elem["data"] = elem["body"];
-                      } else {
-                        elem["data"] = elem["params"];
-                      }
-                    });
-                    console.log(responseData);
-                    this.$parent.tableData = responseData;
-                    this.$parent.selected();
-                  })
-                  .catch(error => {
-                    this.$bus.$emit("response", {});
-                    console.log(error);
+            request_data.extraction_result = this.responseData.extraction_result;
+            (request_data.assert_result = this.responseData.assert_result),
+              //发送保存用例请求
+              update_interface_use_case(request_data)
+                .then(response => {
+                  this.$message({
+                    message: "保存成功！",
+                    type: "success"
                   });
-              })
-              .catch(error => {
-                this.$message({
-                  message: "保存参数错误",
-                  type: "error"
+                  // 切换到我的接口列表
+                  this.$parent.showInterfaceEdit = false;
+                  setTimeout(() => {
+                    this.$parent.disableDefaultBehavior(); //阻止默认行为
+                  }, 500);
+                  // 获取接口列表
+                  get_interface_use_case({
+                    use_case_id: this.$parent.use_case_id
+                  })
+                    .then(response => {
+                      const responseData = response.data;
+                      responseData.forEach((elem, index) => {
+                        if (elem.dataState == "2") {
+                          elem["data"] = elem["body"];
+                        } else {
+                          elem["data"] = elem["params"];
+                        }
+                      });
+                      console.log(responseData);
+                      this.$parent.tableData = responseData;
+                      this.$parent.selected();
+                    })
+                    .catch(error => {
+                      this.$bus.$emit("response", {});
+                      console.log(error);
+                    });
+                })
+                .catch(error => {
+                  this.$message({
+                    message: "保存参数错误",
+                    type: "error"
+                  });
+                  console.log(error);
                 });
-                console.log(error);
-              });
           })
           .catch(error => {
             this.$message({

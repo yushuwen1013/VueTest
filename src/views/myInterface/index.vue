@@ -101,13 +101,6 @@
                         prop="environment, environment_url"
                         label="请求环境"
                       >
-                        <!-- <template slot-scope="scope">
-                          <el-tag
-                            v-if="scope.row.environment_name == '没有引用环境'"
-                            type="danger"
-                          >{{scope.row.environment_name}}</el-tag>
-                          <span>{{scope.row.environment_name == '没有引用环境'? "": scope.row.environment_name}} {{scope.row.environment_url}}</span>
-                        </template>-->
                         <template slot-scope="scope">
                           <el-tooltip
                             class="item"
@@ -259,7 +252,28 @@ export default {
       this.request_data = {
         isEnvironment: true,
         address: "",
-        assert_details: [],
+        assert_details: [
+          {
+            //断言类型
+            assertType: "",
+            //断言提取表达式
+            assertExtractExpression: "",
+            //期望值
+            expectancyValue: "",
+            //关系
+            relation: "",
+            //断言提取表达式
+            assertExtractExpression: ""
+          }
+        ],
+        extraction_details: [
+          {
+            extractionType: "",
+            parameterExtractExpression: "",
+            variableName: ""
+          }
+        ],
+        extraction_result: [],
         assert_result: [],
         dataState: "2",
         environment_id: null,
@@ -291,7 +305,8 @@ export default {
         params: new Function("return " + row.params)(),
         dataState: row.dataState,
         request_name: row.request_name,
-        assert: new Function("return " + row.assert_details)(),
+        assert_details: new Function("return " + row.assert_details)(),
+        extraction_details: new Function("return " + row.extraction_details)(),
         isEnvironment: row.isEnvironment
       };
       //发送请求，返回数据
@@ -351,12 +366,13 @@ export default {
       Object.keys(sParams).forEach(elem => {
         params.push({ key: elem, value: sParams[elem] });
       });
-      console.log(row.body, "body")
       this.request_data = {
         isEnvironment: row.isEnvironment,
         address: row.address,
         assert_details: new Function("return " + row.assert_details)(),
         assert_result: new Function("return " + row.assert_result)(),
+        extraction_details: new Function("return " + row.extraction_details)(),
+        extraction_result: new Function("return " + row.extraction_result)(),
         dataState: row.dataState,
         environment_id: row.environment_id,
         environment_name: row.environment_name,
@@ -503,6 +519,7 @@ export default {
               });
               console.log(error);
             });
+          this.selected();
           this.$message({
             type: "success",
             message: "文件名称是: " + value

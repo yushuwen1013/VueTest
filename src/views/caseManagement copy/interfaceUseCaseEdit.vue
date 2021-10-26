@@ -116,15 +116,15 @@
 import vueJsonEditor from "vue-json-editor";
 import {
   request_debug,
-  update_request,
-  get_request_list,
+  update_interface_use_case,
+  get_interface_use_case,
   get_environment_configuration
 } from "@/api/interfaceTesting";
 import JsonViewer from "vue-json-viewer";
 import Response from "@/views/interfaceTesting/Response";
 import Tables from "@/views/interfaceTesting/Tables";
 export default {
-  name: "InterfaceEdit",
+  name: "interfaceUseCaseEdit",
   components: { vueJsonEditor, Tables, JsonViewer },
   props: ["request_data"],
   data() {
@@ -207,6 +207,9 @@ export default {
     //返回
     back() {
       this.$parent.showInterfaceEdit = false;
+      setTimeout(() => {
+        this.$parent.disableDefaultBehavior(); //阻止默认行为
+      }, 500);
     },
     //获取row的id
     getRowKeys(row) {
@@ -291,6 +294,7 @@ export default {
     },
     //保存
     Save() {
+      const use_case_id = localStorage.getItem("use_case_id");
       console.log(this.request_data);
       const header = {};
       this.headersTableData.forEach((elem, index) => {
@@ -317,7 +321,7 @@ export default {
       if (this.request_data.id != undefined) {
         request_data.id = this.request_data.id;
       }
-      request_data.file_id = [this.request_data.file_id];
+      request_data.use_case_id = use_case_id;
       var assert_details = {
         assert_type: this.assertType
       };
@@ -336,37 +340,54 @@ export default {
         request_data.assert_result = this.assert_result;
       }
       console.log(request_data, "+++++++++++++++++++++");
-      //发送保存请求
-      update_request(request_data)
+      //发送请求
+      request_debug(request_data)
         .then(response => {
-          console.log(response);
-          this.$bus.$emit("response", response.data);
-          this.$message({
-            message: "修改成功！",
-            type: "success"
-          });
-          //切换回接口列表页面
-          this.$parent.showInterfaceEdit = false;
-          //获取接口列表
-          const file_id = localStorage.getItem("file_id");
-          const data = { file_id: file_id };
-          get_request_list(data).then(response => {
-            const responseData = response.data;
-            responseData.forEach((elem, index) => {
-              if (elem.dataState == "2") {
-                elem["data"] = elem["body"];
-              } else {
-                elem["data"] = elem["params"];
-              }
+          console.log(response.data.data);
+          this.resultInfo = response.data;
+          //发送保存请求
+          update_interface_use_case(request_data)
+            .then(response => {
+              console.log(response);
+              this.$bus.$emit("response", response.data);
+              this.$message({
+                message: "保存成功！",
+                type: "success"
+              });
+              //返回后阻止默认行为
+              setTimeout(() => {
+                this.$parent.disableDefaultBehavior(); //阻止默认行为
+              }, 500);
+              //切换回接口列表页面
+              this.$parent.showInterfaceEdit = false;
+              //获取接口列表
+              const data = { use_case_id: use_case_id };
+              get_interface_use_case(data).then(response => {
+                const responseData = response.data;
+                responseData.forEach((elem, index) => {
+                  if (elem.dataState == "2") {
+                    elem["data"] = elem["body"];
+                  } else {
+                    elem["data"] = elem["params"];
+                  }
+                });
+                this.$parent.tableData = responseData;
+              });
+            })
+            .catch(error => {
+              this.$message({
+                message: "参数错误！",
+                type: "error"
+              });
+              console.log(error);
             });
-            this.$parent.tableData = responseData;
-          });
         })
         .catch(error => {
           this.$message({
-            message: "参数错误！",
+            message: "请求错误,请运行成功后保存",
             type: "error"
           });
+          this.$bus.$emit("response", {});
           console.log(error);
         });
     },

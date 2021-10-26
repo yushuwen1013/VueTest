@@ -76,21 +76,22 @@
           <div>
             <template height="250">
               <el-table :data="responseData.assert_result" border style="width: 100%">
-                <el-table-column prop="assertType" label="断言类型" width="180" align="center"></el-table-column>
+                <el-table-column prop="assertType" label="断言类型" width="180" :show-overflow-tooltip="true" align="center"></el-table-column>
                 <el-table-column
+                :show-overflow-tooltip="true"
                   prop="assertExtractExpression"
                   label="提取表达式"
                   width="300"
                   align="center"
                 ></el-table-column>
-                <el-table-column prop="resultValue" label="实际值" align="center"></el-table-column>
-                <el-table-column prop="relation" label="期望关系" width="150" align="center">
+                <el-table-column prop="resultValue" label="实际值" align="center" :show-overflow-tooltip="true"></el-table-column>
+                <el-table-column prop="relation" label="期望关系" width="150"  :show-overflow-tooltip="true" align="center">
                   <template slot-scope="scope">
                     <el-tag v-show="scope.row.relation" disable-transitions>{{scope.row.relation}}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="expectancyValue" label="期望值"></el-table-column>
-                <el-table-column prop="assertion_results" label="断言结果" width="150">
+                <el-table-column prop="expectancyValue" label="期望值" :show-overflow-tooltip="true" align="center"></el-table-column>
+                <el-table-column prop="assertion_results" label="断言结果" :show-overflow-tooltip="true" width="150">
                   <template slot-scope="scope">
                     <el-tag
                       :type="scope.row.assertion_results? 'success' : 'danger'"
@@ -102,36 +103,33 @@
             </template>
           </div>
         </el-tab-pane>
-        <!-- <el-tab-pane label="参数提取结果" name="assertionResults">
+        <!-- 参数提取 -->
+        <el-tab-pane label="提取结果" name="extraction_result">
           <div>
             <template height="250">
-              <el-table :data="responseData.assert_result" border style="width: 100%">
-                <el-table-column prop="assertType" label="断言类型" width="180" align="center"></el-table-column>
+              <el-table :data="responseData.extraction_result" border style="width: 100%">
+                <el-table-column prop="extractionType" label="提取类型" width="180" align="center" :show-overflow-tooltip="true"></el-table-column>
                 <el-table-column
-                  prop="assertExtractExpression"
+                :show-overflow-tooltip="true"
+                  prop="parameterExtractExpression"
                   label="提取表达式"
                   width="300"
                   align="center"
                 ></el-table-column>
-                <el-table-column prop="resultValue" label="实际值" align="center"></el-table-column>
-                <el-table-column prop="relation" label="期望关系" width="150" align="center">
-                  <template slot-scope="scope">
-                    <el-tag v-show="scope.row.relation" disable-transitions>{{scope.row.relation}}</el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="expectancyValue" label="期望值"></el-table-column>
-                <el-table-column prop="assertion_results" label="断言结果" width="150">
+                <el-table-column prop="variableName" label="变量名称" align="center" :show-overflow-tooltip="true"></el-table-column>
+                <el-table-column prop="variableValue" label="实际值" align="center" :show-overflow-tooltip="true"></el-table-column>
+                <el-table-column prop="extraction_result" label="提取结果" align="center" width="150" :show-overflow-tooltip="true">
                   <template slot-scope="scope">
                     <el-tag
-                      :type="scope.row.assertion_results? 'success' : 'danger'"
+                      :type="scope.row.extraction_result? 'success' : 'danger'"
                       disable-transitions
-                    >{{scope.row.assertion_results? "成功": "失败"}}</el-tag>
+                    >{{scope.row.extraction_result? "成功": "失败"}}</el-tag>
                   </template>
                 </el-table-column>
               </el-table>
             </template>
           </div>
-        </el-tab-pane> -->
+        </el-tab-pane>
       </el-tabs>
       <h4 style="position: absolute;right:40px;top:25px;">Status：{{responseData.response_code}}</h4>
     </template>
@@ -153,16 +151,6 @@ export default {
       fontSize: 12,
       modal: false,
       readonly: false,
-      tableData: [
-        {
-          assertType: 2,
-          assertExtractExpression: "code",
-          assertion_results: true,
-          expectancyValue: "400",
-          relation: 1,
-          resultValue: 400
-        }
-      ],
       activeNames: ["1"],
       //响应数据类型
       responseDataType: 0,
@@ -175,44 +163,7 @@ export default {
     handleChange(val) {
       console.log(val);
     }
-  },
-  // watch: {
-  //   responseDataType(newVal) {
-  //     console.log(newVal, "111111111111");
-  //     if (this.responseData.response_data != "") {
-  //       if (newVal == 1) {
-  //         this.responseData.response_data = JSON.stringify(
-  //           JSON.parse(this.responseData.response_data),
-  //           null,
-  //           0
-  //         );
-  //       } else {
-  //         this.responseData.response_data = JSON.stringify(
-  //           JSON.parse(this.responseData.response_data),
-  //           null,
-  //           2
-  //         );
-  //       }
-  //     }
-  //   }
-  // },
-  // mounted() {
-  //   if (this.responseData.response_data != "") {
-  //     if (this.responseDataType == 1) {
-  //       this.responseData.response_data = JSON.stringify(
-  //         JSON.parse(this.responseData.response_data),
-  //         null,
-  //         0
-  //       );
-  //     } else {
-  //       this.responseData.response_data = JSON.stringify(
-  //         JSON.parse(this.responseData.response_data),
-  //         null,
-  //         2
-  //       );
-  //     }
-  //   }
-  // }
+  }
 };
 </script>
 

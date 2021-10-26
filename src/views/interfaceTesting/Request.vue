@@ -38,12 +38,7 @@
         <!-- 请求Body Json参数 -->
         <el-tab-pane style="max-height: 260px; overflow: auto;" label="Body">
           <!-- <vue-json-editor v-model="bodyData" :showBtns="false" :mode="'code'" lang="zh" /> -->
-          <b-ace-editor
-            v-model="bodyData"
-            lang="json"
-            width="100%"
-            height="250"
-          ></b-ace-editor>
+          <b-ace-editor v-model="bodyData" lang="json" width="100%" height="250"></b-ace-editor>
         </el-tab-pane>
         <!-- 断言 -->
         <el-tab-pane style="max-height: 260px; overflow: auto;" label="断言">
@@ -106,8 +101,52 @@
           </template>
         </el-tab-pane>
         <!-- 参数提取 -->
-        <!-- <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
-        </el-tab-pane>-->
+        <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
+          <template height="250">
+            <el-table :data="extraction_details" style="width: 100%">
+              <el-table-column label="提取类型" width="300" align="center">
+                <template slot-scope="scope">
+                  <el-select v-model="scope.row.extractionType" placeholder="请选择提取类型">
+                    <el-option label="响应文本（正则）" :value="1"></el-option>
+                    <el-option label="响应文本（JSON）" :value="2"></el-option>
+                    <!-- <el-option label="响应状态码" :value="3"></el-option> -->
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="提取表达式" align="center">
+                <template slot-scope="scope">
+                  <el-input
+                    placeholder="请输入表达式"
+                    v-model="scope.row.parameterExtractExpression"
+                    clearable
+                  ></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="变量名称" width="300" align="center">
+                <template slot-scope="scope">
+                  <el-input placeholder="请输入变量名称" v-model="scope.row.variableName" clearable></el-input>
+                </template>
+              </el-table-column>
+              <slot></slot>
+              <el-table-column fixed="right" width="125" align="center">
+                <template slot="header" slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="addParameterExtraction(scope.$index, extraction_details)"
+                    type="primary"
+                    size="medium"
+                  >添加</el-button>
+                </template>
+                <template slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="deleteParameterExtraction(scope.$index, extraction_details)"
+                    type="text"
+                    size="medium"
+                  >移除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
     <div style="margin-top: 55px;">
@@ -176,6 +215,14 @@ export default {
       }
     };
     return {
+      //参数提取表单
+      extraction_details: [
+        {
+          extractionType: "",
+          parameterExtractExpression: "",
+          variableName: ""
+        }
+      ],
       //使用环境
       isEnvironment: true,
       //响应数据
@@ -258,6 +305,29 @@ export default {
     };
   },
   methods: {
+    //删除参数提取
+    deleteParameterExtraction(index, rows) {
+      rows.splice(index, 1);
+      this.$message({
+        message: "移除成功！",
+        type: "success"
+      });
+    },
+    // 添加参数提取
+    addParameterExtraction(index, rows) {
+      this.extraction_details.push({
+        //提取类型
+        extractionType: "",
+        //参数提取表达式
+        parameterExtractExpression: "",
+        //变量名称
+        variableName: ""
+      });
+      this.$message({
+        message: "添加成功！",
+        type: "success"
+      });
+    },
     //删除table
     deleteRow(index, rows) {
       rows.splice(index, 1);
@@ -328,7 +398,7 @@ export default {
               params[elem.key] = elem.value;
             }
           });
-          this.request_data = {
+          const request_data = {
             isEnvironment: this.isEnvironment,
             project_id: this.project_id,
             environment_id: this.form.environment,
@@ -339,6 +409,7 @@ export default {
             params: params,
             dataState: this.dataStateCode
           };
+          //////////////////////////////////////
           this.assertDatas = [];
           this.assertData.forEach((ele, index) => {
             if (ele.assertType != 3) {
@@ -355,36 +426,32 @@ export default {
               }
             }
           });
-          this.request_data.assert = this.assertDatas;
-          console.log(this.request_data, "请求数据");
+          request_data.assert_details = this.assertDatas;
+          ////////////////////////////////////////////////
+          this.parameterExtractionDatas = [];
+          this.extraction_details.forEach((ele, index) => {
+            if (
+              ele.extractionType != "" &&
+              ele.parameterExtractExpression != "" &&
+              ele.variableName != ""
+            ) {
+              this.parameterExtractionDatas.push(ele);
+            }
+          });
+          request_data.extraction_details = this.parameterExtractionDatas;
+          ////////////////////////////////////////
+          console.log(request_data, "请求数据");
           //发送请求，返回数据
-          request_debug(this.request_data)
+          request_debug(request_data)
             .then(response => {
               this.responseData = response.data;
               console.log(this.responseData, "响应数据");
-              if (this.responseData.assert_result) {
-                this.responseData.assert_result.forEach(ele => {
-                  if (ele.assertType == 1) {
-                    ele.assertType = "响应文本(正则)";
-                  } else if (ele.assertType == 2) {
-                    ele.assertType = "响应文本(JSON)";
-                  } else if (ele.assertType == 3) {
-                    ele.assertType = "响应状态码";
-                  }
-                  if (ele.relation == 1) {
-                    ele.relation = "包含";
-                  } else if (ele.relation == 2) {
-                    ele.relation = "匹配";
-                  }
-                });
-              }
               this.responseData.response_data = JSON.stringify(
                 this.responseData.response_data
               );
               this.responseData.response_headers = JSON.stringify(
                 this.responseData.response_headers
               );
-             
               this.$message({
                 message: "请求成功！",
                 type: "success"
@@ -461,6 +528,7 @@ export default {
           assert_result: this.responseData.assert_result,
           isEnvironment: this.isEnvironment
         };
+        ////////////////////////////
         this.assertDatas = [];
         this.assertData.forEach((ele, index) => {
           if (ele.assertType != 3) {
@@ -478,48 +546,53 @@ export default {
           }
         });
         request_data.assert_details = this.assertDatas;
-        request_data.assert = this.assertDatas;
-        console.log(request_data);
+        ////////////////////////////////////////////////
+        this.parameterExtractionDatas = [];
+        this.extraction_details.forEach((ele, index) => {
+          if (
+            ele.extractionType != "" &&
+            ele.parameterExtractExpression != "" &&
+            ele.variableName != ""
+          ) {
+            this.parameterExtractionDatas.push(ele);
+          }
+        });
+        request_data.extraction_details = this.parameterExtractionDatas;
+        ////////////////////////////////////////
+        console.log(request_data, "datattatatatt");
         //发送请求，返回数据
         request_debug(request_data)
           .then(response => {
             this.responseData = response.data;
-            if (this.responseData.assert_result) {
-              this.responseData.assert_result.forEach(ele => {
-                if (ele.assertType == 1) {
-                  ele.assertType = "响应文本(正则)";
-                } else if (ele.assertType == 2) {
-                  ele.assertType = "响应文本(JSON)";
-                } else if (ele.assertType == 3) {
-                  ele.assertType = "响应状态码";
-                }
-                if (ele.relation == 1) {
-                  ele.relation = "包含";
-                } else if (ele.relation == 2) {
-                  ele.relation = "匹配";
-                }
-              });
-            }
             this.responseData.response_data = JSON.stringify(
               this.responseData.response_data
             );
-            //发送保存请求
-            update_request(request_data)
-              .then(response => {
-                this.$message({
-                  message: "保存成功！",
-                  type: "success"
+            console.log(this.responseData, "响应数据");
+            this.responseData.response_data = JSON.stringify(
+              this.responseData.response_data
+            );
+            this.responseData.response_headers = JSON.stringify(
+              this.responseData.response_headers
+            );
+            request_data.extraction_result = this.responseData.extraction_result;
+            (request_data.assert_result = this.responseData.assert_result),
+              //发送保存请求
+              update_request(request_data)
+                .then(response => {
+                  this.$message({
+                    message: "保存成功！",
+                    type: "success"
+                  });
+                  // 关闭保存弹窗
+                  this.dialogFormVisible = false;
+                })
+                .catch(error => {
+                  this.$message({
+                    message: "保存参数错误",
+                    type: "error"
+                  });
+                  console.log(error);
                 });
-                // 关闭保存弹窗
-                this.dialogFormVisible = false;
-              })
-              .catch(error => {
-                this.$message({
-                  message: "保存参数错误",
-                  type: "error"
-                });
-                console.log(error);
-              });
           })
           .catch(error => {
             this.$message({
