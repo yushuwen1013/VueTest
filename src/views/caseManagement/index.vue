@@ -605,7 +605,7 @@ export default {
     //调试用例
     debuggingUseCases() {
       if (this.use_case_id != "") {
-        debugging_use_cases({ use_case_id: this.use_case_id }).then(
+        debugging_use_cases({ use_case_id: this.use_case_id, project_id:this.project_id }).then(
           response => {
             console.log(response);
           }

@@ -301,7 +301,7 @@ export default {
     },
     //运行  -  发送请求
     sendRequest(index, row) {
-      console.log(row);
+      console.log(row, "我是运行啊");
       const request_data = {
         environment_id: row.environment_id,
         address: row.address,
@@ -367,16 +367,16 @@ export default {
           environment_id: row.environment_id,
           address: row.address,
           method: row.method,
-          body: row.body,
-          headers: row.headers,
-          params: row.params,
+          body: JSON.parse(row.body),
+          headers: JSON.parse(row.headers),
+          params: JSON.parse(row.params),
           dataState: row.dataState,
           file_id: [row.request_file_id],
           isEnvironment: row.isEnvironment,
-          assert_details: row.assert_details,
-          assert_result: row.assert_result,
-          extraction_details: row.extraction_details,
-          extraction_result: row.extraction_result
+          assert_details: JSON.parse(row.assert_details),
+          assert_result: JSON.parse(row.assert_result),
+          extraction_details: JSON.parse(row.extraction_details),
+          extraction_result: JSON.parse(row.extraction_result)
         };
       //发送保存请求
       update_request(request_data)
