@@ -527,6 +527,7 @@ export default {
           params: params,
           dataState: this.dataStateCode,
           file_id: file_id,
+          project_id: this.project_id,
           isEnvironment: this.isEnvironment
         };
         if (this.request_data.id) {

@@ -117,13 +117,19 @@
                       <el-table-column :show-overflow-tooltip="true" prop="address" label="请求地址"></el-table-column>
                       <el-table-column :show-overflow-tooltip="true" prop="headers" label="请求头部"></el-table-column>
                       <el-table-column :show-overflow-tooltip="true" prop="data" label="请求参数"></el-table-column>
-                      <el-table-column width="250" label="操作">
+                      <el-table-column width="275" label="操作">
                         <template slot-scope="scope">
                           <el-button
                             size="mini"
                             type="primary"
                             @click="sendRequest(scope.$index,scope.row)"
                           >运行</el-button>
+                          <el-button
+                            size="mini"
+                            type="primary"
+                            plain
+                            @click="copy(scope.$index, scope.row)"
+                          >复制</el-button>
                           <el-button size="mini" @click="editInterface(scope.$index, scope.row)">编辑</el-button>
                           <el-button
                             size="mini"
@@ -307,7 +313,8 @@ export default {
         request_name: row.request_name,
         assert_details: new Function("return " + row.assert_details)(),
         extraction_details: new Function("return " + row.extraction_details)(),
-        isEnvironment: row.isEnvironment
+        isEnvironment: row.isEnvironment,
+        project_id: this.project_id,
       };
       //发送请求，返回数据
       request_debug(request_data)
@@ -347,6 +354,58 @@ export default {
         .catch(error => {
           this.$message({
             message: "请求失败！",
+            type: "error"
+          });
+          console.log(error);
+        });
+    },
+    //复制接口
+    copy(index, row) {
+      console.log(row);
+      const request_data = {
+          requestName: row.request_name+"_副本",
+          environment_id: row.environment_id,
+          address: row.address,
+          method: row.method,
+          body: row.body,
+          headers: row.headers,
+          params: row.params,
+          dataState: row.dataState,
+          file_id: [row.request_file_id],
+          isEnvironment: row.isEnvironment,
+          assert_details: row.assert_details,
+          assert_result: row.assert_result,
+          extraction_details: row.extraction_details,
+          extraction_result: row.extraction_result
+        };
+      //发送保存请求
+      update_request(request_data)
+        .then(response => {
+          this.$message({
+            message: "复制成功!",
+            type: "success"
+          });
+          // 切换到我的接口列表
+          this.$parent.showInterfaceEdit = false;
+          // 获取接口列表
+          get_request_list({ file_id: this.file_id })
+            .then(response => {
+              const responseData = response.data;
+              responseData.forEach((elem, index) => {
+                if (elem.dataState == "2") {
+                  elem["data"] = elem["body"];
+                } else {
+                  elem["data"] = elem["params"];
+                }
+              });
+              console.log(responseData);
+              this.tableData = responseData;
+              this.selected();
+            })
+        })
+        .catch(error => {
+          this.$message({
+            message: "复制错误",
             type: "error"
           });
           console.log(error);

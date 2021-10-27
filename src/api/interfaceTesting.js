@@ -227,3 +227,13 @@ export function delete_project(data) {
     data
   })
 }
+
+
+//调试用例
+export function debugging_use_cases(data) {
+  return request({
+    url: '/request/debugging_use_cases',
+    method: 'get',
+    params: data
+  })
+}

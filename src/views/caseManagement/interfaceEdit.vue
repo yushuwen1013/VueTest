@@ -483,9 +483,9 @@ export default {
     //确定保存
     sureSave(form) {
       const use_case_id = this.$parent.use_case_id;
-      if (form.request_name == "") {
+      if (form.requestName == "") {
         this.$message({
-          message: "接口名称或文件不能为空",
+          message: "接口名称不能为空",
           type: "error"
         });
       } else {
@@ -511,6 +511,7 @@ export default {
           params: params,
           dataState: this.dataStateCode,
           use_case_id: use_case_id,
+          project_id: this.project_id,
           isEnvironment: this.isEnvironment
         };
         if (this.request_data.id) {

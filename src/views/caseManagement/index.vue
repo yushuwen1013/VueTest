@@ -22,7 +22,7 @@
             margin-right: 20px;height: 750px;"
           >
             <div class="custom-tree-container">
-              <p style="text-align: center">接口文件</p>
+              <p style="text-align: center">用例列表</p>
               <div class="block">
                 <el-tree
                   highlight-current
@@ -62,27 +62,38 @@
                           style="float: right; margin-bottom: 20px; margin-right: 50px"
                           type="primary"
                           icon="el-icon-plus"
+                          size="small"
                           @click="addRequest"
-                        >添加接口</el-button>
+                        >添加</el-button>
                         <el-button
                           style="float: right; margin-bottom: 20px; margin-right: 10px"
                           type="primary"
                           icon="el-icon-plus"
+                          size="small"
                           @click="importInterface"
-                        >导入接口</el-button>
+                        >导入我的接口</el-button>
                         <el-button
                           style="float: right; margin-bottom: 20px; margin-right: 10px"
                           type="primary"
-                        >查看结果</el-button>
-                        <el-button
-                          style="float: right; margin-bottom: 20px; margin-right: 10px"
-                          type="primary"
+                          size="small"
                           @click="requestDefaultsFormVisible = true"
                         >请求默认值</el-button>
                         <el-button
                           style="float: right; margin-bottom: 20px; margin-right: 10px"
                           type="primary"
-                        >执行用例</el-button>
+                          size="small"
+                        >查看结果</el-button>
+                        <el-button
+                          style="float: right; margin-bottom: 20px; margin-right: 10px"
+                          type="primary"
+                          size="small"
+                          @click="debuggingUseCases()"
+                        >调试</el-button>
+                        <el-button
+                          style="float: left; margin-bottom: 20px;"
+                          type="primary"
+                          size="small"
+                        >用例提取参数</el-button>
                       </el-form>
                       <el-table
                         :data="
@@ -151,13 +162,19 @@
                             ></el-switch>
                           </template>
                         </el-table-column>
-                        <el-table-column width="250" label="操作">
+                        <el-table-column width="275" label="操作">
                           <template slot-scope="scope">
                             <el-button
                               size="mini"
                               type="primary"
                               @click="sendRequest(scope.$index, scope.row)"
                             >运行</el-button>
+                            <el-button
+                              size="mini"
+                              type="primary"
+                              plain
+                              @click="copy(scope.$index, scope.row)"
+                            >复制</el-button>
                             <el-button
                               size="mini"
                               @click="editInterface(scope.$index, scope.row)"
@@ -190,7 +207,7 @@
                     <el-dialog title="请求默认值" :visible.sync="requestDefaultsFormVisible">
                       <el-form
                         :model="requestDefaultsForm"
-                        style="padding-left: 50px; padding-right: 50px"
+                        style="padding-left: 20px; padding-right: 50px"
                       >
                         <el-form-item label="请求类型">
                           <el-select
@@ -233,67 +250,69 @@
                           ></el-input>
                         </el-form-item>
                         <el-form-item label="结果断言">
-                          <template height="250">
-                            <el-table :data="assertData" style="width: 100%">
-                              <el-table-column label="断言类型" width="200" align="center">
-                                <template slot-scope="scope">
-                                  <el-select v-model="scope.row.assertType" placeholder="请选择断言类型">
-                                    <el-option label="响应文本（正则）" :value="1"></el-option>
-                                    <el-option label="响应文本（JSON）" :value="2"></el-option>
-                                    <el-option label="响应状态码" :value="3"></el-option>
-                                  </el-select>
-                                </template>
-                              </el-table-column>
-                              <el-table-column label="提取表达式" align="center">
-                                <template slot-scope="scope">
-                                  <el-input
-                                    :disabled="scope.row.assertType==3?true:false"
-                                    placeholder="请输入表达式"
-                                    v-model="scope.row.assertExtractExpression"
-                                    clearable
-                                  ></el-input>
-                                </template>
-                              </el-table-column>
-                              <el-table-column label="期望关系" width="200" align="center">
-                                <template slot-scope="scope">
-                                  <el-select
-                                    :disabled="scope.row.assertType == 3? true: false"
-                                    v-model="scope.row.relation"
-                                    placeholder="请选择断言类型"
-                                  >
-                                    <el-option label="包含" :value="1"></el-option>
-                                    <el-option label="匹配" :value="2"></el-option>
-                                  </el-select>
-                                </template>
-                              </el-table-column>
-                              <el-table-column label="期望值" align="center">
-                                <template slot-scope="scope">
-                                  <el-input
-                                    placeholder="请输入期望值"
-                                    v-model="scope.row.expectancyValue"
-                                    clearable
-                                  ></el-input>
-                                </template>
-                              </el-table-column>
-                              <slot></slot>
-                              <el-table-column fixed="right" width="125" align="center">
-                                <template slot="header" slot-scope="scope">
-                                  <el-button
-                                    @click.native.prevent="addAssert(scope.$index, assertData)"
-                                    type="primary"
-                                    size="medium"
-                                  >添加</el-button>
-                                </template>
-                                <template slot-scope="scope">
-                                  <el-button
-                                    @click.native.prevent="deleteAssert(scope.$index, assertData)"
-                                    type="text"
-                                    size="medium"
-                                  >移除</el-button>
-                                </template>
-                              </el-table-column>
-                            </el-table>
-                          </template>
+                          <div style="height:200px;overflow-y:auto">
+                            <template>
+                              <el-table :data="requestDefaultsForm.assertData" style="width: 100%;">
+                                <el-table-column label="断言类型" width="150" align="center">
+                                  <template slot-scope="scope">
+                                    <el-select v-model="scope.row.assertType" placeholder="断言类型">
+                                      <el-option label="响应文本（正则）" :value="1"></el-option>
+                                      <el-option label="响应文本（JSON）" :value="2"></el-option>
+                                      <el-option label="响应状态码" :value="3"></el-option>
+                                    </el-select>
+                                  </template>
+                                </el-table-column>
+                                <el-table-column label="提取表达式" width="200" align="center">
+                                  <template slot-scope="scope">
+                                    <el-input
+                                      :disabled="scope.row.assertType==3?true:false"
+                                      placeholder="表达式"
+                                      v-model="scope.row.assertExtractExpression"
+                                      clearable
+                                    ></el-input>
+                                  </template>
+                                </el-table-column>
+                                <el-table-column label="期望关系" width="150" align="center">
+                                  <template slot-scope="scope">
+                                    <el-select
+                                      :disabled="scope.row.assertType == 3? true: false"
+                                      v-model="scope.row.relation"
+                                      placeholder="期望关系"
+                                    >
+                                      <el-option label="包含" :value="1"></el-option>
+                                      <el-option label="匹配" :value="2"></el-option>
+                                    </el-select>
+                                  </template>
+                                </el-table-column>
+                                <el-table-column label="期望值" width="155" align="center">
+                                  <template slot-scope="scope">
+                                    <el-input
+                                      placeholder="期望值"
+                                      v-model="scope.row.expectancyValue"
+                                      clearable
+                                    ></el-input>
+                                  </template>
+                                </el-table-column>
+                                <slot></slot>
+                                <el-table-column fixed="right" align="center">
+                                  <template slot="header" slot-scope="scope">
+                                    <el-button
+                                      @click.native.prevent="addAssert(scope.$index, requestDefaultsForm.assertData)"
+                                      type="primary"
+                                      size="mini"
+                                    >添加</el-button>
+                                  </template>
+                                  <template slot-scope="scope">
+                                    <el-button
+                                      @click.native.prevent="deleteAssert(scope.$index, requestDefaultsForm.assertData)"
+                                      type="text"
+                                      size="mini"
+                                    >移除</el-button>
+                                  </template>
+                                </el-table-column>
+                              </el-table>
+                            </template>
+                          </div>
                         </el-form-item>
                       </el-form>
                       <div slot="footer" class="dialog-footer">
@@ -322,14 +341,14 @@
                           </el-select>
                         </el-form-item>
                         <el-form-item label="接口列表" label-width="80px">
-                          <el-table
+                          <!-- <el-table
                             :header-cell-style="{background:'#F2F6FC',color:'#303133'}"
                             ref="multipleTable"
                             :row-key="getRowKeys"
                             @selection-change="handleSelectionChange"
                             :data="saveForm.tableData.slice((interfaceFormPage.currentPage-1)*interfaceFormPage.pagesize,interfaceFormPage.currentPage*interfaceFormPage.pagesize)"
                             style="width: 100%;height: 300px;"
-                          >
+                            >
                             <el-table-column
                               :reserve-selection="true"
                               prop="id"
@@ -357,6 +376,67 @@
                               <template
                                 slot-scope="scope"
                               >{{scope.row.environment_name}}：{{scope.row.environment_url}}</template>
+                            </el-table-column>
+                            <el-table-column
+                              :show-overflow-tooltip="true"
+                              prop="address"
+                              label="请求地址"
+                            ></el-table-column>
+                            <el-table-column
+                              :show-overflow-tooltip="true"
+                              prop="headers"
+                              label="请求头部"
+                            ></el-table-column>
+                            <el-table-column :show-overflow-tooltip="true" prop="data" label="请求参数"></el-table-column>
+                          </el-table>-->
+                          <el-table
+                            :header-cell-style="{background:'#F2F6FC',color:'#303133'}"
+                            ref="multipleTable"
+                            :row-key="getRowKeys"
+                            @selection-change="handleSelectionChange"
+                            :data="saveForm.tableData.slice((interfaceFormPage.currentPage-1)*interfaceFormPage.pagesize,interfaceFormPage.currentPage*interfaceFormPage.pagesize)"
+                            style="width: 100%;height: 300px;"
+                          >
+                            <el-table-column
+                              :reserve-selection="true"
+                              prop="id"
+                              type="selection"
+                              width="55"
+                            ></el-table-column>
+                            <el-table-column
+                              :show-overflow-tooltip="true"
+                              max-height="100"
+                              prop="request_name"
+                              label="请求名称"
+                            ></el-table-column>
+                            <el-table-column
+                              :show-overflow-tooltip="true"
+                              prop="method"
+                              label="请求类型"
+                            >
+                              <template slot-scope="scope">
+                                <el-tag
+                                  :type="scope.row.method == 'get'? 'success': ''"
+                                >{{scope.row.method}}</el-tag>
+                              </template>
+                            </el-table-column>
+                            <el-table-column
+                              :show-overflow-tooltip="true"
+                              prop="environment, environment_url"
+                              label="请求环境"
+                            >
+                              <template slot-scope="scope">
+                                <el-tooltip
+                                  class="item"
+                                  effect="dark"
+                                  :content="scope.row.environment_url"
+                                  placement="top-start"
+                                >
+                                  <el-tag
+                                    :type="scope.row.environment_name == '没有引用环境'? 'danger': 'success'"
+                                  >{{scope.row.environment_name}}</el-tag>
+                                </el-tooltip>
+                              </template>
                             </el-table-column>
                             <el-table-column
                               :show-overflow-tooltip="true"
@@ -423,26 +503,14 @@ import Response from "../interfaceTesting/Response";
 import {
   update_use_case,
   delete_use_case,
-  get_use_case
+  get_use_case,
+  debugging_use_cases
 } from "@/api/interfaceTesting";
 import { parse } from "path-to-regexp";
 export default {
   components: { InterfaceEdit, Response },
   data() {
     return {
-      //断言表单
-      assertData: [{
-        //断言类型
-        assertType: "",
-        //断言提取表达式
-        assertExtractExpression: "",
-        //期望值
-        expectancyValue: "",
-        //关系
-        relation: "",
-        //断言提取表达式
-        assertExtractExpression: ""
-      }],
       //响应数据
       responseData: {
         request_headers: "",
@@ -473,7 +541,7 @@ export default {
         pagesize: 5 //    每页的数据
       },
       currentPage: 1, //初始页
-      pagesize: 10, //    每页的数据
+      pagesize: 20, //    每页的数据
       //保存的表单
       saveForm: {
         request_name: null,
@@ -492,18 +560,22 @@ export default {
         //环境选项
         environment_options: [],
         //默认请求头
-        headers: ""
-        // //响应断言规则
-        // responseAssertRules: 1,
-        // //响应断言的内容
-        // responseAssertContent: "",
-        // //Json断言表单
-        // jsonAssertForm: {
-        //   json_path: "",
-        //   json_value: ""
-        // },
-        // //断言类型
-        // assertType: 0 //0是不使用，1是响应断言，2是Json断言
+        headers: "",
+        //断言表单
+        assertData: [
+          {
+            //断言类型
+            assertType: "",
+            //断言提取表达式
+            assertExtractExpression: "",
+            //期望值
+            expectancyValue: "",
+            //关系
+            relation: "",
+            //断言提取表达式
+            assertExtractExpression: ""
+          }
+        ]
       },
       //请求默认值显隐
       requestDefaultsFormVisible: false,
@@ -526,12 +598,25 @@ export default {
       fileData: [],
       value: "",
       showCaseDetails: false,
-      currentPage: 1, //初始页
-      pagesize: 10, //    每页的数据
       seareFileName: ""
     };
   },
   methods: {
+    //调试用例
+    debuggingUseCases() {
+      if (this.use_case_id != "") {
+        debugging_use_cases({ use_case_id: this.use_case_id }).then(
+          response => {
+            console.log(response);
+          }
+        );
+      }else{
+        this.$message({
+        message: "请先选择用例",
+        type: "error"
+      });
+      }
+    },
     //删除断言
     deleteAssert(index, rows) {
       rows.splice(index, 1);
@@ -542,7 +627,7 @@ export default {
     },
     // 添加断言
     addAssert(index, rows) {
-      this.assertData.push({
+      this.requestDefaultsForm.assertData.push({
         //断言类型
         assertType: "",
         //断言提取表达式
@@ -561,10 +646,9 @@ export default {
     },
     //确定导入接口
     confirmImportInterface() {
-      const use_case_id = localStorage.getItem("use_case_id");
       const request_data = {
         importInterfaceList: this.saveForm.multipleSelection,
-        use_case_id: use_case_id
+        use_case_id: this.use_case_id
       };
       console.log(request_data);
       //发送保存请求
@@ -577,7 +661,7 @@ export default {
             type: "success"
           });
           //获取接口用例列表
-          const data = { use_case_id: use_case_id };
+          const data = { use_case_id: this.use_case_id };
           get_interface_use_case(data).then(response => {
             const responseData = response.data;
             responseData.forEach((elem, index) => {
@@ -622,7 +706,7 @@ export default {
     importInterface(form) {
       this.importInterfaceFormVisible = true;
       //获取文件列表
-      get_file_list()
+      get_file_list({ project_id: this.project_id })
         .then(response => {
           this.interfaceFileForm.interfaceFile = response.data[0].id;
           this.interfaceFileForm.interfaceFileOptions = response.data;
@@ -648,26 +732,24 @@ export default {
           response.data.request_defaults_environment_id;
         this.requestDefaultsForm.requestAddress =
           response.data.request_defaults_address;
-        const assert_details = new Function(
+        this.requestDefaultsForm.assertData = new Function(
           "return " + response.data.request_defaults_assert_details
         )();
-        //如果断言详情是null那么断言类型就设为0
-        if (assert_details == null) {
-          this.requestDefaultsForm.assertType = 0;
-        } else {
-          this.requestDefaultsForm.assertType = assert_details.assert_type;
-        }
-        if (assert_details.assert_type == 0) {
-        } else if (assert_details.assert_type == 1) {
-          this.requestDefaultsForm.responseAssertContent =
-            assert_details.response_assert_content;
-          this.requestDefaultsForm.responseAssertRules =
-            assert_details.response_assert_rules;
-        } else if (assert_details.assert_type == 2) {
-          this.requestDefaultsForm.jsonAssertForm.json_path =
-            assert_details.json_path;
-          this.requestDefaultsForm.jsonAssertForm.json_value =
-            assert_details.json_value;
+        if (this.requestDefaultsForm.assertData == null) {
+          this.requestDefaultsForm.assertData = [
+            {
+              //断言类型
+              assertType: "",
+              //断言提取表达式
+              assertExtractExpression: "",
+              //期望值
+              expectancyValue: "",
+              //关系
+              relation: "",
+              //断言提取表达式
+              assertExtractExpression: ""
+            }
+          ];
         }
       });
       this.requestDefaultsFormVisible = false;
@@ -679,27 +761,13 @@ export default {
         method: RequestDefaults.requestType,
         address: RequestDefaults.requestAddress,
         headers: RequestDefaults.headers,
-        assert_details: RequestDefaults.assert_details,
+        assert_details: RequestDefaults.assertData,
         environment_id:
           RequestDefaults.environment == ""
             ? null
             : RequestDefaults.environment,
         id: this.use_case_id
       };
-      //assert_details 断言详情
-      var assert_details = {
-        assert_type: this.requestDefaultsForm.assertType
-      };
-      //如果断言类型是1断言详情就写响应断言的内容，2就写Json断言的内容
-      if (this.requestDefaultsForm.assertType == 1) {
-        assert_details.response_assert_rules = this.requestDefaultsForm.responseAssertRules;
-        assert_details.response_assert_content = this.requestDefaultsForm.responseAssertContent;
-        request_data.assert_details = assert_details;
-      } else if (this.requestDefaultsForm.assertType == 2) {
-        assert_details.json_path = this.requestDefaultsForm.jsonAssertForm.json_path;
-        assert_details.json_value = this.requestDefaultsForm.jsonAssertForm.json_value;
-        request_data.assert_details = assert_details;
-      }
       //如果headers是字符串再判断他是否是Json字符串
       if (typeof RequestDefaults.headers == String) {
         //如果headers是json格式就更新，否则不更新，给出提示
@@ -743,16 +811,6 @@ export default {
           });
       }
     },
-    //判断断言类型切换断言的详情
-    assert(val) {
-      if (val == 0) {
-        this.requestDefaultsForm.assertType = 0;
-      } else if (val == 1) {
-        this.requestDefaultsForm.assertType = 1;
-      } else {
-        this.requestDefaultsForm.assertType = 2;
-      }
-    },
     //是否使用
     isUse(index, row) {
       console.log(index, row);
@@ -777,23 +835,21 @@ export default {
     },
     //添加
     addRequest() {
+      //把headers参数json字符串转换为对象
+      const headers = [];
+      //把headers对象转换成key:value数组
+      const sHeaders = new Function(
+        "return " + this.requestDefaultsForm.headers
+      )();
+      if (sHeaders != null) {
+        Object.keys(sHeaders).forEach(elem => {
+          headers.push({ key: elem, value: sHeaders[elem] });
+        });
+      }
       this.request_data = {
         isEnvironment: true,
         address: this.requestDefaultsForm.requestAddress,
-        assert_details: [
-          {
-            //断言类型
-            assertType: "",
-            //断言提取表达式
-            assertExtractExpression: "",
-            //期望值
-            expectancyValue: "",
-            //关系
-            relation: "",
-            //断言提取表达式
-            assertExtractExpression: ""
-          }
-        ],
+        assert_details: this.requestDefaultsForm.assertData,
         extraction_details: [
           {
             extractionType: "",
@@ -807,12 +863,7 @@ export default {
         environment_id: this.requestDefaultsForm.environment,
         environment_name: "",
         environment_url: "",
-        headers: [
-          {
-            key: "Content-Type",
-            value: "application/json"
-          }
-        ],
+        headers,
         use_case_id: this.use_case_id,
         method: this.requestDefaultsForm.requestType,
         params: [{}],
@@ -835,7 +886,8 @@ export default {
         request_name: row.request_name,
         assert_details: new Function("return " + row.assert_details)(),
         extraction_details: new Function("return " + row.extraction_details)(),
-        isEnvironment: row.isEnvironment
+        isEnvironment: row.isEnvironment,
+        project_id: this.project_id
       };
       //发送请求，返回数据
       request_debug(request_data)
@@ -875,6 +927,48 @@ export default {
         .catch(error => {
           this.$message({
             message: "请求失败！",
+            type: "error"
+          });
+          console.log(error);
+        });
+    },
+    //复制接口
+    copy(index, row) {
+      console.log(row);
+      const request_data = {
+        importInterfaceList: [row],
+        use_case_id: this.use_case_id
+      };
+      request_data.importInterfaceList[0].request_name =
+        request_data.importInterfaceList[0].request_name + "_副本";
+      console.log(request_data);
+      //发送保存请求
+      update_interface_use_case(request_data)
+        .then(response => {
+          console.log(response);
+          this.$bus.$emit("response", response.data);
+          this.$message({
+            message: "复制成功",
+            type: "success"
+          });
+          //获取接口用例列表
+          get_interface_use_case({ use_case_id: this.use_case_id }).then(
+            response => {
+              const responseData = response.data;
+              responseData.forEach((elem, index) => {
+                if (elem.dataState == "2") {
+                  elem["data"] = elem["body"];
+                } else {
+                  elem["data"] = elem["params"];
+                }
+              });
+              this.tableData = responseData;
+            }
+          );
+        })
+        .catch(error => {
+          this.$message({
+            message: "参数错误！",
             type: "error"
           });
           console.log(error);
@@ -1138,15 +1232,6 @@ export default {
           });
         });
     },
-    // 初始页currentPage、初始每页数据数pagesize和数据data
-    handleSizeChange: function(size) {
-      this.pagesize = size;
-      console.log(this.pagesize); //每页下拉显示数据
-    },
-    handleCurrentChange: function(currentPage) {
-      this.currentPage = currentPage;
-      console.log(this.currentPage); //点击第几页
-    },
     //选中状态
     selected() {
       setTimeout(() => {
@@ -1225,25 +1310,24 @@ export default {
           response.data.request_defaults_environment_id;
         this.requestDefaultsForm.requestAddress =
           response.data.request_defaults_address;
-        const assert_details = new Function(
+        this.requestDefaultsForm.assertData = new Function(
           "return " + response.data.request_defaults_assert_details
         )();
-        if (assert_details == null) {
-          this.requestDefaultsForm.assertType = 0;
-        } else {
-          this.requestDefaultsForm.assertType = assert_details.assert_type;
-        }
-        if (this.requestDefaultsForm.assertType == 0) {
-        } else if (this.requestDefaultsForm.assertType == 1) {
-          this.requestDefaultsForm.responseAssertContent =
-            assert_details.response_assert_content;
-          this.requestDefaultsForm.responseAssertRules =
-            assert_details.response_assert_rules;
-        } else if (this.requestDefaultsForm.assertType == 2) {
-          this.requestDefaultsForm.jsonAssertForm.json_path =
-            assert_details.json_path;
-          this.requestDefaultsForm.jsonAssertForm.json_value =
-            assert_details.json_value;
+        if (this.requestDefaultsForm.assertData == null) {
+          this.requestDefaultsForm.assertData = [
+            {
+              //断言类型
+              assertType: "",
+              //断言提取表达式
+              assertExtractExpression: "",
+              //期望值
+              expectancyValue: "",
+              //关系
+              relation: "",
+              //断言提取表达式
+              assertExtractExpression: ""
+            }
+          ];
         }
       });
     },
