@@ -36,6 +36,38 @@
             <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
             <el-button type="primary" @click="sureSave(form)">保存</el-button>
             <el-button type="primary" @click="back">取消</el-button>
+            <el-popover placement="right" border width="600" trigger="click">
+              <!-- <el-table :data="extractParameterList" max-height="300">
+                            <el-table-column
+                              width="150"
+                              :show-overflow-tooltip="true"
+                              property="variableName"
+                              label="Key"
+                            ></el-table-column>
+                            <el-table-column
+                              property="variableValue"
+                              :show-overflow-tooltip="true"
+                              label="Value"
+                            ></el-table-column>
+                            <el-table-column width="80" label="操作">
+                              <template slot-scope="scope">
+                                <el-button
+                                  size="mini"
+                                  type="primary"
+                                  plain
+                                  @click="copyKey(scope.$index, scope.row)"
+                                >复制</el-button>
+                              </template>
+                            </el-table-column>
+              </el-table>-->
+              <ExtractParameterList :extractParameterList="extractParameterList" />
+              <el-button
+                style="float: right; margin-bottom: 20px;"
+                type="primary"
+                size="small"
+                slot="reference"
+              >参数提取列表</el-button>
+            </el-popover>
           </el-form-item>
           <el-tabs type="border-card" @tab-click="handleClick">
             <!-- 请求头 -->
@@ -217,8 +249,9 @@ import {
 import Response from "../interfaceTesting/Response";
 import Tables from "../interfaceTesting/Tables";
 import { createNamespacedHelpers } from "vuex";
+import ExtractParameterList from "./extractParameterList";
 export default {
-  components: { vueJsonEditor, Response, Tables },
+  components: { vueJsonEditor, Response, Tables, ExtractParameterList },
   props: ["request_data"],
   data() {
     //不为空的表单校验

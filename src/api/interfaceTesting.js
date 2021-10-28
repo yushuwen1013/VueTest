@@ -237,3 +237,12 @@ export function debugging_use_cases(data) {
     params: data
   })
 }
+
+//获取提取参数
+export function get_extract_parameter(data) {
+  return request({
+    url: '/request/get_extract_parameter',
+    method: 'get',
+    params: data
+  })
+}

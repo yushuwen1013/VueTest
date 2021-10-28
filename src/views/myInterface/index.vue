@@ -17,10 +17,10 @@
       <div>
         <el-container>
           <el-aside
-            width="270px"
-            style="background-color: #ffffff;margin-left: 20px;
-            margin-right: 20px;height: 750px;"
-          >
+             width="270px"
+            style="background-color: #ffffff;margin-left: 10px;
+            margin-right: 10px;height: 750px;"
+           >
             <div class="custom-tree-container">
               <p style="text-align: center">接口文件</p>
               <div class="block">
@@ -47,15 +47,15 @@
               </div>
             </div>
           </el-aside>
-          <el-main style="background-color: #ffffff;margin-right: 20px;">
+          <el-main style="background-color: #ffffff;padding-left: 10px;">
             <div>
               <div>
-                <div style="background:#EAEAEA; height: 100%">
+                <div>
                   <div>
                     <el-form
                       :inline="true"
                       class="demo-form-inline"
-                      style="margin-left: 35px;padding-top: 20px"
+                      style="margin-left: 10px;padding-top: 15px;"
                     >
                       <el-form-item label="接口名称">
                         <el-input v-model="seareRequestName" placeholder="请输入接口名称"></el-input>
@@ -75,18 +75,17 @@
                       :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
                       :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
                       height="600"
-                      style="left: 20px;width: 1300px;"
                     >
                       <el-table-column
                         :show-overflow-tooltip="true"
                         max-height="100"
-                        width="180"
+                        width="150"
                         prop="request_name"
                         label="请求名称"
                       ></el-table-column>
                       <el-table-column
                         :show-overflow-tooltip="true"
-                        width="150"
+                        width="80"
                         prop="method"
                         label="请求类型"
                       >
@@ -100,6 +99,7 @@
                         :show-overflow-tooltip="true"
                         prop="environment, environment_url"
                         label="请求环境"
+                        width="150"
                       >
                         <template slot-scope="scope">
                           <el-tooltip
@@ -121,7 +121,8 @@
                         <template slot-scope="scope">
                           <el-button
                             size="mini"
-                            type="primary"
+                            type="success"
+                            plain
                             @click="sendRequest(scope.$index,scope.row)"
                           >运行</el-button>
                           <el-button
@@ -134,6 +135,7 @@
                           <el-button
                             size="mini"
                             type="danger"
+                            plain
                             @click="deleteInterface(scope.$index, scope.row)"
                           >删除</el-button>
                         </template>

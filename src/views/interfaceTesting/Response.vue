@@ -76,22 +76,49 @@
           <div>
             <template height="250">
               <el-table :data="responseData.assert_result" border style="width: 100%">
-                <el-table-column prop="assertType" label="断言类型" width="180" :show-overflow-tooltip="true" align="center"></el-table-column>
                 <el-table-column
-                :show-overflow-tooltip="true"
+                  prop="assertType"
+                  label="断言类型"
+                  width="180"
+                  :show-overflow-tooltip="true"
+                  align="center"
+                ></el-table-column>
+                <el-table-column
+                  :show-overflow-tooltip="true"
                   prop="assertExtractExpression"
                   label="提取表达式"
                   width="300"
                   align="center"
                 ></el-table-column>
-                <el-table-column prop="resultValue" label="实际值" align="center" :show-overflow-tooltip="true"></el-table-column>
-                <el-table-column prop="relation" label="期望关系" width="150"  :show-overflow-tooltip="true" align="center">
+                <el-table-column
+                  prop="resultValue"
+                  label="实际值"
+                  align="center"
+                  :show-overflow-tooltip="true"
+                ></el-table-column>
+                <el-table-column
+                  prop="relation"
+                  label="期望关系"
+                  width="150"
+                  :show-overflow-tooltip="true"
+                  align="center"
+                >
                   <template slot-scope="scope">
                     <el-tag v-show="scope.row.relation" disable-transitions>{{scope.row.relation}}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="expectancyValue" label="期望值" :show-overflow-tooltip="true" align="center"></el-table-column>
-                <el-table-column prop="assertion_results" label="断言结果" :show-overflow-tooltip="true" width="150">
+                <el-table-column
+                  prop="expectancyValue"
+                  label="期望值"
+                  :show-overflow-tooltip="true"
+                  align="center"
+                ></el-table-column>
+                <el-table-column
+                  prop="assertion_results"
+                  label="断言结果"
+                  :show-overflow-tooltip="true"
+                  width="150"
+                >
                   <template slot-scope="scope">
                     <el-tag
                       :type="scope.row.assertion_results? 'success' : 'danger'"
@@ -108,17 +135,39 @@
           <div>
             <template height="250">
               <el-table :data="responseData.extraction_result" border style="width: 100%">
-                <el-table-column prop="extractionType" label="提取类型" width="180" align="center" :show-overflow-tooltip="true"></el-table-column>
                 <el-table-column
-                :show-overflow-tooltip="true"
+                  prop="extractionType"
+                  label="提取类型"
+                  width="180"
+                  align="center"
+                  :show-overflow-tooltip="true"
+                ></el-table-column>
+                <el-table-column
+                  :show-overflow-tooltip="true"
                   prop="parameterExtractExpression"
                   label="提取表达式"
                   width="300"
                   align="center"
                 ></el-table-column>
-                <el-table-column prop="variableName" label="变量名称" align="center" :show-overflow-tooltip="true"></el-table-column>
-                <el-table-column prop="variableValue" label="实际值" align="center" :show-overflow-tooltip="true"></el-table-column>
-                <el-table-column prop="extraction_result" label="提取结果" align="center" width="150" :show-overflow-tooltip="true">
+                <el-table-column
+                  prop="variableName"
+                  label="变量名称"
+                  align="center"
+                  :show-overflow-tooltip="true"
+                ></el-table-column>
+                <el-table-column
+                  prop="variableValue"
+                  label="实际值"
+                  align="center"
+                  :show-overflow-tooltip="true"
+                ></el-table-column>
+                <el-table-column
+                  prop="extraction_result"
+                  label="提取结果"
+                  align="center"
+                  width="150"
+                  :show-overflow-tooltip="true"
+                >
                   <template slot-scope="scope">
                     <el-tag
                       :type="scope.row.extraction_result? 'success' : 'danger'"
@@ -131,7 +180,9 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-      <h4 style="position: absolute;right:40px;top:25px;">Status：{{responseData.response_code}}</h4>
+      <h4 style="position: absolute;right:260px;top:25px;">Status：<span style="color:#67C23A;">{{responseData.response_code}}</span></h4>
+      <h4 style="position: absolute;right:150px;top:25px;">Time：<span style="color:#67C23A;">{{responseData.response_time}}</span></h4>
+      <h4 style="position: absolute;right:50px;top:25px;">Size：<span style="color:#67C23A;">{{responseData.response_size}}</span></h4>
     </template>
   </div>
 </template>
