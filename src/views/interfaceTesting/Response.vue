@@ -27,48 +27,24 @@
               <el-radio :label="0">Raw</el-radio>
               <el-radio :label="2">Json</el-radio>
             </el-radio-group>
-            <!-- <el-input
-              readonly
-              style="margin-top: 10px;"
-              v-if="showResponseDataType"
-              type="textarea"
-              :rows="8"
-              placeholder="响应数据"
-              v-model="responseData.response_data"
-            ></el-input>-->
-            <!-- <json-viewer
-              v-else
-              style="max-height:400px;overflow:auto;"
-              :value="JSON.parse(responseData.response_data)"
-              :expand-depth="2"
-              copyable
-              sort
-            ></json-viewer>-->
             <b-ace-editor
               style="top: 10px"
               :value="responseData.response_data != ''? JSON.stringify(
             JSON.parse(this.responseData.response_data),null, responseDataType): ''"
               lang="json"
               width="100%"
-              height="300"
+              height="450px"
               readonly
             ></b-ace-editor>
           </template>
         </el-tab-pane>
         <el-tab-pane label="Headers" name="Headers">
-          <!-- <json-viewer
-            style="max-height:400px;overflow:auto;"
-            :value="responseData.response_headers"
-            :expand-depth="2"
-            copyable
-            sort
-          ></json-viewer>-->
           <b-ace-editor
             :value="JSON.stringify(
             JSON.parse(this.responseData.response_headers),null, 2)"
             lang="json"
             width="100%"
-            height="300"
+            height="450px"
             readonly
           ></b-ace-editor>
         </el-tab-pane>
@@ -180,9 +156,18 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-      <h4 style="position: absolute;right:260px;top:25px;">Status：<span style="color:#67C23A;">{{responseData.response_code}}</span></h4>
-      <h4 style="position: absolute;right:150px;top:25px;">Time：<span style="color:#67C23A;">{{responseData.response_time}}</span></h4>
-      <h4 style="position: absolute;right:50px;top:25px;">Size：<span style="color:#67C23A;">{{responseData.response_size}}</span></h4>
+      <h4 style="position: absolute;right:260px;top:25px;">
+        Status:
+        <span style="color:#67C23A;">{{responseData.response_code}}</span>
+      </h4>
+      <h4 style="position: absolute;right:150px;top:25px;">
+        Time:
+        <span style="color:#67C23A;">{{responseData.response_time}}</span>
+      </h4>
+      <h4 style="position: absolute;right:50px;top:25px;">
+        Size:
+        <span style="color:#67C23A;">{{responseData.response_size}}</span>
+      </h4>
     </template>
   </div>
 </template>
@@ -204,7 +189,7 @@ export default {
       readonly: false,
       activeNames: ["1"],
       //响应数据类型
-      responseDataType: 0,
+      responseDataType: 2,
       // //显示响应数据类型
       // showResponseDataType: true,
       activeName: "Body"

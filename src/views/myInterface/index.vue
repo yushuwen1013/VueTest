@@ -11,7 +11,7 @@
             type="primary"
             @click="addFile"
           >添加文件</el-button>
-          <span>我的接口</span>
+          <span>单个接口</span>
         </p>
       </div>
       <div>

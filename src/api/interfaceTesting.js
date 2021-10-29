@@ -154,6 +154,15 @@ export function update_interface_use_case(data) {
   })
 }
 
+//导入我的接口
+export function import_interface_use_case(data) {
+  return request({
+    url: '/request/import_interface_use_case',
+    method: 'post',
+    data
+  })
+}
+
 //删除接口用例
 export function delete_interface_use_case(data) {
   return request({
