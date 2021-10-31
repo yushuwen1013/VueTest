@@ -22,7 +22,8 @@
             style="margin-left: 10px; float: left; margin-top: 10px"
             type="primary"
             @click="addFile"
-          >添加用例</el-button>
+            >添加用例</el-button
+          >
           <span>业务接口</span>
         </p>
       </div>
@@ -55,8 +56,18 @@
                       {{ node.data.use_case_name }}
                     </span>
                     <span>
-                      <el-button type="text" size="mini" @click="() => editFile(node)">编辑</el-button>
-                      <el-button type="text" size="mini" @click="() => deleteFile(node)">删除</el-button>
+                      <el-button
+                        type="text"
+                        size="mini"
+                        @click="() => editFile(node)"
+                        >编辑</el-button
+                      >
+                      <el-button
+                        type="text"
+                        size="mini"
+                        @click="() => deleteFile(node)"
+                        >删除</el-button
+                      >
                     </span>
                   </span>
                 </el-tree>
@@ -75,14 +86,19 @@
                         style="margin-left: 10px; padding-top: 15px"
                       >
                         <el-button
-                          style="
-                            float: left;
-                            margin-bottom: 20px;
-                          "
+                          style="float: left; margin-bottom: 20px"
                           type="primary"
                           size="small"
                           @click="extractParameterListVisible = true"
-                        >参数列表</el-button>
+                          >参数列表</el-button
+                        >
+                        <el-button
+                          style="float: left; margin-bottom: 20px"
+                          type="primary"
+                          size="small"
+                          @click="deleteParameter"
+                          >清除用例参数</el-button
+                        >
                         <el-button
                           style="
                             float: right;
@@ -93,7 +109,8 @@
                           icon="el-icon-plus"
                           size="small"
                           @click="addRequest"
-                        >添加</el-button>
+                          >添加</el-button
+                        >
 
                         <el-button
                           style="
@@ -105,7 +122,8 @@
                           icon="el-icon-plus"
                           size="small"
                           @click="importInterface"
-                        >导入我的接口</el-button>
+                          >导入我的接口</el-button
+                        >
                         <el-button
                           style="
                             float: right;
@@ -115,8 +133,9 @@
                           type="primary"
                           size="small"
                           @click="openRequestDefaults"
-                        >请求默认值</el-button>
-                        <el-button
+                          >请求默认值</el-button
+                        >
+                        <!-- <el-button
                           style="
                             float: right;
                             margin-bottom: 20px;
@@ -124,7 +143,8 @@
                           "
                           type="primary"
                           size="small"
-                        >查看结果</el-button>
+                          >调试记录</el-button
+                        > -->
                         <el-button
                           style="
                             float: right;
@@ -136,7 +156,8 @@
                           size="small"
                           icon="el-icon-caret-right"
                           @click="debuggingUseCases()"
-                        >调试</el-button>
+                          >调试</el-button
+                        >
                         <!-- <el-popover placement="right" border width="600" trigger="click">
                         
                           <ExtractParameterList :extractParameterList='extractParameterList'/>
@@ -186,7 +207,8 @@
                           <template slot-scope="scope">
                             <el-tag
                               :type="scope.row.method == 'get' ? 'success' : ''"
-                            >{{ scope.row.method }}</el-tag>
+                              >{{ scope.row.method }}</el-tag
+                            >
                           </template>
                         </el-table-column>
                         <el-table-column
@@ -208,13 +230,22 @@
                                     ? 'danger'
                                     : 'success'
                                 "
-                              >{{ scope.row.environment_name }}</el-tag>
+                                >{{ scope.row.environment_name }}</el-tag
+                              >
                             </el-tooltip>
                           </template>
                         </el-table-column>
-                        <el-table-column :show-overflow-tooltip="true" prop="address" label="请求地址"></el-table-column>
-                        <el-table-column :show-overflow-tooltip="true" prop="headers" label="请求头部"></el-table-column>
-                        <el-table-column :show-overflow-tooltip="true" prop="data" label="请求参数"></el-table-column>
+                        <el-table-column
+                          :show-overflow-tooltip="true"
+                          prop="address"
+                          label="请求地址"
+                        ></el-table-column>
+                        <!-- <el-table-column :show-overflow-tooltip="true" prop="headers" label="请求头部"></el-table-column> -->
+                        <el-table-column
+                          :show-overflow-tooltip="true"
+                          prop="data"
+                          label="请求参数"
+                        ></el-table-column>
                         <el-table-column width="62" label="状态">
                           <template slot-scope="scope">
                             <!-- <el-switch
@@ -236,17 +267,20 @@
                               type="success"
                               plain
                               @click="sendRequest(scope.$index, scope.row)"
-                            >运行</el-button>
+                              >运行</el-button
+                            >
                             <el-button
                               size="mini"
                               type="primary"
                               plain
                               @click="copy(scope.$index, scope.row)"
-                            >复制</el-button>
+                              >复制</el-button
+                            >
                             <el-button
                               size="mini"
                               @click="editInterface(scope.$index, scope.row)"
-                            >编辑</el-button>
+                              >编辑</el-button
+                            >
                             <el-button
                               size="mini"
                               type="danger"
@@ -257,7 +291,8 @@
                                   scope.row
                                 )
                               "
-                            >删除</el-button>
+                              >删除</el-button
+                            >
                           </template>
                         </el-table-column>
                       </el-table>
@@ -271,14 +306,23 @@
                         :page-size="pagesize"
                         layout="total, sizes, prev, pager, next, jumper"
                         :total="tableData.length"
-                      >//这是显示总共有多少数据，</el-pagination>
+                        >//这是显示总共有多少数据，</el-pagination
+                      >
                     </div>
                     <!-- 运行接口返回信息 -->
-                    <el-dialog title="响应数据" :visible.sync="drawer" width="55%">
+                    <el-dialog
+                      title="响应数据"
+                      :visible.sync="drawer"
+                      width="55%"
+                    >
                       <Response :responseData="responseData" />
                     </el-dialog>
                     <!-- 请求默认值 -->
-                    <el-dialog title="请求默认值" :visible.sync="requestDefaultsFormVisible">
+                    <el-dialog
+                      width="60%"
+                      title="请求默认值"
+                      :visible.sync="requestDefaultsFormVisible"
+                    >
                       <el-form
                         :model="requestDefaultsForm"
                         style="padding-left: 20px; padding-right: 50px"
@@ -326,17 +370,40 @@
                         <el-form-item label="结果断言">
                           <div style="height: 200px; overflow-y: auto">
                             <template>
-                              <el-table :data="requestDefaultsForm.assertData" style="width: 100%">
-                                <el-table-column label="断言类型" width="150" align="center">
+                              <el-table
+                                :data="requestDefaultsForm.assertData"
+                                style="width: 100%"
+                              >
+                                <el-table-column
+                                  label="断言类型"
+                                  width="150"
+                                  align="center"
+                                >
                                   <template slot-scope="scope">
-                                    <el-select v-model="scope.row.assertType" placeholder="断言类型">
-                                      <el-option label="响应文本（正则）" :value="1"></el-option>
-                                      <el-option label="响应文本（JSON）" :value="2"></el-option>
-                                      <el-option label="响应状态码" :value="3"></el-option>
+                                    <el-select
+                                      v-model="scope.row.assertType"
+                                      placeholder="断言类型"
+                                    >
+                                      <el-option
+                                        label="响应文本（正则）"
+                                        :value="1"
+                                      ></el-option>
+                                      <el-option
+                                        label="响应文本（JSON）"
+                                        :value="2"
+                                      ></el-option>
+                                      <el-option
+                                        label="响应状态码"
+                                        :value="3"
+                                      ></el-option>
                                     </el-select>
                                   </template>
                                 </el-table-column>
-                                <el-table-column label="提取表达式" width="200" align="center">
+                                <el-table-column
+                                  label="提取表达式"
+                                  width="200"
+                                  align="center"
+                                >
                                   <template slot-scope="scope">
                                     <el-input
                                       :disabled="
@@ -350,7 +417,11 @@
                                     ></el-input>
                                   </template>
                                 </el-table-column>
-                                <el-table-column label="期望关系" width="150" align="center">
+                                <el-table-column
+                                  label="期望关系"
+                                  width="150"
+                                  align="center"
+                                >
                                   <template slot-scope="scope">
                                     <el-select
                                       :disabled="
@@ -359,12 +430,22 @@
                                       v-model="scope.row.relation"
                                       placeholder="期望关系"
                                     >
-                                      <el-option label="包含" :value="1"></el-option>
-                                      <el-option label="匹配" :value="2"></el-option>
+                                      <el-option
+                                        label="包含"
+                                        :value="1"
+                                      ></el-option>
+                                      <el-option
+                                        label="匹配"
+                                        :value="2"
+                                      ></el-option>
                                     </el-select>
                                   </template>
                                 </el-table-column>
-                                <el-table-column label="期望值" width="155" align="center">
+                                <el-table-column
+                                  label="期望值"
+                                  width="155"
+                                  align="center"
+                                >
                                   <template slot-scope="scope">
                                     <el-input
                                       placeholder="期望值"
@@ -385,7 +466,8 @@
                                       "
                                       type="primary"
                                       size="mini"
-                                    >添加</el-button>
+                                      >添加</el-button
+                                    >
                                   </template>
                                   <template slot-scope="scope">
                                     <el-button
@@ -397,7 +479,8 @@
                                       "
                                       type="text"
                                       size="mini"
-                                    >移除</el-button>
+                                      >移除</el-button
+                                    >
                                   </template>
                                 </el-table-column>
                               </el-table>
@@ -410,11 +493,15 @@
                         <el-button
                           type="primary"
                           @click="updateRequestDefaults(requestDefaultsForm)"
-                        >确 定</el-button>
+                          >确 定</el-button
+                        >
                       </div>
                     </el-dialog>
                     <!-- 导入接口 -->
-                    <el-dialog title="请选择接口用例" :visible.sync="importInterfaceFormVisible">
+                    <el-dialog
+                      title="请选择接口用例"
+                      :visible.sync="importInterfaceFormVisible"
+                    >
                       <el-form :model="interfaceFileForm">
                         <el-form-item label="接口文件" label-width="80px">
                           <el-select
@@ -471,7 +558,8 @@
                                   :type="
                                     scope.row.method == 'get' ? 'success' : ''
                                   "
-                                >{{ scope.row.method }}</el-tag>
+                                  >{{ scope.row.method }}</el-tag
+                                >
                               </template>
                             </el-table-column>
                             <el-table-column
@@ -493,7 +581,8 @@
                                         ? 'danger'
                                         : 'success'
                                     "
-                                  >{{ scope.row.environment_name }}</el-tag>
+                                    >{{ scope.row.environment_name }}</el-tag
+                                  >
                                 </el-tooltip>
                               </template>
                             </el-table-column>
@@ -507,7 +596,11 @@
                               prop="headers"
                               label="请求头部"
                             ></el-table-column>
-                            <el-table-column :show-overflow-tooltip="true" prop="data" label="请求参数"></el-table-column>
+                            <el-table-column
+                              :show-overflow-tooltip="true"
+                              prop="data"
+                              label="请求参数"
+                            ></el-table-column>
                           </el-table>
                           <!-- 分页显示 -->
                           <el-pagination
@@ -521,39 +614,64 @@
                             :page-size="interfaceFormPage.pagesize"
                             layout="total, sizes, prev, pager, next, jumper"
                             :total="saveForm.tableData.length"
-                          >//这是显示总共有多少数据，</el-pagination>
+                            >//这是显示总共有多少数据，</el-pagination
+                          >
                         </el-form-item>
                       </el-form>
                       <div slot="footer" class="dialog-footer">
-                        <el-button @click="cancelImportInterface">取 消</el-button>
-                        <el-button type="primary" @click="confirmImportInterface">确 定</el-button>
+                        <el-button @click="cancelImportInterface"
+                          >取 消</el-button
+                        >
+                        <el-button
+                          type="primary"
+                          @click="confirmImportInterface"
+                          >确 定</el-button
+                        >
                       </div>
                     </el-dialog>
                     <!-- 调试界面 -->
-                    <el-drawer title="调试结果" :visible.sync="debuggingDrawer" size="82%">
+                    <el-drawer
+                      title="调试结果"
+                      :visible.sync="debuggingDrawer"
+                      size="90%"
+                    >
                       <div style="background: #eaeaea">
-                        <div style="float:left">
+                        <div style="float: left">
                           <el-card
                             float:left
                             class="box-card"
-                            style="width:400px;margin-left: 10px; height: 820px;position:relative"
+                            style="
+                              width: 350px;
+                              margin-left: 10px;
+                              height: 820px;
+                              position: relative;
+                            "
                           >
                             <div slot="header" class="clearfix">
                               <span>用例信息</span>
                             </div>
-                            <el-descriptions  :column="1" border width="50px">
+                            <el-descriptions :column="1" border width="50px">
                               <el-descriptions-item
                                 :contentStyle="{ 'text-align': 'center' }"
                                 label="用例名称"
-                              >{{use_case_name}}</el-descriptions-item>
+                                >{{
+                                  debuggingForm.use_case_name
+                                }}</el-descriptions-item
+                              >
                               <el-descriptions-item
                                 :contentStyle="{ 'text-align': 'center' }"
                                 label="接口数量"
-                              >10</el-descriptions-item>
+                                >{{
+                                  debuggingForm.number
+                                }}</el-descriptions-item
+                              >
                               <el-descriptions-item
                                 :contentStyle="{ 'text-align': 'center' }"
                                 label="执行时间"
-                              >10</el-descriptions-item>
+                                >{{
+                                  debuggingForm.execution_time
+                                }}</el-descriptions-item
+                              >
                               <!-- <el-descriptions-item
                                 :contentStyle="{ 'text-align': 'center' }"
                                 label="耗时"
@@ -566,8 +684,10 @@
                                 号
                               </el-descriptions-item> -->
                             </el-descriptions>
-                            <el-divider content-position="left">接口执行顺序</el-divider>
-                            <div style="height:460px;overflow:auto;">
+                            <el-divider content-position="left"
+                              >接口执行顺序</el-divider
+                            >
+                            <div style="height: 460px; overflow: auto">
                               <el-tree
                                 height="30px"
                                 highlight-current
@@ -578,26 +698,44 @@
                                 default-expand-all
                                 :expand-on-click-node="false"
                               >
-                                <span class="custom-tree-node" slot-scope="{ node }">
-                                  <span class="tmp" :title="node.data.request_name">
+                                <span
+                                  class="custom-tree-node"
+                                  slot-scope="{ node }"
+                                >
+                                  <span
+                                    class="tmp"
+                                    :title="node.data.request_name"
+                                  >
                                     <i class="el-icon-folder"></i>
                                     {{ node.data.request_name }}
                                   </span>
                                   <span>
                                     <el-tag
-                                      :type="node.data.response_result == '断言失败'||node.data.response_result == '失败'?'danger': 'success' "
-                                    >{{ node.data.response_result }}</el-tag>
+                                      :type="
+                                        node.data.response_result ==
+                                          '断言失败' ||
+                                        node.data.response_result == '失败'
+                                          ? 'danger'
+                                          : 'success'
+                                      "
+                                      >{{ node.data.response_result }}</el-tag
+                                    >
                                   </span>
                                 </span>
                               </el-tree>
                             </div>
                           </el-card>
                         </div>
-                        <div style="float:left">
+                        <div style="float: left">
                           <el-card
                             float:right
                             class="box-card"
-                            style="width:1100px;margin-left: 20px; height: 820px;position:relative"
+                            style="
+                              width: 970px;
+                              margin-left: 20px;
+                              height: 820px;
+                              position: relative;
+                            "
                           >
                             <div slot="header" class="clearfix">
                               <span>响应信息</span>
@@ -608,8 +746,14 @@
                       </div>
                     </el-drawer>
                     <!-- 提取的参数 -->
-                    <el-dialog title="参数信息" width="40%" :visible.sync="extractParameterListVisible">
-                      <ExtractParameterList :extractParameterList="extractParameterList" />
+                    <el-dialog
+                      title="参数信息"
+                      width="40%"
+                      :visible.sync="extractParameterListVisible"
+                    >
+                      <ExtractParameterList
+                        :extractParameterList="extractParameterList"
+                      />
                     </el-dialog>
                   </div>
                 </div>
@@ -629,13 +773,13 @@ import {
   delete_interface_use_case,
   get_interface_use_case,
   get_environment_configuration,
-  update_request_defaults
+  update_request_defaults,
 } from "@/api/interfaceTesting";
 import {
   update_interface_use_case_serial_number,
   get_request_defaults,
   get_file_list,
-  get_request_list
+  get_request_list,
 } from "@/api/interfaceTesting";
 import { request_debug } from "@/api/interfaceTesting";
 import InterfaceEdit from "./interfaceEdit";
@@ -647,7 +791,8 @@ import {
   get_use_case,
   debugging_use_cases,
   get_extract_parameter,
-  import_interface_use_case
+  import_interface_use_case,
+  delete_extract_parameter,
 } from "@/api/interfaceTesting";
 import { parse } from "path-to-regexp";
 import ExtractParameterList from "./extractParameterList";
@@ -655,8 +800,11 @@ export default {
   components: { InterfaceEdit, Response, ExtractParameterList },
   data() {
     return {
-      debuggingForm:{
-        use_case_name: this.use_case_name
+      //调试用例信息
+      debuggingForm: {
+        use_case_name: "",
+        number: "",
+        execution_time: "",
       },
       //调试状态，加载中
       debuggingState: false,
@@ -678,7 +826,7 @@ export default {
         response_data: "",
         response_headers: "{}",
         dataState: "",
-        assert_result: []
+        assert_result: [],
       },
       //响应数据
       responseData: {
@@ -690,7 +838,7 @@ export default {
         response_data: "",
         response_headers: "{}",
         dataState: "",
-        assert_result: []
+        assert_result: [],
       },
       //用例id
       use_case_id: "",
@@ -701,13 +849,13 @@ export default {
         //接口文件
         interfaceFile: "",
         //接口文件选项
-        interfaceFileOptions: []
+        interfaceFileOptions: [],
       },
       //导入接口
       importInterfaceFormVisible: false, // 导入表单显隐
       interfaceFormPage: {
         currentPage: 1, //初始页
-        pagesize: 5 //    每页的数据
+        pagesize: 5, //    每页的数据
       },
       currentPage: 1, //初始页
       pagesize: 20, //    每页的数据
@@ -716,7 +864,7 @@ export default {
         request_name: null,
         tableData: [],
         //所选择的文件夹
-        multipleSelection: ""
+        multipleSelection: "",
       },
       //请求默认值
       requestDefaultsForm: {
@@ -742,9 +890,9 @@ export default {
             //关系
             relation: "",
             //断言提取表达式
-            assertExtractExpression: ""
-          }
-        ]
+            assertExtractExpression: "",
+          },
+        ],
       },
       //请求默认值显隐
       requestDefaultsFormVisible: false,
@@ -767,10 +915,27 @@ export default {
       fileData: [],
       value: "",
       showCaseDetails: false,
-      seareFileName: ""
+      seareFileName: "",
     };
   },
   methods: {
+    //删除用例参数
+    deleteParameter() {
+      delete_extract_parameter({ use_case_id: this.use_case_id }).then(
+        (response) => {
+          //获取已提取的参数
+          get_extract_parameter({ project_id: this.project_id }).then(
+            (response) => {
+              this.extractParameterList = response.data;
+            }
+          );
+          this.$message({
+            message: "已删除本用例提取的所有参数",
+            type: "success",
+          });
+        }
+      );
+    },
     //复制Key
     copyKey(index, rows) {
       let data = rows.variableName;
@@ -782,15 +947,27 @@ export default {
       document.execCommand("Copy"); // 执行浏览器复制命令
       this.$message({
         message: "已成功复制Key到剪切板",
-        type: "success"
+        type: "success",
       });
       oInput.remove();
     },
     //调试结果页面点击选中接口
     selectInterface(node) {
       this.$refs.debuggingResultConfigTree.setCurrentKey(node.id);
-      console.log(node);
-      // this.debuggingResponseData = node;
+      console.log(node, "node");
+      // if (node.response_result == "失败") {
+      //   this.debuggingResponseData = {
+      //     request_headers: "{}",
+      //     request_data: "{}",
+      //     request_url: "",
+      //     request_method: "",
+      //     response_code: "{}",
+      //     response_data: "{}",
+      //     response_headers: "{}",
+      //     dataState: 2,
+      //     assert_result: [],
+      //   };
+      // } else {
       this.debuggingResponseData = {
         assert_result: node.assert_result,
         dataState: node.dataState,
@@ -804,7 +981,7 @@ export default {
         response_headers: node.response_headers,
         response_result: node.response_result,
         response_size: node.response_size,
-        response_time: node.response_time
+        response_time: node.response_time,
       };
       this.debuggingResponseData.response_data = JSON.stringify(
         this.debuggingResponseData.response_data
@@ -812,6 +989,8 @@ export default {
       this.debuggingResponseData.response_headers = JSON.stringify(
         this.debuggingResponseData.response_headers
       );
+      // }
+
       console.log(
         typeof this.responseData.response_headers,
         typeof this.responseData.response_data
@@ -823,11 +1002,18 @@ export default {
         this.debuggingState = true;
         debugging_use_cases({
           use_case_id: this.use_case_id,
-          project_id: this.project_id
+          project_id: this.project_id,
         })
-          .then(response => {
+          .then((response) => {
             console.log(response.data);
-            this.debuggingResult = response.data;
+            //获取已提取的参数
+            get_extract_parameter({ project_id: this.project_id }).then(
+              (response) => {
+                this.extractParameterList = response.data;
+              }
+            );
+            this.debuggingForm = response.data.use_case_info;
+            this.debuggingResult = response.data.result;
             if (this.debuggingResult.length > 0) {
               this.debuggingState = false;
               this.debuggingDrawer = true;
@@ -836,11 +1022,24 @@ export default {
                   this.$refs.debuggingResultConfigTree.setCurrentKey(
                     this.debuggingResult[0].id
                   );
+                  // if (this.debuggingResult[0].response_result == "失败") {
+                  //   this.debuggingResponseData = {
+                  //     request_headers: "{}",
+                  //     request_data: "{}",
+                  //     request_url: "",
+                  //     request_method: "",
+                  //     response_code: "",
+                  //     response_data: "{}",
+                  //     response_headers: "{}",
+                  //     dataState: 2,
+                  //     assert_result: [],
+                  //   };
+                  // } else {
                   this.debuggingResponseData = {
                     assert_result: this.debuggingResult[0].assert_result,
                     dataState: this.debuggingResult[0].dataState,
-                    extraction_result: this.debuggingResult[0]
-                      .extraction_result,
+                    extraction_result:
+                      this.debuggingResult[0].extraction_result,
                     request_data: this.debuggingResult[0].request_data,
                     request_headers: this.debuggingResult[0].request_headers,
                     request_method: this.debuggingResult[0].request_method,
@@ -850,7 +1049,7 @@ export default {
                     response_headers: this.debuggingResult[0].response_headers,
                     response_result: this.debuggingResult[0].response_result,
                     response_size: this.debuggingResult[0].response_size,
-                    response_time: this.debuggingResult[0].response_time
+                    response_time: this.debuggingResult[0].response_time,
                   };
                   this.debuggingResponseData.response_data = JSON.stringify(
                     this.debuggingResponseData.response_data
@@ -858,23 +1057,24 @@ export default {
                   this.debuggingResponseData.response_headers = JSON.stringify(
                     this.debuggingResponseData.response_headers
                   );
+                  // }
                 }
               }, 100);
             } else {
               this.debuggingState = false;
               this.$message({
                 message: "没有可执行的用例！",
-                type: "error"
+                type: "error",
               });
             }
           })
-          .catch(error => {
+          .catch((error) => {
             this.debuggingState = false;
           });
       } else {
         this.$message({
           message: "请先选择用例",
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -883,7 +1083,7 @@ export default {
       rows.splice(index, 1);
       this.$message({
         message: "移除成功！",
-        type: "success"
+        type: "success",
       });
     },
     //添加断言
@@ -898,32 +1098,38 @@ export default {
         //关系
         relation: "",
         //断言提取表达式
-        assertExtractExpression: ""
+        assertExtractExpression: "",
       });
       this.$message({
         message: "添加成功！",
-        type: "success"
+        type: "success",
       });
     },
     //确定导入接口
     confirmImportInterface() {
       const request_data = {
         importInterfaceList: this.saveForm.multipleSelection,
-        use_case_id: this.use_case_id
+        use_case_id: this.use_case_id,
       };
       console.log(request_data);
       //发送保存请求
       import_interface_use_case(request_data)
-        .then(response => {
+        .then((response) => {
           console.log(response);
           this.$bus.$emit("response", response.data);
           this.$message({
             message: "保存成功！",
-            type: "success"
+            type: "success",
           });
+          //获取已提取的参数
+          get_extract_parameter({ project_id: this.project_id }).then(
+            (response) => {
+              this.extractParameterList = response.data;
+            }
+          );
           //获取接口用例列表
           const data = { use_case_id: this.use_case_id };
-          get_interface_use_case(data).then(response => {
+          get_interface_use_case(data).then((response) => {
             const responseData = response.data;
             responseData.forEach((elem, index) => {
               if (elem.dataState == "2") {
@@ -941,10 +1147,10 @@ export default {
             this.interfaceFormPage.currentPage = 1;
           });
         })
-        .catch(error => {
+        .catch((error) => {
           this.$message({
             message: "参数错误！",
-            type: "error"
+            type: "error",
           });
           console.log(error);
         });
@@ -969,14 +1175,14 @@ export default {
         this.importInterfaceFormVisible = true;
         //获取文件列表
         get_file_list({ project_id: this.project_id })
-          .then(response => {
+          .then((response) => {
             this.interfaceFileForm.interfaceFile = response.data[0].id;
             this.interfaceFileForm.interfaceFileOptions = response.data;
           })
-          .catch(error => {
+          .catch((error) => {
             this.$message({
               message: "获取失败",
-              type: "error"
+              type: "error",
             });
             console.log(error);
           });
@@ -984,42 +1190,44 @@ export default {
       } else {
         this.$message({
           message: "请选择用例后在添加",
-          type: "error"
+          type: "error",
         });
       }
     },
     //取消更新接口默认值
     cancel() {
       //获取请求默认值
-      get_request_defaults({ use_case_id: this.use_case_id }).then(response => {
-        this.requestDefaultsForm.requestType =
-          response.data.request_defaults_method;
-        this.requestDefaultsForm.headers =
-          response.data.request_defaults_headers;
-        this.requestDefaultsForm.environment =
-          response.data.request_defaults_environment_id;
-        this.requestDefaultsForm.requestAddress =
-          response.data.request_defaults_address;
-        this.requestDefaultsForm.assertData = new Function(
-          "return " + response.data.request_defaults_assert_details
-        )();
-        if (this.requestDefaultsForm.assertData == null) {
-          this.requestDefaultsForm.assertData = [
-            {
-              //断言类型
-              assertType: "",
-              //断言提取表达式
-              assertExtractExpression: "",
-              //期望值
-              expectancyValue: "",
-              //关系
-              relation: "",
-              //断言提取表达式
-              assertExtractExpression: ""
-            }
-          ];
+      get_request_defaults({ use_case_id: this.use_case_id }).then(
+        (response) => {
+          this.requestDefaultsForm.requestType =
+            response.data.request_defaults_method;
+          this.requestDefaultsForm.headers =
+            response.data.request_defaults_headers;
+          this.requestDefaultsForm.environment =
+            response.data.request_defaults_environment_id;
+          this.requestDefaultsForm.requestAddress =
+            response.data.request_defaults_address;
+          this.requestDefaultsForm.assertData = new Function(
+            "return " + response.data.request_defaults_assert_details
+          )();
+          if (this.requestDefaultsForm.assertData == null) {
+            this.requestDefaultsForm.assertData = [
+              {
+                //断言类型
+                assertType: "",
+                //断言提取表达式
+                assertExtractExpression: "",
+                //期望值
+                expectancyValue: "",
+                //关系
+                relation: "",
+                //断言提取表达式
+                assertExtractExpression: "",
+              },
+            ];
+          }
         }
-      });
+      );
       this.requestDefaultsFormVisible = false;
     },
     //打开请求默认值
@@ -1027,7 +1235,7 @@ export default {
       if (this.use_case_id == "") {
         this.$message({
           message: "请先选择用例，然后在配置默认值",
-          type: "error"
+          type: "error",
         });
       } else {
         this.requestDefaultsFormVisible = true;
@@ -1045,7 +1253,7 @@ export default {
           RequestDefaults.environment == ""
             ? null
             : RequestDefaults.environment,
-        id: this.use_case_id
+        id: this.use_case_id,
       };
       //如果headers是字符串再判断他是否是Json字符串
       if (typeof RequestDefaults.headers == String) {
@@ -1053,39 +1261,39 @@ export default {
         if (isJSON(RequestDefaults.headers)) {
           //发送更新接口默认值的请求
           update_request_defaults(request_data)
-            .then(response => {
+            .then((response) => {
               this.requestDefaultsFormVisible = false;
               this.$message({
                 message: "更新成功",
-                type: "success"
+                type: "success",
               });
             })
-            .catch(error => {
+            .catch((error) => {
               this.$message({
                 message: "更新失败",
-                type: "success"
+                type: "success",
               });
             });
         } else {
           this.$message({
             message: "headers必须是Json格式",
-            type: "error"
+            type: "error",
           });
         }
       } else {
         //发送更新接口默认值的请求
         update_request_defaults(request_data)
-          .then(response => {
+          .then((response) => {
             this.requestDefaultsFormVisible = false;
             this.$message({
               message: "更新成功",
-              type: "success"
+              type: "success",
             });
           })
-          .catch(error => {
+          .catch((error) => {
             this.$message({
               message: "更新失败",
-              type: "success"
+              type: "success",
             });
           });
       }
@@ -1096,19 +1304,19 @@ export default {
       const request_data = {
         id: row.id,
         isUse: row.isUse,
-        project_id: this.project_id
+        project_id: this.project_id,
       };
       //发送更新状态的接口
-      update_interface_use_case(request_data).then(response => {
+      update_interface_use_case(request_data).then((response) => {
         if (row.isUse == true) {
           this.$message({
             message: row.request_name + "已开启！",
-            type: "success"
+            type: "success",
           });
         } else {
           this.$message({
             message: row.request_name + "已关闭！",
-            type: "success"
+            type: "success",
           });
         }
       });
@@ -1123,7 +1331,7 @@ export default {
           "return " + this.requestDefaultsForm.headers
         )();
         if (sHeaders != null) {
-          Object.keys(sHeaders).forEach(elem => {
+          Object.keys(sHeaders).forEach((elem) => {
             headers.push({ key: elem, value: sHeaders[elem] });
           });
         }
@@ -1135,8 +1343,8 @@ export default {
             {
               extractionType: "",
               parameterExtractExpression: "",
-              variableName: ""
-            }
+              variableName: "",
+            },
           ],
           extraction_result: [],
           assert_result: [],
@@ -1149,13 +1357,13 @@ export default {
           method: this.requestDefaultsForm.requestType,
           params: [{}],
           request_name: "",
-          body: "{}"
+          body: "{}",
         };
         this.showInterfaceEdit = true;
       } else {
         this.$message({
           message: "请选择用例后在添加",
-          type: "error"
+          type: "error",
         });
       }
     },
@@ -1174,11 +1382,11 @@ export default {
         assert_details: new Function("return " + row.assert_details)(),
         extraction_details: new Function("return " + row.extraction_details)(),
         isEnvironment: row.isEnvironment,
-        project_id: this.project_id
+        project_id: this.project_id,
       };
       //发送请求，返回数据
       request_debug(request_data)
-        .then(response => {
+        .then((response) => {
           this.responseData = response.data;
           console.log(this.responseData, "响应数据");
           this.responseData.response_data = JSON.stringify(
@@ -1189,17 +1397,24 @@ export default {
           );
           console.log(this.responseData, "响应数据处理后的样子");
 
-          this.$message({
-            message: "请求成功！",
-            type: "success"
-          });
+          if (this.responseData.response_code == 200) {
+            this.$message({
+              message: response.message,
+              type: "success",
+            });
+          } else {
+            this.$message({
+              message: response.message,
+              type: "error",
+            });
+          }
           //右侧弹窗显示信息
           this.drawer = true;
         })
-        .catch(error => {
+        .catch((error) => {
           this.$message({
-            message: "请求失败！",
-            type: "error"
+            message: error.message,
+            type: "error",
           });
           console.log(error);
         });
@@ -1209,23 +1424,23 @@ export default {
       const request_data = {
         importInterfaceList: [row],
         use_case_id: this.use_case_id,
-        project_id: this.project_id
+        project_id: this.project_id,
       };
       request_data.importInterfaceList[0].request_name =
         request_data.importInterfaceList[0].request_name + "_副本";
       console.log(request_data);
       //发送复制请求
       import_interface_use_case(request_data)
-        .then(response => {
+        .then((response) => {
           console.log(response);
           this.$bus.$emit("response", response.data);
           this.$message({
             message: "复制成功",
-            type: "success"
+            type: "success",
           });
           //获取接口用例列表
           get_interface_use_case({ use_case_id: this.use_case_id }).then(
-            response => {
+            (response) => {
               const responseData = response.data;
               responseData.forEach((elem, index) => {
                 if (elem.dataState == "2") {
@@ -1238,10 +1453,10 @@ export default {
             }
           );
         })
-        .catch(error => {
+        .catch((error) => {
           this.$message({
             message: "参数错误！",
-            type: "error"
+            type: "error",
           });
           console.log(error);
         });
@@ -1253,11 +1468,11 @@ export default {
       const sHeaders = new Function("return " + row.headers)();
       const sParams = new Function("return " + row.params)();
       console.log(Object.keys(sHeaders), "Object.keys(sHeaders)");
-      Object.keys(sHeaders).forEach(elem => {
+      Object.keys(sHeaders).forEach((elem) => {
         headers.push({ key: elem, value: sHeaders[elem] });
         console.log(elem, sHeaders[elem], "22222222222");
       });
-      Object.keys(sParams).forEach(elem => {
+      Object.keys(sParams).forEach((elem) => {
         params.push({ key: elem, value: sParams[elem] });
       });
       this.request_data = {
@@ -1278,7 +1493,7 @@ export default {
         params: params,
         request_file_id: row.request_file_id,
         request_name: row.request_name,
-        body: JSON.stringify(JSON.parse(row.body), null, 2)
+        body: JSON.stringify(JSON.parse(row.body), null, 2),
       };
       console.log(this.request_data, "this.request_data");
       this.showInterfaceEdit = true;
@@ -1289,17 +1504,17 @@ export default {
       this.$confirm("此操作将永久删除该接口用例, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
-          delete_interface_use_case({ id: row.id }).then(response => {
+          delete_interface_use_case({ id: row.id }).then((response) => {
             this.$message({
               type: "success",
-              message: "删除成功!"
+              message: "删除成功!",
             });
             // 获取用例接口列表
             get_interface_use_case({ use_case_id: this.use_case_id })
-              .then(response => {
+              .then((response) => {
                 const responseData = response.data;
                 responseData.forEach((elem, index) => {
                   if (elem.dataState == "2") {
@@ -1311,7 +1526,7 @@ export default {
                 console.log(responseData);
                 this.tableData = responseData;
               })
-              .catch(error => {
+              .catch((error) => {
                 this.$bus.$emit("response", {});
                 console.log(error);
               });
@@ -1320,21 +1535,21 @@ export default {
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消删除",
           });
         });
     },
     // 初始页currentPage、初始每页数据数pagesize和数据data
-    handleSizeChange: function(size) {
+    handleSizeChange: function (size) {
       this.pagesize = size;
     },
-    handleCurrentChange: function(currentPage) {
+    handleCurrentChange: function (currentPage) {
       this.currentPage = currentPage;
     },
-    interfaceFormPageHandleSizeChange: function(size) {
+    interfaceFormPageHandleSizeChange: function (size) {
       this.interfaceFormPage.pagesize = size;
     },
-    interfaceFormPageHandleCurrentChange: function(currentPage) {
+    interfaceFormPageHandleCurrentChange: function (currentPage) {
       this.interfaceFormPage.currentPage = currentPage;
     },
     //行拖拽
@@ -1346,14 +1561,14 @@ export default {
         onEnd({ newIndex, oldIndex }) {
           const currRow = _this.tableData.splice(oldIndex, 1)[0];
           _this.tableData.splice(newIndex, 0, currRow);
-        }
+        },
       });
     },
     //禁止默认行为
     disableDefaultBehavior() {
       // 阻止默认行为
       console.log("ssssssssss");
-      document.body.ondrop = function(event) {
+      document.body.ondrop = function (event) {
         event.preventDefault();
         event.stopPropagation();
       };
@@ -1372,31 +1587,31 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         inputErrorMessage: "输入不能为空",
-        inputValidator: value => {
+        inputValidator: (value) => {
           // 点击按钮时，对文本框里面的值进行验证
           console.log(value);
           if (!value.trim()) {
             return "输入不能为空";
           }
-        }
+        },
       })
         .then(({ value }) => {
           //接口参数
           const createData = {
             use_case_name: value,
-            project_id: this.project_id
+            project_id: this.project_id,
           };
           //发送新增用例接口
           update_use_case(createData)
-            .then(response => {
-              get_use_case({ project_id: this.project_id }).then(response => {
+            .then((response) => {
+              get_use_case({ project_id: this.project_id }).then((response) => {
                 this.fileData = response.data;
               });
             })
-            .catch(error => {
+            .catch((error) => {
               this.$message({
                 message: "新增失败",
-                type: "error"
+                type: "error",
               });
               console.log(error);
             });
@@ -1404,13 +1619,13 @@ export default {
           console.log("ssssssss");
           this.$message({
             type: "success",
-            message: "文件名称是: " + value
+            message: "文件名称是: " + value,
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入"
+            message: "取消输入",
           });
         });
     },
@@ -1422,41 +1637,41 @@ export default {
         cancelButtonText: "取消",
         inputValue: node.data.use_case_name,
         inputErrorMessage: "输入不能为空",
-        inputValidator: value => {
+        inputValidator: (value) => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value.trim()) {
             return "输入不能为空";
           }
-        }
+        },
       })
         .then(({ value }) => {
           const data = {
             use_case_name: value,
-            id: node.data.id
+            id: node.data.id,
           };
           update_use_case(data)
-            .then(response => {
-              get_use_case({ project_id: this.project_id }).then(response => {
+            .then((response) => {
+              get_use_case({ project_id: this.project_id }).then((response) => {
                 this.fileData = response.data;
               });
             })
-            .catch(error => {
+            .catch((error) => {
               this.$message({
                 message: "修改失败",
-                type: "error"
+                type: "error",
               });
               console.log(error);
             });
           this.selected();
           this.$message({
             type: "success",
-            message: "文件名称是: " + value
+            message: "文件名称是: " + value,
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入"
+            message: "取消输入",
           });
         });
     },
@@ -1466,15 +1681,15 @@ export default {
       this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           //删除文件接口
           const id = { id: node.data.id };
           delete_use_case(id)
-            .then(response => {
+            .then((response) => {
               console.log(response.data);
-              get_use_case({ project_id: this.project_id }).then(response => {
+              get_use_case({ project_id: this.project_id }).then((response) => {
                 this.fileData = response.data;
               });
               setTimeout(() => {
@@ -1485,22 +1700,22 @@ export default {
                 }
               }, 100);
             })
-            .catch(error => {
+            .catch((error) => {
               this.$message({
                 message: "删除失败",
-                type: "error"
+                type: "error",
               });
               console.log(error);
             });
           this.$message({
             type: "success",
-            message: "删除成功!"
+            message: "删除成功!",
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消删除",
           });
         });
     },
@@ -1511,37 +1726,37 @@ export default {
           this.$refs.dataConfigTree.setCurrentKey(this.use_case_id);
         }
       }, 50);
-    }
+    },
   },
   // 创建之前发送请求
   created() {
     //获取已提取的参数
-    get_extract_parameter({ project_id: this.project_id }).then(response => {
+    get_extract_parameter({ project_id: this.project_id }).then((response) => {
       this.extractParameterList = response.data;
     });
     //获取环境信息
     get_environment_configuration({ project_id: this.project_id }).then(
-      response => {
+      (response) => {
         this.requestDefaultsForm.environment_options = response.data;
       }
     );
     //获取用例列表
     get_use_case({ project_id: this.project_id })
-      .then(response => {
+      .then((response) => {
         console.log(response.data);
         this.fileData = response.data;
       })
-      .catch(error => {
+      .catch((error) => {
         this.$message({
           message: "获取失败",
-          type: "error"
+          type: "error",
         });
         console.log(error);
       });
   },
   mounted() {
     // 阻止默认行为
-    document.body.ondrop = function(event) {
+    document.body.ondrop = function (event) {
       event.preventDefault();
       event.stopPropagation();
     };
@@ -1560,7 +1775,7 @@ export default {
       const data = { use_case_id: this.use_case_id };
       // 获取接口用例列表
       get_interface_use_case(data)
-        .then(response => {
+        .then((response) => {
           const responseData = response.data;
           responseData.forEach((elem, index) => {
             if (elem.dataState == "2") {
@@ -1572,40 +1787,42 @@ export default {
           console.log(responseData);
           this.tableData = responseData;
         })
-        .catch(error => {
+        .catch((error) => {
           console.log(error);
         });
       //获取请求默认值
-      get_request_defaults({ use_case_id: this.use_case_id }).then(response => {
-        this.use_case_name = response.data.use_case_name;
-        this.requestDefaultsForm.requestType =
-          response.data.request_defaults_method;
-        this.requestDefaultsForm.headers =
-          response.data.request_defaults_headers;
-        this.requestDefaultsForm.environment =
-          response.data.request_defaults_environment_id;
-        this.requestDefaultsForm.requestAddress =
-          response.data.request_defaults_address;
-        this.requestDefaultsForm.assertData = new Function(
-          "return " + response.data.request_defaults_assert_details
-        )();
-        if (this.requestDefaultsForm.assertData == null) {
-          this.requestDefaultsForm.assertData = [
-            {
-              //断言类型
-              assertType: "",
-              //断言提取表达式
-              assertExtractExpression: "",
-              //期望值
-              expectancyValue: "",
-              //关系
-              relation: "",
-              //断言提取表达式
-              assertExtractExpression: ""
-            }
-          ];
+      get_request_defaults({ use_case_id: this.use_case_id }).then(
+        (response) => {
+          this.use_case_name = response.data.use_case_name;
+          this.requestDefaultsForm.requestType =
+            response.data.request_defaults_method;
+          this.requestDefaultsForm.headers =
+            response.data.request_defaults_headers;
+          this.requestDefaultsForm.environment =
+            response.data.request_defaults_environment_id;
+          this.requestDefaultsForm.requestAddress =
+            response.data.request_defaults_address;
+          this.requestDefaultsForm.assertData = new Function(
+            "return " + response.data.request_defaults_assert_details
+          )();
+          if (this.requestDefaultsForm.assertData == null) {
+            this.requestDefaultsForm.assertData = [
+              {
+                //断言类型
+                assertType: "",
+                //断言提取表达式
+                assertExtractExpression: "",
+                //期望值
+                expectancyValue: "",
+                //关系
+                relation: "",
+                //断言提取表达式
+                assertExtractExpression: "",
+              },
+            ];
+          }
         }
-      });
+      );
     },
     //拖拽排序后更新编号（serial_number）
     tableData: {
@@ -1618,12 +1835,12 @@ export default {
             data.push({ id: element.id, serial_number: element.serial_number });
           });
           update_interface_use_case_serial_number({ serial_number: data }).then(
-            response => {
+            (response) => {
               console.log(response, "update_interface_use_case_serial_number");
             }
           );
         }
-      }
+      },
     },
     //导入接口的文件变更后发送请求返回对应的接口列表
     "interfaceFileForm.interfaceFile": {
@@ -1637,7 +1854,7 @@ export default {
         const data = { file_id: file_id };
         // 获取接口列表
         get_request_list(data)
-          .then(response => {
+          .then((response) => {
             const responseData = response.data;
             responseData.forEach((elem, index) => {
               if (elem.dataState == "2") {
@@ -1649,12 +1866,12 @@ export default {
             console.log(responseData);
             this.saveForm.tableData = responseData;
           })
-          .catch(error => {
+          .catch((error) => {
             console.log(error);
           });
-      }
-    }
-  }
+      },
+    },
+  },
 };
 </script>
 

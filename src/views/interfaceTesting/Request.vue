@@ -452,10 +452,17 @@ export default {
               this.responseData.response_headers = JSON.stringify(
                 this.responseData.response_headers
               );
-              this.$message({
-                message: "请求成功！",
+              if(this.responseData.response_code == 200){
+                this.$message({
+                message: response.message,
                 type: "success"
               });
+              }else{
+                this.$message({
+                message: response.message,
+                type: "error"
+              });
+              }
             })
             .catch(error => {
               console.log(error);
@@ -464,7 +471,7 @@ export default {
                 type: "error"
               });
               this.$bus.$emit("response", {});
-              console.log(error);
+              console.log(error, "error");
             });
         } else {
           return false;
@@ -575,7 +582,7 @@ export default {
               this.responseData.response_headers
             );
             request_data.extraction_result = this.responseData.extraction_result;
-            (request_data.assert_result = this.responseData.assert_result),
+            request_data.assert_result = this.responseData.assert_result,
               //发送保存请求
               update_request(request_data)
                 .then(response => {

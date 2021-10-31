@@ -147,9 +147,16 @@ export const constantRoutes = [
         component: () => import('@/views/caseManagement/index'),
         meta: { title: '用例管理', icon: 'el-icon-user-solid' },
       },
+      //测试计划
+      {
+        path: 'TestPlan',
+        name: 'TestPlan',
+        component: () => import('@/views/testPlan/index'),
+        meta: { title: '测试计划', icon: 'el-icon-user-solid' },
+      },
     ]
   },
-
+  
   {
     path: '/form',
     component: Layout,

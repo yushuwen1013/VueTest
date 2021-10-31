@@ -255,3 +255,12 @@ export function get_extract_parameter(data) {
     params: data
   })
 }
+
+//删除提取到的参数
+export function delete_extract_parameter(data) {
+  return request({
+    url: '/request/delete_extract_parameter',
+    method: 'post',
+    data
+  })
+}

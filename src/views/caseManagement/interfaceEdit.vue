@@ -545,10 +545,17 @@ export default {
                 this.responseData.response_headers
               );
               console.log(this.responseData, "响应数据处理后的样子");
-              this.$message({
-                message: "请求成功！",
-                type: "success",
+              if(this.responseData.response_code == 200){
+                this.$message({
+                message: response.message,
+                type: "success"
               });
+              }else{
+                this.$message({
+                message: response.message,
+                type: "error"
+              });
+              }
             })
             .catch((error) => {
               console.log(error);
