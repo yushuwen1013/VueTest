@@ -672,11 +672,12 @@
                                   debuggingForm.execution_time
                                 }}</el-descriptions-item
                               >
-                              <!-- <el-descriptions-item
+                              
+                              <el-descriptions-item
                                 :contentStyle="{ 'text-align': 'center' }"
                                 label="耗时"
-                              >10</el-descriptions-item>
-                              <el-descriptions-item
+                              >{{debuggingForm.time_consuming}}</el-descriptions-item>
+                              <!-- <el-descriptions-item
                                 label="联系地址"
                                 :contentStyle="{ 'text-align': 'center' }"
                               >
@@ -1897,13 +1898,13 @@ export default {
   padding-right: 8px;
 }
 
-.el-tree-node {
-  border: 1px solid rgb(218, 218, 218);
-}
+// .el-tree-node {
+//   border: 1px solid rgb(218, 218, 218);
+// }
 
 .el-tree-node__content {
   background-color: #ffffff;
-  height: 50px;
+  height: 40px;
 }
 
 .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {

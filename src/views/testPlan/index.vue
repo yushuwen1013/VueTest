@@ -3,11 +3,14 @@
     <div style="background:#fff">
       <p
         style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
-        >
-        <span style>测试计划</span>
+      >
+        <span style>定时任务</span>
       </p>
     </div>
-    <div>
+    <div v-show="isShowEditTasks">
+      <EditTasks/>
+    </div>
+    <div v-show='!isShowEditTasks'>
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
         <el-form-item label="任务名称">
           <el-input v-model="seareVariableKey" placeholder="请输入任务名称"></el-input>
@@ -20,17 +23,17 @@
           style="float: right;margin-bottom: 20px;margin-right: 50px;"
           type="primary"
           icon="el-icon-plus"
-          @click="dialogFormVisible = true"
+          @click="isShowEditTasks = true"
         >添加</el-button>
       </el-form>
       <el-table
         height="600"
-        :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
+        :data="taskData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
         style="width: 100%;left: 20px;"
         :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
         <el-table-column :show-overflow-tooltip="true" prop="key" label="任务名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="value" label="Cron表达式"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="value" label="时间范围"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="value" label="任务状态"></el-table-column>
         <!-- <el-table-column :show-overflow-tooltip="true" prop="value" label="变量值(Value)"></el-table-column> -->
         <el-table-column :show-overflow-tooltip="true" prop="description" label="备注"></el-table-column>
@@ -50,49 +53,106 @@
         :page-sizes="[5, 10, 15, 20, 40]"
         :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="tableData.length"
+        :total="taskData.length"
       >//这是显示总共有多少数据，</el-pagination>
     </div>
-    <el-dialog title="变量" :visible.sync="dialogFormVisible" width="30%">
-      <el-form :model="updateForm">
-        <el-form-item label="变量名" label-width="80px">
-          <el-input v-model="updateForm.key" autocomplete="off" placeholder="请输入变量名"></el-input>
-        </el-form-item>
-        <el-form-item label="变量值" label-width="80px">
-          <el-input v-model="updateForm.value" autocomplete="off" placeholder="请输入变量值"></el-input>
-        </el-form-item>
-        <el-form-item label="描述" label-width="80px">
-          <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
-        </el-form-item>
-      </el-form>
-      <div slot="footer" class="dialog-footer">
+    <!-- <el-dialog title="添加任务" :visible.sync="dialogFormVisible" fullscreen>
+      <div>
+        <div style="float:left;width:600px">
+          <el-form :model="updateForm">
+            <el-form-item label="任务名称" label-width="80px">
+              <el-input v-model="updateForm.task_name" autocomplete="off" placeholder="请输入变量名"></el-input>
+            </el-form-item>
+            <el-form-item label="起始日期" label-width="80px">
+              <template>
+                <div class="block">
+                  <span class="demonstration"></span>
+                  <el-date-picker
+                    v-model="updateForm.fromDate"
+                    type="datetimerange"
+                    range-separator="至"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                  ></el-date-picker>
+                </div>
+              </template>
+            </el-form-item>
+            <el-form-item label="间隔时间" label-width="80px">
+              <el-input
+                v-model.number="updateForm.interval_time.day"
+                autocomplete="off"
+                style="width:100px;margin-left: 10px;"
+              >
+                <span slot="suffix">天</span>
+              </el-input>
+              <el-input
+                v-model.number="updateForm.interval_time.hour"
+                autocomplete="off"
+                style="width:100px;margin-left: 10px;"
+              >
+                <span slot="suffix">时</span>
+              </el-input>
+              <el-input
+                v-model.number="updateForm.interval_time.minute"
+                autocomplete="off"
+                style="width:100px;margin-left: 10px;"
+              >
+                <span slot="suffix">分</span>
+              </el-input>
+              <el-input
+                v-model.number="updateForm.interval_time.second"
+                autocomplete="off"
+                style="width:100px;margin-left: 10px;"
+              >
+                <span slot="suffix">秒</span>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="描述" label-width="80px">
+              <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div slot="footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="addVariable">确 定</el-button>
       </div>
-    </el-dialog>
+    </el-dialog> -->
   </div>
+  
 </template>
 
 <script>
+import EditTasks from './EditTasks'
 import {
   update_global_variable,
   get_global_variable,
   delete_global_variable
 } from "@/api/interfaceTesting";
+import { update_task, get_task, delete_task } from "@/api/interfaceTesting";
 export default {
+  components:{EditTasks},
   data() {
     return {
-      project_id : localStorage.getItem('project_id'),
+      isShowEditTasks: false,
+      project_id: localStorage.getItem("project_id"),
       updateForm: {
-        key: "",
-        value: "",
-        description: "",
-        project_id: localStorage.getItem('project_id'),
+        task_name: "", // 任务名称
+        fromDate: "", // 起始日期
+        interval_time: {
+          //间隔时间
+          day: "",
+          hour: "",
+          minute: "",
+          second: ""
+        },
+        description: "", // 描述
+        project_id: localStorage.getItem("project_id") // 项目id
       },
       dialogFormVisible: false, //添加或编辑弹窗
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
-      tableData: [],
+      taskData: [],
       seareVariableKey: "" //搜索框的值
     };
   },
@@ -120,9 +180,11 @@ export default {
           delete_global_variable(id)
             .then(response => {
               console.log(response.data);
-              get_global_variable({project_id: this.project_id,}).then(response => {
-                this.tableData = response.data;
-              });
+              get_global_variable({ project_id: this.project_id }).then(
+                response => {
+                  this.taskData = response.data;
+                }
+              );
             })
             .catch(error => {
               this.$message({
@@ -145,55 +207,56 @@ export default {
     },
     //点击编辑
     clickEdit(row) {
-      
       this.dialogFormVisible = true;
       this.updateForm = {
         key: row.key,
         value: row.value,
         description: row.description,
-        project_id: localStorage.getItem('project_id'),
+        project_id: localStorage.getItem("project_id"),
         id: row.id
       };
     },
     //确定添加变量
     addVariable() {
-      console.log(this.project_id)
-      console.log(this.updateForm);
-      if (
-        this.updateForm.key.trim() == "" ||
-        this.updateForm.value.trim() == ""
-      ) {
-        this.$message({
-          message: "key和value不能为空",
-          type: "error"
-        });
-      } else {
-        update_global_variable(this.updateForm)
-          .then(response => {
-            get_global_variable({project_id: this.project_id}).then(response => {
-              this.tableData = response.data;
-            });
-            this.updateForm = {
-              key: "",
-              value: "",
-              description: "",
-              project_id: localStorage.getItem('project_id'),
-            };
-            this.$message({
-              message: response.data,
-              type: "success"
-            });
-            this.dialogFormVisible = false;
-          })
-          .catch(error => {
-            console.log(error);
-            this.$message({
-              message: error.message,
-              type: "error"
-            });
-            console.log(error);
-          });
-      }
+      
+      // console.log(this.updateForm);
+      // if (
+      //   this.updateForm.task_name.trim() == "" ||
+      //   this.updateForm.task_name.trim() == ""
+      // ) {
+      //   this.$message({
+      //     message: "key和value不能为空",
+      //     type: "error"
+      //   });
+      // } else {
+      //   update_global_variable(this.updateForm)
+      //     .then(response => {
+      //       get_global_variable({ project_id: this.project_id }).then(
+      //         response => {
+      //           this.taskData = response.data;
+      //         }
+      //       );
+      //       this.updateForm = {
+      //         key: "",
+      //         value: "",
+      //         description: "",
+      //         project_id: localStorage.getItem("project_id")
+      //       };
+      //       this.$message({
+      //         message: response.data,
+      //         type: "success"
+      //       });
+      //       this.dialogFormVisible = false;
+      //     })
+      //     .catch(error => {
+      //       console.log(error);
+      //       this.$message({
+      //         message: error.message,
+      //         type: "error"
+      //       });
+      //       console.log(error);
+      //     });
+      // }
     },
     //查询
     inquire() {
@@ -202,20 +265,20 @@ export default {
         variable_key: this.seareVariableKey
       };
       get_global_variable(request_data).then(response => {
-        this.tableData = response.data;
+        this.taskData = response.data;
       });
     },
     //重置
     reset() {
-      get_global_variable({project_id: this.project_id,}).then(response => {
-        this.tableData = response.data;
+      get_global_variable({ project_id: this.project_id }).then(response => {
+        this.taskData = response.data;
         this.seareVariableKey = "";
       });
     }
   },
   created() {
-    get_global_variable({project_id: this.project_id}).then(response => {
-      this.tableData = response.data;
+    get_task({ project_id: this.project_id }).then(response => {
+      this.taskData = response.data;
     });
   }
 };

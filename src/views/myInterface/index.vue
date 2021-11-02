@@ -33,7 +33,7 @@
               margin-right: 10px;
               height: 750px;
             "
-          >
+            >
             <div class="custom-tree-container">
               <p style="text-align: center">接口文件</p>
               <div class="block">
@@ -815,18 +815,18 @@ export default {
   padding-right: 8px;
 }
 
-.el-tree-node {
+/* .el-tree-node {
   border: 1px solid rgb(218, 218, 218);
-}
+} */
 
 .el-tree-node__content {
   background-color: #ffffff;
-  height: 50px;
+  height: 40px;
 }
 
-.el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
+/* .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
   background-color: rgb(209, 209, 209) !important;
-}
+} */
 .tmp {
   white-space: nowrap; /*强制单行显示*/
   text-overflow: ellipsis; /*超出部分省略号表示*/

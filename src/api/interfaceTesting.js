@@ -264,3 +264,42 @@ export function delete_extract_parameter(data) {
     data
   })
 }
+
+//新增或更新任务
+export function update_task(data) {
+  return request({
+    url: '/request/update_task',
+    method: 'post',
+    data
+  })
+}
+
+//获取任务列表
+export function get_task(data) {
+  return request({
+    url: '/request/get_task',
+    method: 'get',
+    params: data
+  })
+}
+
+
+
+//删除任务
+export function delete_task(data) {
+  return request({
+    url: '/request/delete_task',
+    method: 'post',
+    data
+  })
+}
+
+
+//获取文件接口
+export function get_all_file(data) {
+  return request({
+    url: '/request/get_all_file',
+    method: 'get',
+    params: data
+  })
+}
