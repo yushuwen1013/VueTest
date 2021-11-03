@@ -37,9 +37,9 @@
         <el-table-column :show-overflow-tooltip="true" prop="interval_time" label="间隔时间"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="task_status" label="状态"></el-table-column>
-        <el-table-column width="275" label="操作">
+        <el-table-column width="300" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="clickEdit(scope.row)">执行</el-button>
+            <el-button size="mini" @click="clickEdit(scope.row)">立即执行</el-button>
             <el-button size="mini" @click="clickEdit(scope.row)">暂停</el-button>
             <el-button size="mini" @click="clickEdit(scope.row)">修改</el-button>
             <el-button size="mini" type="danger" @click="deleteTask(scope.$index, scope.row)">删除</el-button>

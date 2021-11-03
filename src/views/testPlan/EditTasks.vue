@@ -1,19 +1,19 @@
 <template>
-  <div>
+  <div style="height: 100%;position: relative">
     <div style="margin-left: 20px;margin-bottom: 15px;">
       <el-button type="primary" size="small" @click="back">返回</el-button>
       <el-button type="primary" size="small" @click="save(updateForm)">保存</el-button>
     </div>
-    <el-card class="box-card" style="float:left;height: 725px;margin-left: 10px;width: 40%;">
+    <el-card class="box-card" style="float:left;margin-left: 10px;width: 40%;height:700px;">
       <div slot="header" class="clearfix">
         <span>添加任务</span>
       </div>
       <div>
-        <el-form :model="updateForm" label-position="top">
-          <el-form-item label="任务名称" label-width="80px">
+        <el-form :model="updateForm">
+          <el-form-item label="任务名称" label-width="80px" size='small'>
             <el-input v-model="updateForm.task_name" autocomplete="off" placeholder="请输入变量名"></el-input>
           </el-form-item>
-          <el-form-item label="起始日期" label-width="80px">
+          <el-form-item label="起始日期" label-width="80px" size='small'>
             <template>
               <div class="block">
                 <span class="demonstration"></span>
@@ -28,11 +28,11 @@
               </div>
             </template>
           </el-form-item>
-          <el-form-item label="间隔时间" label-width="80px">
+          <el-form-item label="间隔时间" label-width="80px" size='small'>
             <el-input
               v-model.number="updateForm.interval_time.day"
               autocomplete="off"
-              style="width:100px;"
+              style="width:80px;"
               @keyup.native="prevent($event, 'day')"
             >
               <span slot="suffix">天</span>
@@ -40,7 +40,7 @@
             <el-input
               v-model.number="updateForm.interval_time.hour"
               autocomplete="off"
-              style="width:100px;margin-left: 10px;"
+              style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'hour')"
             >
               <span slot="suffix">时</span>
@@ -48,7 +48,7 @@
             <el-input
               v-model.number="updateForm.interval_time.minute"
               autocomplete="off"
-              style="width:100px;margin-left: 10px;"
+              style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'minute')"
             >
               <span slot="suffix">分</span>
@@ -56,22 +56,22 @@
             <el-input
               v-model.number="updateForm.interval_time.second"
               autocomplete="off"
-              style="width:100px;margin-left: 10px;"
+              style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'second')"
             >
               <span slot="suffix">秒</span>
             </el-input>
           </el-form-item>
-          <el-form-item label="描述" label-width="80px">
+          <el-form-item label="描述" label-width="80px" size='small'>
             <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
           </el-form-item>
-          <el-form-item label="是否发送邮件" label-width="80px">
+          <el-form-item label="是否发送邮件" label-width="80px" size='small'>
             <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
           </el-form-item>
         </el-form>
       </div>
     </el-card>
-    <el-card class="box-card" style="float:left;height: 725px;margin-left: 10px;width: 58%;">
+    <el-card class="box-card" style="float:right;margin-left: 10px;width: 58%;height:700px;">
       <div slot="header" class="clearfix">
         <span>请选择用例</span>
       </div>
