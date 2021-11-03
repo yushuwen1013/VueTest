@@ -2,7 +2,7 @@
   <div>
     <div style="margin-left: 20px;margin-bottom: 15px;">
       <el-button type="primary" size="small" @click="back">返回</el-button>
-      <el-button type="primary" size="small" @click="back">保存</el-button>
+      <el-button type="primary" size="small" @click="save(updateForm)">保存</el-button>
     </div>
     <el-card class="box-card" style="float:left;height: 725px;margin-left: 10px;width: 40%;">
       <div slot="header" class="clearfix">
@@ -18,6 +18,7 @@
               <div class="block">
                 <span class="demonstration"></span>
                 <el-date-picker
+                  value-format="yyyy-MM-dd HH:mm:ss"
                   v-model="updateForm.fromDate"
                   type="datetimerange"
                   range-separator="至"
@@ -32,6 +33,7 @@
               v-model.number="updateForm.interval_time.day"
               autocomplete="off"
               style="width:100px;"
+              @keyup.native="prevent($event, 'day')"
             >
               <span slot="suffix">天</span>
             </el-input>
@@ -39,6 +41,7 @@
               v-model.number="updateForm.interval_time.hour"
               autocomplete="off"
               style="width:100px;margin-left: 10px;"
+              @keyup.native="prevent($event, 'hour')"
             >
               <span slot="suffix">时</span>
             </el-input>
@@ -46,6 +49,7 @@
               v-model.number="updateForm.interval_time.minute"
               autocomplete="off"
               style="width:100px;margin-left: 10px;"
+              @keyup.native="prevent($event, 'minute')"
             >
               <span slot="suffix">分</span>
             </el-input>
@@ -53,6 +57,7 @@
               v-model.number="updateForm.interval_time.second"
               autocomplete="off"
               style="width:100px;margin-left: 10px;"
+              @keyup.native="prevent($event, 'second')"
             >
               <span slot="suffix">秒</span>
             </el-input>
@@ -85,28 +90,44 @@
           </el-tab-pane>-->
           <el-tab-pane label="单接口用例" name="first">
             <div>
+              <el-input placeholder="输入关键字进行过滤" v-model="filterInterfaceText"></el-input>
               <el-tree
                 :data="myInterfaceData"
                 show-checkbox
                 node-key="id"
                 ref="myInterfaceData"
                 :default-expanded-keys="[1]"
+                :filter-node-method="filterInterfaceData"
               >
                 <span class="custom-tree-node" slot-scope="{ node }">
                   <span class="tmp" :title="node.data.file_name">
-                    <i class="el-icon-folder"></i>
-                    <!-- {{ node.data.file_name }} -->
+                    <i :class="node.data.children ?'el-icon-folder':'el-icon-tickets'"></i>
                     {{ node.data.children ? node.data.file_name: node.data.request_name}}
-                  </span>
-                  <span>
-                    <el-button type="text" size="mini" @click="() => editFile(node)">编辑</el-button>
-                    <el-button type="text" size="mini" @click="() => deleteFile(node)">删除</el-button>
                   </span>
                 </span>
               </el-tree>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="业务用例" name="second">业务用例</el-tab-pane>
+          <el-tab-pane label="业务用例" name="second">
+            <div>
+              <el-input placeholder="输入关键字进行过滤" v-model="filterUseCaseText"></el-input>
+              <el-tree
+                :data="myUseCaseData"
+                show-checkbox
+                node-key="id"
+                ref="myUseCaseData"
+                :default-expanded-keys="[1]"
+                :filter-node-method="filterUseCaseData"
+              >
+                <span class="custom-tree-node" slot-scope="{ node }">
+                  <span class="tmp" :title="node.data.file_name">
+                    <i :class="node.data.children ?'el-icon-folder':'el-icon-tickets'"></i>
+                    {{ node.data.use_case_name}}
+                  </span>
+                </span>
+              </el-tree>
+            </div>
+          </el-tab-pane>
         </el-tabs>
       </template>
     </el-card>
@@ -114,42 +135,27 @@
 </template>
 
 <script>
-import {
-  get_request_list,
-  update_request,
-  delete_request,
-  get_all_file
-  
-} from "@/api/interfaceTesting";
-import {
-  get_file_list,
-  create_file,
-  delete_file
-} from "@/api/interfaceTesting";
+import { update_task } from "@/api/interfaceTesting";
+import { get_all_file, get_use_case } from "@/api/interfaceTesting";
 export default {
   data() {
     return {
+      filterUseCaseText: "", //过滤业务用例
+      filterInterfaceText: "", //过滤单接口用例
       //项目id
       project_id: localStorage.getItem("project_id"),
-      wpList: [
-        {
-          file_name: "食品饮料"
-        },
-        {
-          file_name: "鲜花"
-        }
-      ],
+      myUseCaseData: [], //业务用例数据
       active: "",
-      myInterfaceData: [],
+      myInterfaceData: [], //单接口用例数据
       updateForm: {
         task_name: "", // 任务名称
         fromDate: "", // 起始日期
         interval_time: {
           //间隔时间
-          day: "",
-          hour: "",
-          minute: "",
-          second: ""
+          day: 0,
+          hour: 0,
+          minute: 0,
+          second: 0
         },
         description: "", // 描述
         project_id: localStorage.getItem("project_id") // 项目id
@@ -157,14 +163,58 @@ export default {
     };
   },
   methods: {
-    //编辑文件
-    editFile(node) {
-      console.log(this.$refs.myInterfaceData.getCheckedNodes())
-      console.log(node, "2222222222222");
+    //禁止输入小数和负数
+    prevent(e, value) {
+      var keynum = window.event ? e.keyCode : e.which; //获取键盘码
+      if (keynum == 189 || keynum == 190 || keynum == 109 || keynum == 110) {
+        this.$message.warning("禁止输入小数以及负数");
+      }
+      if(e.target.value == ''){
+        this.updateForm.interval_time[value] = 0
+      }
     },
-    slide(item, index) {
-      this.active = item.file_name;
+    //保存任务
+    save(updateForm) {
+      const interface_case = [];
+      this.$refs.myInterfaceData.getCheckedNodes().forEach(element => {
+        if (!element.children) {
+          interface_case.push(element.id);
+        }
+      });
+      const business_case = [];
+      this.$refs.myUseCaseData.getCheckedNodes().forEach(element => {
+        business_case.push(element.id);
+      });
+      if (interface_case.length == 0 || interface_case.length == 0) {
+      }
+      const request_data = {
+        task_name: updateForm.task_name, //任务名称Str
+        fromDate: updateForm.fromDate == ''? []: updateForm.fromDate, //起始日期Str
+        interval_time: updateForm.interval_time, //间隔时间Str
+        description: updateForm.description, //描述Str
+        interface_case, //单接口用例数组
+        business_case, //业务用例数组
+        project_id: this.$parent.project_id //项目id
+      };
+      //发送保存任务请求
+      update_task(request_data).then(response => {
+        console.log(response);
+      });
+      console.log(request_data, "request_data");
     },
+    //过滤单接口用例
+    filterInterfaceData(value, data) {
+      if (!value) return true;
+      return data.file_name.indexOf(value) !== -1;
+    },
+    //过滤业务用例
+    filterUseCaseData(value, data) {
+      if (!value) return true;
+      return data.use_case_name.indexOf(value) !== -1;
+    },
+    // slide(item, index) {
+    //   this.active = item.file_name;
+    // },
     handleClick(tab, event) {
       console.log(tab, event);
     },
@@ -173,7 +223,7 @@ export default {
     }
   },
   created() {
-    //获取文件列表
+    //获取全部文件接口列表
     get_all_file({ project_id: this.project_id })
       .then(response => {
         console.log(response.data);
@@ -187,6 +237,27 @@ export default {
         });
         console.log(error);
       });
+    //获取用例列表
+    get_use_case({ project_id: this.project_id })
+      .then(response => {
+        console.log(response.data);
+        this.myUseCaseData = response.data;
+      })
+      .catch(error => {
+        this.$message({
+          message: "获取失败",
+          type: "error"
+        });
+        console.log(error);
+      });
+  },
+  watch: {
+    filterInterfaceText(val) {
+      this.$refs.myInterfaceData.filter(val);
+    },
+    filterUseCaseText(val) {
+      this.$refs.myUseCaseData.filter(val);
+    },
   }
 };
 </script>

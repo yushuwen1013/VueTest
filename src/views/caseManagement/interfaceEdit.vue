@@ -203,7 +203,7 @@
             <el-tab-pane
               style="max-height: 260px; overflow: auto"
               label="参数提取"
-            >
+             >
               <template height="250">
                 <el-table :data="extraction_details" style="width: 100%">
                   <el-table-column label="提取类型" width="300" align="center">

@@ -8,9 +8,9 @@
       </p>
     </div>
     <div v-show="isShowEditTasks">
-      <EditTasks/>
+      <EditTasks />
     </div>
-    <div v-show='!isShowEditTasks'>
+    <div v-show="!isShowEditTasks">
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
         <el-form-item label="任务名称">
           <el-input v-model="seareVariableKey" placeholder="请输入任务名称"></el-input>
@@ -29,18 +29,20 @@
       <el-table
         height="600"
         :data="taskData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-        style="width: 100%;left: 20px;"
+        style="width: 98%;left: 20px;"
         :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
-        <el-table-column :show-overflow-tooltip="true" prop="key" label="任务名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="value" label="时间范围"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="value" label="任务状态"></el-table-column>
-        <!-- <el-table-column :show-overflow-tooltip="true" prop="value" label="变量值(Value)"></el-table-column> -->
-        <el-table-column :show-overflow-tooltip="true" prop="description" label="备注"></el-table-column>
-        <el-table-column width="225" label="操作">
+        <el-table-column :show-overflow-tooltip="true" prop="task_name" label="任务名称"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="fromDate" label="起始日期"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="interval_time" label="间隔时间"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="task_status" label="状态"></el-table-column>
+        <el-table-column width="275" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="clickEdit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="deleteVariable(scope.$index, scope.row)">删除</el-button>
+            <el-button size="mini" @click="clickEdit(scope.row)">执行</el-button>
+            <el-button size="mini" @click="clickEdit(scope.row)">暂停</el-button>
+            <el-button size="mini" @click="clickEdit(scope.row)">修改</el-button>
+            <el-button size="mini" type="danger" @click="deleteTask(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -117,21 +119,15 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="addVariable">确 定</el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>-->
   </div>
-  
 </template>
 
 <script>
-import EditTasks from './EditTasks'
-import {
-  update_global_variable,
-  get_global_variable,
-  delete_global_variable
-} from "@/api/interfaceTesting";
+import EditTasks from "./EditTasks";
 import { update_task, get_task, delete_task } from "@/api/interfaceTesting";
 export default {
-  components:{EditTasks},
+  components: { EditTasks },
   data() {
     return {
       isShowEditTasks: false,
@@ -166,25 +162,23 @@ export default {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
     },
-    //删除变量
-    deleteVariable(index, row) {
+    //删除任务
+    deleteTask(index, row) {
       console.log(index, row);
-      this.$confirm("此操作将永久删除该变量, 是否继续?", "提示", {
+      this.$confirm("此操作将永久删除该任务, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          //删除变量接口
+          //删除任务接口
           const id = { id: row.id };
-          delete_global_variable(id)
+          delete_task(id)
             .then(response => {
               console.log(response.data);
-              get_global_variable({ project_id: this.project_id }).then(
-                response => {
-                  this.taskData = response.data;
-                }
-              );
+              get_task({ project_id: this.project_id }).then(response => {
+                this.taskData = response.data;
+              });
             })
             .catch(error => {
               this.$message({
@@ -216,63 +210,59 @@ export default {
         id: row.id
       };
     },
-    //确定添加变量
-    addVariable() {
-      
-      // console.log(this.updateForm);
-      // if (
-      //   this.updateForm.task_name.trim() == "" ||
-      //   this.updateForm.task_name.trim() == ""
-      // ) {
-      //   this.$message({
-      //     message: "key和value不能为空",
-      //     type: "error"
-      //   });
-      // } else {
-      //   update_global_variable(this.updateForm)
-      //     .then(response => {
-      //       get_global_variable({ project_id: this.project_id }).then(
-      //         response => {
-      //           this.taskData = response.data;
-      //         }
-      //       );
-      //       this.updateForm = {
-      //         key: "",
-      //         value: "",
-      //         description: "",
-      //         project_id: localStorage.getItem("project_id")
-      //       };
-      //       this.$message({
-      //         message: response.data,
-      //         type: "success"
-      //       });
-      //       this.dialogFormVisible = false;
-      //     })
-      //     .catch(error => {
-      //       console.log(error);
-      //       this.$message({
-      //         message: error.message,
-      //         type: "error"
-      //       });
-      //       console.log(error);
-      //     });
-      // }
-    },
+    // //确定添加变量
+    // addVariable() {
+    //   console.log(this.updateForm);
+    //   if (
+    //     this.updateForm.task_name.trim() == "" ||
+    //     this.updateForm.task_name.trim() == ""
+    //   ) {
+    //     this.$message({
+    //       message: "key和value不能为空",
+    //       type: "error"
+    //     });
+    //   } else {
+    //     update_task(this.updateForm)
+    //       .then(response => {
+    //         get_task({ project_id: this.project_id }).then(response => {
+    //           this.taskData = response.data;
+    //         });
+    //         this.updateForm = {
+    //           key: "",
+    //           value: "",
+    //           description: "",
+    //           project_id: localStorage.getItem("project_id")
+    //         };
+    //         this.$message({
+    //           message: response.data,
+    //           type: "success"
+    //         });
+    //         this.dialogFormVisible = false;
+    //       })
+    //       .catch(error => {
+    //         console.log(error);
+    //         this.$message({
+    //           message: error.message,
+    //           type: "error"
+    //         });
+    //         console.log(error);
+    //       });
+    //   }
+    // },
     //查询
     inquire() {
       const request_data = {
         project_id: this.project_id,
         variable_key: this.seareVariableKey
       };
-      get_global_variable(request_data).then(response => {
+      get_task({ project_id: this.project_id }).then(response => {
         this.taskData = response.data;
       });
     },
     //重置
     reset() {
-      get_global_variable({ project_id: this.project_id }).then(response => {
+      get_task({ project_id: this.project_id }).then(response => {
         this.taskData = response.data;
-        this.seareVariableKey = "";
       });
     }
   },
