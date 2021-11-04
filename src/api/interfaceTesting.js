@@ -294,6 +294,23 @@ export function delete_task(data) {
   })
 }
 
+//执行任务
+export function execute_task(data) {
+  return request({
+    url: '/request/execute_task',
+    method: 'get',
+    params: data
+  })
+}
+
+//切换任务状态
+export function switch_stake_state(data) {
+  return request({
+    url: '/request/switch_stake_state',
+    method: 'get',
+    params: data
+  })
+}
 
 //获取文件接口
 export function get_all_file(data) {
@@ -303,3 +320,4 @@ export function get_all_file(data) {
     params: data
   })
 }
+

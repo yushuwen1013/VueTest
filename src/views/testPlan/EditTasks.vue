@@ -10,10 +10,13 @@
       </div>
       <div>
         <el-form :model="updateForm">
-          <el-form-item label="任务名称" label-width="80px" size='small'>
+          <el-form-item label="任务名称" label-width="80px" size="small">
             <el-input v-model="updateForm.task_name" autocomplete="off" placeholder="请输入变量名"></el-input>
           </el-form-item>
-          <el-form-item label="起始日期" label-width="80px" size='small'>
+          <el-form-item label="定时任务" label-width="80px" size="small">
+            <el-switch v-model="updateForm.task_status"></el-switch>
+          </el-form-item>
+          <el-form-item label="起始日期" label-width="80px" size="small">
             <template>
               <div class="block">
                 <span class="demonstration"></span>
@@ -28,7 +31,7 @@
               </div>
             </template>
           </el-form-item>
-          <el-form-item label="间隔时间" label-width="80px" size='small'>
+          <el-form-item label="间隔时间" label-width="80px" size="small">
             <el-input
               v-model.number="updateForm.interval_time.day"
               autocomplete="off"
@@ -62,11 +65,30 @@
               <span slot="suffix">秒</span>
             </el-input>
           </el-form-item>
-          <el-form-item label="描述" label-width="80px" size='small'>
-            <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
+          <el-form-item label="描述" label-width="80px" size="small">
+            <!-- <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input> -->
+            <el-input
+              type="textarea"
+              :rows="3"
+              placeholder="请输入描述"
+              v-model="updateForm.description"
+            ></el-input>
           </el-form-item>
-          <el-form-item label="是否发送邮件" label-width="80px" size='small'>
-            <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
+          <el-form-item label="发送邮件" label-width="80px" size="small">
+            <template>
+              <el-radio-group v-model="updateForm.sendmailStatus">
+                <el-radio :label="1">是</el-radio>
+                <el-radio :label="2">否</el-radio>
+                <el-radio :label="3">失败时发送</el-radio>
+              </el-radio-group>
+            </template>
+            <el-input
+              v-show="updateForm.sendmailStatus == 1 || updateForm.sendmailStatus == 3?true:false"
+              type="textarea"
+              :rows="3"
+              placeholder="请输入邮箱地址用 ; 隔开"
+              v-model="updateForm. mailAddress"
+            ></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -149,6 +171,7 @@ export default {
       myInterfaceData: [], //单接口用例数据
       updateForm: {
         task_name: "", // 任务名称
+        task_status: true, //定时任务
         fromDate: "", // 起始日期
         interval_time: {
           //间隔时间
@@ -158,6 +181,8 @@ export default {
           second: 0
         },
         description: "", // 描述
+        sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
+        mailAddress: "", //邮件地址
         project_id: localStorage.getItem("project_id") // 项目id
       }
     };
@@ -169,38 +194,59 @@ export default {
       if (keynum == 189 || keynum == 190 || keynum == 109 || keynum == 110) {
         this.$message.warning("禁止输入小数以及负数");
       }
-      if(e.target.value == ''){
-        this.updateForm.interval_time[value] = 0
+      if (e.target.value == "") {
+        this.updateForm.interval_time[value] = 0;
       }
     },
     //保存任务
     save(updateForm) {
-      const interface_case = [];
-      this.$refs.myInterfaceData.getCheckedNodes().forEach(element => {
-        if (!element.children) {
-          interface_case.push(element.id);
+      console.log(updateForm.interval_time.second)
+      if (
+        updateForm.interval_time.day == 0 &&
+        updateForm.interval_time.hour == 0 &&
+        updateForm.interval_time.minute == 0 &&
+        updateForm.interval_time.second < 60
+      ) {
+        this.$message({
+          message: "间隔时间不能小于1分钟",
+          type: "error"
+        });
+      } else {
+        const interface_case = [];
+        this.$refs.myInterfaceData.getCheckedNodes().forEach(element => {
+          if (!element.children) {
+            interface_case.push(element.id);
+          }
+        });
+        const business_case = [];
+        this.$refs.myUseCaseData.getCheckedNodes().forEach(element => {
+          business_case.push(element.id);
+        });
+        if (interface_case.length == 0 && interface_case.length == 0) {
+          this.$message({
+            message: "用例不能为空",
+            type: "error"
+          });
+        } else {
+          const request_data = {
+            task_name: updateForm.task_name, //任务名称Str
+            task_status: updateForm.task_status, //任务状态
+            fromDate: updateForm.fromDate == "" ? [] : updateForm.fromDate, //起始日期Str
+            interval_time: updateForm.interval_time, //间隔时间Str
+            description: updateForm.description, //描述Str
+            sendmailStatus: updateForm.sendmailStatus, //发送邮件状态
+            mail_address: updateForm.mail_address, //邮箱地址
+            interface_case, //单接口用例数组
+            business_case, //业务用例数组
+            project_id: this.$parent.project_id //项目id
+          };
+          //发送保存任务请求
+          update_task(request_data).then(response => {
+            console.log(response);
+          });
+          console.log(request_data, "request_data");
         }
-      });
-      const business_case = [];
-      this.$refs.myUseCaseData.getCheckedNodes().forEach(element => {
-        business_case.push(element.id);
-      });
-      if (interface_case.length == 0 || interface_case.length == 0) {
       }
-      const request_data = {
-        task_name: updateForm.task_name, //任务名称Str
-        fromDate: updateForm.fromDate == ''? []: updateForm.fromDate, //起始日期Str
-        interval_time: updateForm.interval_time, //间隔时间Str
-        description: updateForm.description, //描述Str
-        interface_case, //单接口用例数组
-        business_case, //业务用例数组
-        project_id: this.$parent.project_id //项目id
-      };
-      //发送保存任务请求
-      update_task(request_data).then(response => {
-        console.log(response);
-      });
-      console.log(request_data, "request_data");
     },
     //过滤单接口用例
     filterInterfaceData(value, data) {
@@ -258,6 +304,11 @@ export default {
     filterUseCaseText(val) {
       this.$refs.myUseCaseData.filter(val);
     },
+    "updateForm.isSendmail": {
+      handler(val) {
+        console.log(val);
+      }
+    }
   }
 };
 </script>

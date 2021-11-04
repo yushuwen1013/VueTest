@@ -16,15 +16,16 @@
           <el-input v-model="seareVariableKey" placeholder="请输入任务名称"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="inquire">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
+          <el-button type="primary" size="small" @click="inquire">查询</el-button>
+          <el-button type="primary" size="small" @click="reset">重置</el-button>
         </el-form-item>
-        <el-button
-          style="float: right;margin-bottom: 20px;margin-right: 50px;"
-          type="primary"
-          icon="el-icon-plus"
-          @click="isShowEditTasks = true"
-        >添加</el-button>
+          <el-button
+            style="float: right;margin-bottom: 20px;margin-right: 50px;"
+            type="primary"
+            icon="el-icon-plus"
+            size="small"
+            @click="isShowEditTasks = true"
+          >添加</el-button>
       </el-form>
       <el-table
         height="600"
@@ -33,14 +34,29 @@
         :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
         <el-table-column :show-overflow-tooltip="true" prop="task_name" label="任务名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="fromDate" label="起始日期"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="fromDate" label="起始日期">
+          <template slot-scope="scope">
+            <span>{{scope.row.fromDate.substring(2,21)}}—{{scope.row.fromDate.substring(25,44)}}</span>
+          </template>
+        </el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="interval_time" label="间隔时间"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="task_status" label="状态"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="task_status" label="状态" width="70px">
+          <template slot-scope="scope">
+            <el-tag
+              :type="scope.row.task_status?'success':'error'"
+            >{{scope.row.task_status?'正常':'暂停'}}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column width="300" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="clickEdit(scope.row)">立即执行</el-button>
-            <el-button size="mini" @click="clickEdit(scope.row)">暂停</el-button>
+            <el-tooltip class="item" effect="dark" content="立即执行一次" placement="top-start">
+              <el-button size="mini" type="success" plain @click="executeTask(scope.row)">执行</el-button>
+            </el-tooltip>
+            <el-button
+              size="mini"
+              @click="switchStakeState(scope.row)"
+            >{{scope.row.task_status?'暂停':'恢复'}}</el-button>
             <el-button size="mini" @click="clickEdit(scope.row)">修改</el-button>
             <el-button size="mini" type="danger" @click="deleteTask(scope.$index, scope.row)">删除</el-button>
           </template>
@@ -125,7 +141,13 @@
 
 <script>
 import EditTasks from "./EditTasks";
-import { update_task, get_task, delete_task } from "@/api/interfaceTesting";
+import {
+  update_task,
+  get_task,
+  delete_task,
+  execute_task,
+  switch_stake_state
+} from "@/api/interfaceTesting";
 export default {
   components: { EditTasks },
   data() {
@@ -161,6 +183,38 @@ export default {
     handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
+    },
+    //执行任务
+    executeTask(row) {
+      console.log(row);
+      execute_task({ task_id: row.id })
+        .then(response => {
+          console.log(response.data);
+          this.$message({
+            message: response.message,
+            type: "success"
+          });
+        })
+        .catch(error => {
+          this.$message({
+            message: "执行失败",
+            type: "error"
+          });
+          console.log(error);
+        });
+    },
+    //切换任务状态
+    switchStakeState(row) {
+      console.log(row.task_status);
+      switch_stake_state({
+        task_id: row.id,
+        task_status: row.task_status
+      }).then(response => {
+        console.log(response);
+        get_task({ project_id: this.project_id }).then(response => {
+          this.taskData = response.data;
+        });
+      });
     },
     //删除任务
     deleteTask(index, row) {
@@ -210,45 +264,6 @@ export default {
         id: row.id
       };
     },
-    // //确定添加变量
-    // addVariable() {
-    //   console.log(this.updateForm);
-    //   if (
-    //     this.updateForm.task_name.trim() == "" ||
-    //     this.updateForm.task_name.trim() == ""
-    //   ) {
-    //     this.$message({
-    //       message: "key和value不能为空",
-    //       type: "error"
-    //     });
-    //   } else {
-    //     update_task(this.updateForm)
-    //       .then(response => {
-    //         get_task({ project_id: this.project_id }).then(response => {
-    //           this.taskData = response.data;
-    //         });
-    //         this.updateForm = {
-    //           key: "",
-    //           value: "",
-    //           description: "",
-    //           project_id: localStorage.getItem("project_id")
-    //         };
-    //         this.$message({
-    //           message: response.data,
-    //           type: "success"
-    //         });
-    //         this.dialogFormVisible = false;
-    //       })
-    //       .catch(error => {
-    //         console.log(error);
-    //         this.$message({
-    //           message: error.message,
-    //           type: "error"
-    //         });
-    //         console.log(error);
-    //       });
-    //   }
-    // },
     //查询
     inquire() {
       const request_data = {
