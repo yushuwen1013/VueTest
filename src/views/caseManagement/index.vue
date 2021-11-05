@@ -286,7 +286,7 @@
                       <el-form
                         :model="requestDefaultsForm"
                         style="padding-left: 20px; padding-right: 50px"
-                        >
+                      >
                         <el-form-item label="请求类型">
                           <el-select
                             v-model="requestDefaultsForm.requestType"
@@ -573,11 +573,14 @@
                                 debuggingForm.execution_time
                                 }}
                               </el-descriptions-item>
-
                               <el-descriptions-item
                                 :contentStyle="{ 'text-align': 'center' }"
                                 label="耗时"
                               >{{debuggingForm.time_consuming}}</el-descriptions-item>
+                              <el-descriptions-item
+                                :contentStyle="{ 'text-align': 'center' }"
+                                label="结果"
+                              >{{debuggingForm.execution_result}}</el-descriptions-item>
                             </el-descriptions>
                             <el-divider content-position="left">接口执行顺序</el-divider>
                             <div style="height: 460px; overflow: auto">

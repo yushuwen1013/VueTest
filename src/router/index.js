@@ -154,6 +154,13 @@ export const constantRoutes = [
         component: () => import('@/views/testPlan/index'),
         meta: { title: '测试计划', icon: 'el-icon-user-solid' },
       },
+      //执行结果
+      {
+        path: 'ExecutiveOutcomes',
+        name: 'ExecutiveOutcomes',
+        component: () => import('@/views/executiveOutcomes/index'),
+        meta: { title: '执行结果', icon: 'el-icon-user-solid' },
+      },
     ]
   },
   

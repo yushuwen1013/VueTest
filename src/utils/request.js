@@ -20,7 +20,7 @@ service.interceptors.request.use(
     //   // ['X-Token']是一个自定义key
     //   //请根据实际情况进行修改
       // config.headers['X-Token'] = getToken()
-    config.headers['Authorization'] = "JWT "+getToken()
+    // config.headers['Authorization'] = "JWT "+getToken()
     //    config.headers['Content-Type'] = 'pplication/json;charset=UTF-8'
     // }
     // config.headers = {'content-type': 'application/x-www-form-urlencoded'}

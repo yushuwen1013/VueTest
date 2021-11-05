@@ -4,7 +4,7 @@
       <p
         style="width: 1600px;height: 60px;padding-left: 31px;font-size:22px;margin-top: 0px;line-height:55px;"
       >
-        <span style>定时任务</span>
+        <span style>执行结果</span>
       </p>
     </div>
     <div v-show="isShowEditTasks">
@@ -19,13 +19,6 @@
           <el-button type="primary" size="small" @click="inquire">查询</el-button>
           <el-button type="primary" size="small" @click="reset">重置</el-button>
         </el-form-item>
-        <el-button
-          style="float: right;margin-bottom: 20px;margin-right: 50px;"
-          type="primary"
-          icon="el-icon-plus"
-          size="small"
-          @click="isShowEditTasks=true"
-        >添加</el-button>
       </el-form>
       <el-table
         height="600"
@@ -34,48 +27,33 @@
         :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
         <el-table-column :show-overflow-tooltip="true" prop="task_name" label="任务名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="fromDate" label="起始日期">
+        <el-table-column :show-overflow-tooltip="true" prop="interface_case" label="单接口用例">
           <template slot-scope="scope">
-            <span>{{scope.row.fromDate.substring(2,21)}}—{{scope.row.fromDate.substring(25,44)}}</span>
+            <el-tag>{{'总共:'+ JSON.parse(scope.row.interface_case)[0]}}</el-tag>
+            <el-tag type="success">{{'成功:'+JSON.parse(scope.row.interface_case)[1]}}</el-tag>
+            <el-tag type="danger">{{'失败:'+JSON.parse(scope.row.interface_case)[2]}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="interval_time" label="间隔时间">
+        <el-table-column :show-overflow-tooltip="true" prop="business_case" label="业务用例">
           <template slot-scope="scope">
-            <el-tag>
-              <span
-                v-show="JSON.parse(scope.row.interval_time).day != 0"
-              >{{JSON.parse(scope.row.interval_time).day + "天"}}</span>
-              <span
-                v-show="JSON.parse(scope.row.interval_time).hour != 0"
-              >{{JSON.parse(scope.row.interval_time).hour + "小时"}}</span>
-              <span
-                v-show="JSON.parse(scope.row.interval_time).minute != 0"
-              >{{JSON.parse(scope.row.interval_time).minute + "分钟"}}</span>
-              <span
-                v-show="JSON.parse(scope.row.interval_time).second != 0"
-              >{{JSON.parse(scope.row.interval_time).second + "秒"}}</span>
-            </el-tag>
+            <el-tag>{{'总共:'+ JSON.parse(scope.row.business_case)[0]}}</el-tag>
+            <el-tag type="success">{{'成功:'+JSON.parse(scope.row.business_case)[1]}}</el-tag>
+            <el-tag type="danger">{{'失败:'+JSON.parse(scope.row.business_case)[2]}}</el-tag>
           </template>
         </el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="start_time" label="开始时间"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="end_time" label="结束时间"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="task_status" label="状态" width="70px">
+        <el-table-column :show-overflow-tooltip="true" prop="status" label="状态" width="70px">
           <template slot-scope="scope">
             <el-tag
               :type="scope.row.task_status?'success':'error'"
             >{{scope.row.task_status?'正常':'暂停'}}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column width="300" label="操作">
+        <el-table-column width="200" label="操作">
           <template slot-scope="scope">
-            <el-tooltip class="item" effect="dark" content="立即执行一次" placement="top-start">
-              <el-button size="mini" type="success" plain @click="executeTask(scope.row)">执行</el-button>
-            </el-tooltip>
-            <el-button
-              size="mini"
-              @click="switchStakeState(scope.row)"
-            >{{scope.row.task_status?'暂停':'恢复'}}</el-button>
-            <el-button size="mini" @click="clickEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" @click="deleteTask(scope.$index, scope.row)">查看详情</el-button>
             <el-button size="mini" type="danger" @click="deleteTask(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -98,11 +76,8 @@
 <script>
 import EditTasks from "./EditTasks";
 import {
-  update_task,
-  get_task,
-  delete_task,
-  execute_task,
-  switch_stake_state
+  get_executive_outcomes,
+  delete_executive_outcomes
 } from "@/api/interfaceTesting";
 export default {
   components: { EditTasks },
@@ -145,38 +120,6 @@ export default {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
     },
-    //执行任务
-    executeTask(row) {
-      console.log(row);
-      execute_task({ task_id: row.id })
-        .then(response => {
-          console.log(response.data);
-          this.$message({
-            message: response.message,
-            type: "success"
-          });
-        })
-        .catch(error => {
-          this.$message({
-            message: "执行失败",
-            type: "error"
-          });
-          console.log(error);
-        });
-    },
-    //切换任务状态
-    switchStakeState(row) {
-      console.log(row.task_status);
-      switch_stake_state({
-        task_id: row.id,
-        task_status: row.task_status
-      }).then(response => {
-        console.log(response);
-        get_task({ project_id: this.project_id }).then(response => {
-          this.taskData = response.data;
-        });
-      });
-    },
     //删除任务
     deleteTask(index, row) {
       console.log(index, row);
@@ -186,14 +129,16 @@ export default {
         type: "warning"
       })
         .then(() => {
-          //删除任务接口
+          //删除执行结果
           const id = { id: row.id };
-          delete_task(id)
+          delete_executive_outcomes(id)
             .then(response => {
               console.log(response.data);
-              get_task({ project_id: this.project_id }).then(response => {
-                this.taskData = response.data;
-              });
+              get_executive_outcomes({ project_id: this.project_id }).then(
+                response => {
+                  this.taskData = response.data;
+                }
+              );
             })
             .catch(error => {
               this.$message({
@@ -247,19 +192,19 @@ export default {
         project_id: this.project_id,
         task_name: this.seareTaskName
       };
-      get_task(request_data).then(response => {
+      get_executive_outcomes(request_data).then(response => {
         this.taskData = response.data;
       });
     },
     //重置
     reset() {
-      get_task({ project_id: this.project_id }).then(response => {
+      get_executive_outcomes({ project_id: this.project_id }).then(response => {
         this.taskData = response.data;
       });
     }
   },
   created() {
-    get_task({ project_id: this.project_id }).then(response => {
+    get_executive_outcomes({ project_id: this.project_id }).then(response => {
       this.taskData = response.data;
     });
   }

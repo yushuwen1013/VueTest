@@ -312,6 +312,24 @@ export function switch_stake_state(data) {
   })
 }
 
+//获取执行结果
+export function get_executive_outcomes(data) {
+  return request({
+    url: '/request/get_executive_outcomes',
+    method: 'get',
+    params: data
+  })
+}
+
+//删除执行结果
+export function delete_executive_outcomes(data) {
+  return request({
+    url: '/request/delete_executive_outcomes',
+    method: 'post',
+    data
+  })
+}
+
 //获取文件接口
 export function get_all_file(data) {
   return request({
