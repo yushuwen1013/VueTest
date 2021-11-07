@@ -12,6 +12,7 @@ import App from './App'
 import store from './store'
 import router from './router'
 import Editor from 'bin-ace-editor';
+
 require('brace/mode/json')
 require('brace/snippets/json')
 require('brace/theme/chrome')
