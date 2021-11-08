@@ -114,6 +114,7 @@
             <div>
               <el-input placeholder="输入关键字进行过滤" v-model="filterInterfaceText"></el-input>
               <el-tree
+                style="height:500px;overflow:auto;"
                 :data="myInterfaceData"
                 show-checkbox
                 node-key="id"
@@ -134,6 +135,7 @@
             <div>
               <el-input placeholder="输入关键字进行过滤" v-model="filterUseCaseText"></el-input>
               <el-tree
+                style="height:500px;overflow:auto;"
                 :data="myUseCaseData"
                 show-checkbox
                 node-key="id"
@@ -184,7 +186,9 @@ export default {
     },
     //保存任务
     save(updateForm) {
-      console.log(updateForm);
+      // console.log(this.$refs.myInterfaceData.getCheckedNodes())
+      // console.log(this.$refs.myUseCaseData.getCheckedNodes())
+      // console.log(updateForm);
       if (
         updateForm.interval_time.day == 0 &&
         updateForm.interval_time.hour == 0 &&
@@ -212,7 +216,7 @@ export default {
             type: "error"
           });
         } else {
-          console.log(updateForm, "updateForm.fromDate")
+          console.log(updateForm, "updateForm.fromDate");
           const request_data = {
             task_name: updateForm.task_name, //任务名称Str
             task_status: updateForm.task_status, //任务状态
