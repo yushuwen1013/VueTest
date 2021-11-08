@@ -38,7 +38,7 @@
             <el-descriptions-item
               :contentStyle="{ 'text-align': 'center' }"
               label="通过率"
-            >{{(detailsData.interface_case[1]/detailsData.interface_case[0]).toFixed(2)}}</el-descriptions-item>
+            >{{(detailsData.interface_case[1]/detailsData.interface_case[0]).toFixed(4)*100 + '%'}}</el-descriptions-item>
           </el-descriptions>
         </div>
         <div style="width: 34%; float: left">
