@@ -224,7 +224,7 @@ export default {
             interval_time: updateForm.interval_time, //间隔时间Str
             description: updateForm.description, //描述Str
             sendmailStatus: updateForm.sendmailStatus, //发送邮件状态
-            mail_address: updateForm.mail_address, //邮箱地址
+            mail_address: updateForm.mailAddress, //邮箱地址
             interface_case, //单接口用例数组
             business_case, //业务用例数组
             project_id: this.$parent.project_id //项目id

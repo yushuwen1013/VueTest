@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%; position: relative">
+  <div style="height: 100%; position: relative" ref="test">
     <div style="margin-left: 20px; margin-bottom: 15px; margin-top: 15px;text-align:center;">
       <el-button
         style="float: left;margin-bottom: 10px;"
@@ -7,6 +7,7 @@
         size="small"
         @click="back"
       >返回</el-button>
+      <button @click="export2Excel">导出</button>
     </div>
     <el-card class="box-card" style="margin-left: 10px; width: 98%; height: 35%">
       <div>
@@ -259,6 +260,37 @@ export default {
     this.businessCaseChart();
   },
   methods: {
+    export2Excel() {
+      var a = document.createElement("a");
+      var url = window.URL.createObjectURL(
+        new Blob([this.gethtml()], {
+          type: ""
+        })
+      );
+      a.href = url;
+      a.download = "file.html";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    gethtml() {
+      const template = this.$refs.test.innerHTML;
+      let html = `<!DOCTYPE html>
+                  <html>
+                  <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+                  <title>动态表单测试</title>
+                  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+                    
+                  </head>
+                  <body>
+                  <div class="resume_preview_page" style="margin:0 auto;width:1200px">
+                  ${template}
+                  </div>
+                  </body>
+                  </html>`;
+      return html;
+    },
     //调试结果页面点击选中接口
     selectInterface(node) {
       this.$refs.debuggingResultConfigTree.setCurrentKey(node.id);

@@ -78,9 +78,7 @@ import {
   get_environment_configuration,
   delete_environment_configuration
 } from "@/api/interfaceTesting";
-import Tables from "@/views/interfaceTesting/Tables";
 export default {
-  components: { Tables },
   data() {
     return {
       updateForm: {

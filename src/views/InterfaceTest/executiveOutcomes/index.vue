@@ -212,7 +212,6 @@ export default {
         })
           .then(() => {
             //删除执行结果
-            const id = { id: row.id };
             delete_executive_outcomes({ id: selectionTask }).then(response => {
               console.log(response);
               get_executive_outcomes({ project_id: this.project_id }).then(

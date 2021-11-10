@@ -123,7 +123,7 @@ export const constantRoutes = [
       {
         path: 'interfaceTesting',
         name: 'interfaceTesting',
-        component: () => import('@/views/InterfaceTest/interfaceTesting/index'),
+        component: () => import('@/views/InterfaceTest/interfaceTesting'),
         meta: { title: '接口调试', icon: 'table' ,keepAlive: true}
       },
       //我的接口
@@ -159,7 +159,7 @@ export const constantRoutes = [
         path: 'ExecutiveOutcomes',
         name: 'ExecutiveOutcomes',
         component: () => import('@/views/InterfaceTest/executiveOutcomes/index'),
-        meta: { title: '测试计划', icon: 'el-icon-user-solid' },
+        meta: { title: '测试报告', icon: 'el-icon-user-solid' },
       },
     ]
   },
