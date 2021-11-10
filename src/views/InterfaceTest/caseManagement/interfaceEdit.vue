@@ -1,20 +1,24 @@
 <template>
-  <div style="background-color: #FFFFFF;max-height:900px;overflow:auto;">
-    <el-main style="position: relative;">
-      <div style="background-color: #FFFFFF;padding-top: 20px;">
+  <div style="background-color: #ffffff; max-height: 900px; overflow: auto">
+    <el-main style="position: relative">
+      <div style="background-color: #ffffff; padding-top: 20px">
         <el-form ref="form" :rules="rules" :model="form" label-width="80px" style="height: 400px">
           <el-form-item label="请求名称">
-            <el-input v-model="form.requestName" placeholder="请输入地址" style="width: 300px;"></el-input>
+            <el-input v-model="form.requestName" placeholder="请输入地址" style="width: 300px"></el-input>
+            <el-popover placement="right" border width="600" trigger="click">
+              <ExtractParameterList :extractParameterList="extractParameterList" />
+              <el-button style="margin-left: 20px" type="primary" size="small" slot="reference">参数列表</el-button>
+            </el-popover>
           </el-form-item>
           <!-- 请求类型和地址 -->
           <el-form-item label="请求参数">
-            <el-select v-model="form.requestType" placeholder="请选择请求类型" style="width: 147px;">
+            <el-select v-model="form.requestType" placeholder="请选择请求类型" style="width: 147px">
               <el-option label="GET" value="get"></el-option>
               <el-option label="POST" value="post"></el-option>
               <el-option label="PUT" value="put"></el-option>
               <el-option label="DETETE" value="delete"></el-option>
             </el-select>
-            <el-switch style="left: 50px;" v-model="isEnvironment" active-text="引用环境"></el-switch>
+            <el-switch style="left: 50px" v-model="isEnvironment" active-text="引用环境"></el-switch>
           </el-form-item>
           <el-form-item label="请求地址" prop="requestAddress">
             <el-select
@@ -33,7 +37,7 @@
             <el-input
               v-model="form.requestAddress"
               placeholder="请输入地址"
-              :style="isEnvironment? 'width: 500px;': 'width: 702px;'"
+              :style="isEnvironment ? 'width: 500px;' : 'width: 702px;'"
             ></el-input>
             <el-button style="margin-left: 10px" type="primary" @click="sendRequest('form')">Send</el-button>
             <el-button type="primary" @click="sureSave(form)">保存</el-button>
@@ -41,19 +45,19 @@
           </el-form-item>
           <el-tabs type="border-card" @tab-click="handleClick">
             <!-- 请求头 -->
-            <el-tab-pane style="max-height: 260px; overflow: auto;" label="Headers">
+            <el-tab-pane style="max-height: 260px; overflow: auto" label="Headers">
               <Tables :TableData="headersTableData" />
             </el-tab-pane>
             <!-- 请求Params参数 -->
-            <el-tab-pane style="max-height: 260px; overflow: auto;" label="Params">
+            <el-tab-pane style="max-height: 260px; overflow: auto" label="Params">
               <Tables :TableData="paramsTableData" />
             </el-tab-pane>
             <!-- 请求Body Json参数 -->
-            <el-tab-pane style="max-height: 260px; overflow: auto;" label="Body">
+            <el-tab-pane style="max-height: 260px; overflow: auto" label="Body">
               <b-ace-editor v-model="bodyData" lang="json" width="100%" height="250"></b-ace-editor>
             </el-tab-pane>
             <!-- 断言 -->
-            <el-tab-pane style="max-height: 260px; overflow: auto;" label="断言">
+            <el-tab-pane style="max-height: 260px; overflow: auto" label="断言">
               <template height="250">
                 <el-table :data="assertData" style="width: 100%">
                   <el-table-column label="断言类型" width="200" align="center">
@@ -68,7 +72,7 @@
                   <el-table-column label="提取表达式" align="center">
                     <template slot-scope="scope">
                       <el-input
-                        :disabled="scope.row.assertType==3?true:false"
+                        :disabled="scope.row.assertType == 3 ? true : false"
                         placeholder="请输入表达式"
                         v-model="scope.row.assertExtractExpression"
                         clearable
@@ -78,7 +82,7 @@
                   <el-table-column label="期望关系" width="200" align="center">
                     <template slot-scope="scope">
                       <el-select
-                        :disabled="scope.row.assertType == 3? true: false"
+                        :disabled="scope.row.assertType == 3 ? true : false"
                         v-model="scope.row.relation"
                         placeholder="请选择断言类型"
                       >
@@ -96,14 +100,18 @@
                   <el-table-column fixed="right" width="125" align="center">
                     <template slot="header" slot-scope="scope">
                       <el-button
-                        @click.native.prevent="addAssert(scope.$index, assertData)"
+                        @click.native.prevent="
+                          addAssert(scope.$index, assertData)
+                        "
                         type="primary"
                         size="medium"
                       >添加</el-button>
                     </template>
                     <template slot-scope="scope">
                       <el-button
-                        @click.native.prevent="deleteAssert(scope.$index, assertData)"
+                        @click.native.prevent="
+                          deleteAssert(scope.$index, assertData)
+                        "
                         type="text"
                         size="medium"
                       >移除</el-button>
@@ -113,7 +121,7 @@
               </template>
             </el-tab-pane>
             <!-- 参数提取 -->
-            <el-tab-pane style="max-height: 260px; overflow: auto;" label="参数提取">
+            <el-tab-pane style="max-height: 260px; overflow: auto" label="参数提取">
               <template height="250">
                 <el-table :data="extraction_details" style="width: 100%">
                   <el-table-column label="提取类型" width="300" align="center">
@@ -143,14 +151,24 @@
                   <el-table-column fixed="right" width="125" align="center">
                     <template slot="header" slot-scope="scope">
                       <el-button
-                        @click.native.prevent="addParameterExtraction(scope.$index, extraction_details)"
+                        @click.native.prevent="
+                          addParameterExtraction(
+                            scope.$index,
+                            extraction_details
+                          )
+                        "
                         type="primary"
                         size="medium"
                       >添加</el-button>
                     </template>
                     <template slot-scope="scope">
                       <el-button
-                        @click.native.prevent="deleteParameterExtraction(scope.$index, extraction_details)"
+                        @click.native.prevent="
+                          deleteParameterExtraction(
+                            scope.$index,
+                            extraction_details
+                          )
+                        "
                         type="text"
                         size="medium"
                       >移除</el-button>
@@ -161,43 +179,9 @@
             </el-tab-pane>
           </el-tabs>
         </el-form>
-        <div style="margin-top: 130px;">
+        <div style="margin-top: 130px">
           <Response :responseData="responseData" />
         </div>
-        <!-- <el-dialog title="保存" :visible.sync="dialogFormVisible">
-          <el-form ref="saveForm" :model="saveForm" :rules="rules">
-            <el-form-item label="接口名称" label-width="80px" prop="request_name">
-              <el-input v-model="saveForm.request_name" placeholder="请输入接口名称"></el-input>
-            </el-form-item>
-            <el-form-item label="保存到：" label-width="80px">
-              <el-table
-                :row-key="getRowKeys"
-                @selection-change="handleSelectionChange"
-                :data="saveForm.tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
-                style="width: 100%;"
-              >
-                <el-table-column :reserve-selection="true" prop="id" type="selection" width="55"></el-table-column>
-                <el-table-column :show-overflow-tooltip="true" prop="file_name" label="文件名称"></el-table-column>
-                <el-table-column :show-overflow-tooltip="true" prop="interfaceNumber" label="接口数量"></el-table-column>
-                <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
-              </el-table>
-              <el-pagination
-                style="text-align:center"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-sizes="[5, 10, 15, 20, 40]"
-                :page-size="pagesize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="saveForm.tableData.length"
-              >//这是显示总共有多少数据，</el-pagination>
-            </el-form-item>
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button @click="dialogFormVisible = false">取 消</el-button>
-            <el-button type="primary" @click="sureSave(saveForm)">确 定</el-button>
-          </div>
-        </el-dialog>-->
       </div>
     </el-main>
   </div>
@@ -207,17 +191,16 @@
 import vueJsonEditor from "vue-json-editor";
 import {
   request_debug,
-  get_file_list,
-  update_request,
-  get_environment_configuration,
-  get_request_list
+  update_interface_use_case,
+  get_interface_use_case,
+  get_environment_configuration
 } from "@/api/interfaceTesting";
 import Response from "../interfaceTesting/Response";
 import Tables from "../interfaceTesting/Tables";
-import { createNamespacedHelpers } from "vuex";
+import ExtractParameterList from "./extractParameterList";
 export default {
-  components: { vueJsonEditor, Response, Tables },
-  props: ["request_data"],
+  components: { vueJsonEditor, Response, Tables, ExtractParameterList },
+  props: ["request_data", "extractParameterList"],
   data() {
     //不为空的表单校验
     const notNull = (rule, value, callback) => {
@@ -280,13 +263,6 @@ export default {
       dialogFormVisible: false, // 保存表单显隐
       currentPage: 1, //初始页
       pagesize: 5 //    每页的数据
-      // //保存的表单
-      // saveForm: {
-      //   request_name: null,
-      //   tableData: [],
-      //   //所选择的文件夹
-      //   multipleSelection: ""
-      // }
     };
   },
   methods: {
@@ -295,9 +271,10 @@ export default {
       this.$parent.showInterfaceEdit = false;
       this.$parent.selected();
       if (this.request_data.id) {
-        // 获取接口列表
-        get_request_list({ file_id: this.$parent.file_id })
+        // 获取接口用例列表
+        get_interface_use_case({ use_case_id: this.$parent.use_case_id })
           .then(response => {
+            console.log(response, "responseresponseresponseresponse");
             const responseData = response.data;
             responseData.forEach((elem, index) => {
               if (elem.dataState == "2") {
@@ -307,12 +284,15 @@ export default {
               }
             });
             console.log(responseData);
-            this.$parent.tableData = responseData;
+            this.$$parent.tableData = responseData;
           })
           .catch(error => {
             console.log(error);
           });
       }
+      setTimeout(() => {
+        this.$parent.disableDefaultBehavior(); //阻止默认行为
+      }, 500);
     },
     //删除断言
     deleteAssert(index, rows) {
@@ -462,16 +442,16 @@ export default {
                 this.responseData.response_headers
               );
               console.log(this.responseData, "响应数据处理后的样子");
-              if(this.responseData.response_code == 200){
+              if (this.responseData.response_code == 200) {
                 this.$message({
-                message: response.message,
-                type: "success"
-              });
-              }else{
+                  message: response.message,
+                  type: "success"
+                });
+              } else {
                 this.$message({
-                message: response.message,
-                type: "error"
-              });
+                  message: response.message,
+                  type: "error"
+                });
               }
             })
             .catch(error => {
@@ -488,29 +468,12 @@ export default {
         }
       });
     },
-    // //保存表单
-    // save(form) {
-    //   this.dialogFormVisible = true;
-    //   //获取文件列表
-    //   this.saveForm.request_name = this.form.requestAddress;
-    //   get_file_list({ project_id: this.project_id })
-    //     .then(response => {
-    //       this.saveForm.tableData = response.data;
-    //     })
-    //     .catch(error => {
-    //       this.$message({
-    //         message: "获取失败",
-    //         type: "error"
-    //       });
-    //       console.log(error);
-    //     });
-    // },
     //确定保存
     sureSave(form) {
-      const file_id = [this.$parent.file_id];
-      if (form.request_name == "" || file_id.length === 0) {
+      const use_case_id = this.$parent.use_case_id;
+      if (form.requestName == "") {
         this.$message({
-          message: "接口名称或文件不能为空",
+          message: "接口名称不能为空",
           type: "error"
         });
       } else {
@@ -535,7 +498,7 @@ export default {
           headers: header,
           params: params,
           dataState: this.dataStateCode,
-          file_id: file_id,
+          use_case_id: use_case_id,
           project_id: this.project_id,
           isEnvironment: this.isEnvironment
         };
@@ -588,44 +551,49 @@ export default {
             this.responseData.response_headers = JSON.stringify(
               this.responseData.response_headers
             );
-            request_data.extraction_result = this.responseData.extraction_result
-            request_data.assert_result = this.responseData.assert_result,
-            //发送保存请求
-            update_request(request_data)
-              .then(response => {
-                this.$message({
-                  message: "保存成功！",
-                  type: "success"
-                });
-                // 切换到我的接口列表
-                this.$parent.showInterfaceEdit = false;
-                // 获取接口列表
-                get_request_list({ file_id: this.$parent.file_id })
-                  .then(response => {
-                    const responseData = response.data;
-                    responseData.forEach((elem, index) => {
-                      if (elem.dataState == "2") {
-                        elem["data"] = elem["body"];
-                      } else {
-                        elem["data"] = elem["params"];
-                      }
-                    });
-                    console.log(responseData);
-                    this.$parent.tableData = responseData;
-                    this.$parent.selected();
-                  })
-                  .catch(error => {
-                    this.$bus.$emit("response", {});
-                    console.log(error);
+            request_data.extraction_result = this.responseData.extraction_result;
+            (request_data.assert_result = this.responseData.assert_result),
+              //发送保存用例请求
+              update_interface_use_case(request_data)
+                .then(response => {
+                  this.$message({
+                    message: "保存成功！",
+                    type: "success"
                   });
-              })
-              .catch(error => {
-                this.$message({
-                  message: "保存参数错误",
-                  type: "error"
+                  // 切换到我的接口列表
+                  this.$parent.showInterfaceEdit = false;
+                  setTimeout(() => {
+                    this.$parent.disableDefaultBehavior(); //阻止默认行为
+                  }, 500);
+                  // 获取接口列表
+                  get_interface_use_case({
+                    use_case_id: this.$parent.use_case_id
+                  })
+                    .then(response => {
+                      const responseData = response.data;
+                      responseData.forEach((elem, index) => {
+                        if (elem.dataState == "2") {
+                          elem["data"] = elem["body"];
+                        } else {
+                          elem["data"] = elem["params"];
+                        }
+                      });
+                      console.log(responseData);
+                      this.$parent.tableData = responseData;
+                      this.$parent.selected();
+                    })
+                    .catch(error => {
+                      this.$bus.$emit("response", {});
+                      console.log(error);
+                    });
+                })
+                .catch(error => {
+                  this.$message({
+                    message: "保存参数错误",
+                    type: "error"
+                  });
+                  console.log(error);
                 });
-                console.log(error);
-              });
           })
           .catch(error => {
             this.$message({

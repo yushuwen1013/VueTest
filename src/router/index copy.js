@@ -85,14 +85,14 @@ export const constantRoutes = [
       {
         path: '/environmentConfiguration',
         name: 'environmentConfiguration',
-        component: () => import('@/views/InterfaceTest/environmentConfiguration'),
+        component: () => import('@/views/environmentConfiguration'),
         meta: { title: '环境配置', icon: 'el-icon-menu' },
       },
       //全局变量
       {
         path: '/globalVariable',
         name: 'globalVariable',
-        component: () => import('@/views/InterfaceTest/globalVariable'),
+        component: () => import('@/views/globalVariable'),
         meta: { title: '全局变量', icon: 'el-icon-menu' },
       },
       // //变量管理
@@ -123,7 +123,7 @@ export const constantRoutes = [
       {
         path: 'interfaceTesting',
         name: 'interfaceTesting',
-        component: () => import('@/views/InterfaceTest/interfaceTesting/index'),
+        component: () => import('@/views/interfaceTesting/index'),
         meta: { title: '接口调试', icon: 'table' ,keepAlive: true}
       },
       //我的接口
@@ -131,7 +131,7 @@ export const constantRoutes = [
         path: 'myInterface',
         name: 'myInterface',
         // alwaysShow: true,
-        component: () => import('@/views/InterfaceTest/myInterface/index'),
+        component: () => import('@/views/myInterface/index'),
         meta: { title: '我的接口', icon: 'el-icon-user-solid' },
       },
       // //接口列表
@@ -144,21 +144,21 @@ export const constantRoutes = [
       {
         path: 'CaseManagement',
         name: 'CaseManagement',
-        component: () => import('@/views/InterfaceTest/caseManagement/index'),
+        component: () => import('@/views/caseManagement/index'),
         meta: { title: '用例管理', icon: 'el-icon-user-solid' },
       },
       //测试计划
       {
         path: 'TestPlan',
         name: 'TestPlan',
-        component: () => import('@/views/InterfaceTest/testPlan/index'),
+        component: () => import('@/views/testPlan/index'),
         meta: { title: '测试计划', icon: 'el-icon-user-solid' },
       },
       //执行结果
       {
         path: 'ExecutiveOutcomes',
         name: 'ExecutiveOutcomes',
-        component: () => import('@/views/InterfaceTest/executiveOutcomes/index'),
+        component: () => import('@/views/executiveOutcomes/index'),
         meta: { title: '测试计划', icon: 'el-icon-user-solid' },
       },
     ]

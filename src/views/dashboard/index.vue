@@ -1,5 +1,11 @@
 <template>
-  <div id="myChart" :style="{ width: '1500px', height: '460px' }"></div>
+  <div>
+    
+    <div class="contentsss" ref="test">
+      <div id="myChart" :style="{ width: '1500px', height: '460px' }"></div>
+    </div>
+    <button @click="export2Excel">导出</button>
+  </div>
 </template>
 
 <script>
@@ -10,7 +16,9 @@ require("echarts/lib/component/legend");
 require("echarts/lib/chart/pie");
 export default {
   data() {
-    return {};
+    return {
+      html: ""
+    };
   },
   mounted() {
     this.drawLine();
@@ -22,14 +30,14 @@ export default {
         title: {
           text: "Referer of a Website",
           subtext: "Fake Data",
-          left: "center",
+          left: "center"
         },
         tooltip: {
-          trigger: "item",
+          trigger: "item"
         },
         legend: {
           orient: "vertical",
-          left: "left",
+          left: "left"
         },
         series: [
           {
@@ -41,23 +49,54 @@ export default {
               { value: 735, name: "Direct" },
               { value: 580, name: "Email" },
               { value: 484, name: "Union Ads" },
-              { value: 300, name: "Video Ads" },
+              { value: 300, name: "Video Ads" }
             ],
             emphasis: {
               itemStyle: {
                 shadowBlur: 10,
                 shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)",
-              },
-            },
-          },
-        ],
+                shadowColor: "rgba(0, 0, 0, 0.5)"
+              }
+            }
+          }
+        ]
       };
       //防止越界，重绘canvas
       window.onresize = myChart.resize;
       myChart.setOption(option); //设置option
     },
-  },
+    export2Excel() {
+      var a = document.createElement("a");
+      var url = window.URL.createObjectURL(
+        new Blob([this.gethtml()], {
+          type: ""
+        })
+      );
+      a.href = url;
+      a.download = "file.html";
+      a.click();
+      window.URL.revokeObjectURL(url);
+    },
+    gethtml() {
+      const template = this.$refs.test.innerHTML;
+      let html = `<!DOCTYPE html>
+                  <html>
+                  <head>
+                  <meta charset="utf-8">
+                  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+                  <title>动态表单测试</title>
+                  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
+                    
+                  </head>
+                  <body>
+                  <div class="resume_preview_page" style="margin:0 auto;width:1200px">
+                  ${template}
+                  </div>
+                  </body>
+                  </html>`;
+      return html;
+    }
+  }
 };
 </script>
 
