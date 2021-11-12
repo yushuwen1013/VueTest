@@ -339,3 +339,21 @@ export function get_all_file(data) {
   })
 }
 
+//通过测试报告id获取报告详情
+export function get_test_report(data) {
+  return request({
+    url: '/request/get_test_report',
+    method: 'get',
+    params: data,
+  })
+}
+
+
+//通过测试报告id获取报告详情
+export function fileUpload(data) {
+  return request({
+    url: 'fileUpload/upload/',
+    method: 'post',
+    data: data,
+  })
+}

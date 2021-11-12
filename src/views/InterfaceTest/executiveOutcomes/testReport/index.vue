@@ -1,5 +1,5 @@
 <template>
-  <div style="height: 100%; position: relative" ref="test">
+  <div style="height: 100%; position: relative" ref="test"  v-loading="loading">
     <div style="margin-left: 20px; margin-bottom: 15px; margin-top: 15px;text-align:center;">
       <el-button
         style="float: left;margin-bottom: 10px;"
@@ -7,7 +7,7 @@
         size="small"
         @click="back"
       >返回</el-button>
-      <button @click="export2Excel">导出</button>
+      <!-- <button @click="export2Excel">导出</button> -->
     </div>
     <el-card class="box-card" style="margin-left: 10px; width: 98%; height: 35%">
       <div>
@@ -211,13 +211,19 @@ require("echarts/lib/component/title");
 require("echarts/lib/component/tooltip");
 require("echarts/lib/component/legend");
 require("echarts/lib/chart/pie");
-import Response from "../interfaceTesting/Response";
+import Response from "@/views/InterfaceTest/interfaceTesting/Response";
+import { get_test_report } from "@/api/interfaceTesting";
 export default {
   name: "TestReport",
   components: { Response },
-  props: ["detailsData"],
   data() {
     return {
+      loading: true,
+      //任务详情信息
+      detailsData: {
+        business_case: [0, 0, 0],
+        interface_case: [0, 0, 0]
+      },
       //调试结果列表
       debuggingResult: [],
       //调试用例信息
@@ -255,9 +261,38 @@ export default {
     };
   },
   mounted() {
-    this.allCaseChart();
-    this.interfaceCaseChart();
-    this.businessCaseChart();
+    const id = { id: this.$route.query.id };
+    get_test_report(id).then(response => {
+      console.log(response.data);
+      const row = response.data;
+      this.detailsData = {
+        business_case: JSON.parse(row.business_case),
+        create_time: row.create_time,
+        description: row.description,
+        end_time: row.end_time,
+        executive_outcomes: JSON.parse(row.executive_outcomes),
+        interface_case_result: JSON.parse(row.executive_outcomes)
+          .interface_case_result,
+        business_case_result: JSON.parse(row.executive_outcomes)
+          .business_case_result,
+        id: row.id,
+        interface_case: JSON.parse(row.interface_case),
+        project_id: row.project_id,
+        start_time: row.start_time,
+        status: row.status,
+        task_name: row.task_name,
+        time_consuming: row.time_consuming,
+        useCaseNumber:
+          JSON.parse(row.business_case)[0] + JSON.parse(row.interface_case)[0]
+      };
+      this.allCaseChart();
+      this.interfaceCaseChart();
+      this.businessCaseChart();
+      console.log(this.detailsData, "detailsDatadetailsData");
+      this.loading = false;
+    }).catch(error=>{
+      this.loading = false;
+    });
   },
   methods: {
     export2Excel() {
@@ -385,7 +420,7 @@ export default {
     },
     //返回
     back() {
-      this.$parent.isShowTestReport = false;
+      this.$router.back(-1);
     },
     //全部用例
     allCaseChart() {
@@ -556,6 +591,34 @@ export default {
       businessCaseChart.setOption(option); //设置option
     }
   }
+  // created() {
+  //   const id = { id: this.$route.query.id };
+  //   get_test_report(id).then(response=>{
+  //     console.log(response.data)
+  //     const row = response.data
+  //     this.detailsData = {
+  //       business_case: JSON.parse(row.business_case),
+  //       create_time: row.create_time,
+  //       description: row.description,
+  //       end_time: row.end_time,
+  //       executive_outcomes: JSON.parse(row.executive_outcomes),
+  //       interface_case_result: JSON.parse(row.executive_outcomes)
+  //         .interface_case_result,
+  //       business_case_result: JSON.parse(row.executive_outcomes)
+  //         .business_case_result,
+  //       id: row.id,
+  //       interface_case: JSON.parse(row.interface_case),
+  //       project_id: row.project_id,
+  //       start_time: row.start_time,
+  //       status: row.status,
+  //       task_name: row.task_name,
+  //       time_consuming: row.time_consuming,
+  //       useCaseNumber:
+  //         JSON.parse(row.business_case)[0] + JSON.parse(row.interface_case)[0]
+  //     };
+  //   console.log(this.detailsData, "detailsDatadetailsData")
+  //   })
+  // }
 };
 </script>
 

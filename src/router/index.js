@@ -124,7 +124,7 @@ export const constantRoutes = [
         path: 'interfaceTesting',
         name: 'interfaceTesting',
         component: () => import('@/views/InterfaceTest/interfaceTesting'),
-        meta: { title: '接口调试', icon: 'table' ,keepAlive: true}
+        meta: { title: '接口调试', icon: 'table', keepAlive: true }
       },
       //我的接口
       {
@@ -158,12 +158,51 @@ export const constantRoutes = [
       {
         path: 'ExecutiveOutcomes',
         name: 'ExecutiveOutcomes',
-        component: () => import('@/views/InterfaceTest/executiveOutcomes/index'),
         meta: { title: '测试报告', icon: 'el-icon-user-solid' },
+        // redirect: 'ExecutiveOutcomes/list',
+        component: () => import('@/views/InterfaceTest/executiveOutcomes/index'),
+        children: [
+          {
+            path: 'list',
+            component: () => import('@/views/InterfaceTest/executiveOutcomes/list'),
+            meta: { title: '报告列表'},
+            // hidden: true,
+          },
+          {
+            path: 'testReport',
+            name: 'testReport',
+            component: () => import('@/views/InterfaceTest/executiveOutcomes/testReport'),
+            meta: { title: '报告详情'},
+            hidden: true,
+            activeMenu: '/ExecutiveOutcomes/list',
+          }
+        ]
+      },
+
+    ]
+  },
+  //性能测试
+  {
+    path: '/performance',
+    component: Layout,
+    redirect: '/ScriptManagement',
+    meta: { title: '性能测试', icon: 'form' },
+    children: [
+      {
+        //jmx脚本管理
+        path: 'ScriptManagement',
+        name: 'ScriptManagement',
+        component: () => import('@/views/PerformanceTest/ScriptManagement/index'),
+        meta: { title: 'jmx脚本管理', icon: 'form' }
+      },
+      {
+        path: 'testPlan',
+        name: 'PerformanceTestPlan',
+        component: () => import('@/views/PerformanceTest/testPlan/index'),
+        meta: { title: '测试计划', icon: 'form' }
       },
     ]
   },
-  
   {
     path: '/form',
     component: Layout,
@@ -173,7 +212,7 @@ export const constantRoutes = [
         name: 'Form',
         component: () => import('@/views/form/index'),
         meta: { title: '表单', icon: 'form' }
-      }
+      },
     ]
   },
 
