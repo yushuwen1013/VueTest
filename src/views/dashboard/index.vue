@@ -1,100 +1,44 @@
 <template>
   <div>
-    
-    <div class="contentsss" ref="test">
-      <div id="myChart" :style="{ width: '1500px', height: '460px' }"></div>
+    <div>
+      <el-select v-model="project_id" placeholder="请选择项目">
+        <el-option
+          v-for="item in tableData"
+          :key="item.id"
+          :label="item.project_name"
+          :value="item.id"
+        ></el-option>
+      </el-select>
     </div>
-    <button @click="export2Excel">导出</button>
   </div>
 </template>
 
 <script>
-const echarts = require("echarts/lib/echarts");
-require("echarts/lib/component/title");
-require("echarts/lib/component/tooltip");
-require("echarts/lib/component/legend");
-require("echarts/lib/chart/pie");
+import { get_project_list } from "@/api/interfaceTesting";
 export default {
   data() {
     return {
-      html: ""
+      project_id: "",
+      tableData: []
     };
   },
-  mounted() {
-    this.drawLine();
+  created() {
+    get_project_list().then(response => {
+      this.tableData = response.data;
+      this.project_id = localStorage.getItem("project_id");
+      console.log(this.project_id);
+      if (this.project_id == null) {
+        localStorage.setItem(
+          "project_id",
+          JSON.stringify(this.tableData[0].id)
+        );
+      }
+      this.project_id = parseInt(localStorage.getItem("project_id"));
+    });
   },
-  methods: {
-    drawLine() {
-      var myChart = echarts.init(document.getElementById("myChart")); //获取容器元素
-      var option = {
-        title: {
-          text: "Referer of a Website",
-          subtext: "Fake Data",
-          left: "center"
-        },
-        tooltip: {
-          trigger: "item"
-        },
-        legend: {
-          orient: "vertical",
-          left: "left"
-        },
-        series: [
-          {
-            name: "Access From",
-            type: "pie",
-            radius: "50%",
-            data: [
-              { value: 1048, name: "Search Engine" },
-              { value: 735, name: "Direct" },
-              { value: 580, name: "Email" },
-              { value: 484, name: "Union Ads" },
-              { value: 300, name: "Video Ads" }
-            ],
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: "rgba(0, 0, 0, 0.5)"
-              }
-            }
-          }
-        ]
-      };
-      //防止越界，重绘canvas
-      window.onresize = myChart.resize;
-      myChart.setOption(option); //设置option
-    },
-    export2Excel() {
-      var a = document.createElement("a");
-      var url = window.URL.createObjectURL(
-        new Blob([this.gethtml()], {
-          type: ""
-        })
-      );
-      a.href = url;
-      a.download = "file.html";
-      a.click();
-      window.URL.revokeObjectURL(url);
-    },
-    gethtml() {
-      const template = this.$refs.test.innerHTML;
-      let html = `<!DOCTYPE html>
-                  <html>
-                  <head>
-                  <meta charset="utf-8">
-                  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-                  <title>动态表单测试</title>
-                  <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css" />
-                    
-                  </head>
-                  <body>
-                  <div class="resume_preview_page" style="margin:0 auto;width:1200px">
-                  ${template}
-                  </div>
-                  </body>
-                  </html>`;
-      return html;
+  watch: {
+    project_id(newValue) {
+      localStorage.setItem("project_id", JSON.stringify(newValue));
     }
   }
 };

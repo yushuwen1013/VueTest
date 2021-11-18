@@ -24,64 +24,18 @@
         >添加</el-button>
       </el-form>
       <el-table :data="tableData" height="600" style="width: 98%;left: 20px;">
-        <el-table-column prop="date" label="脚本名称"></el-table-column>
-        <el-table-column prop="name" label="创建时间"></el-table-column>
-        <el-table-column prop="address" label="备注"></el-table-column>
-        <el-table-column width="225" label="操作">
+        <el-table-column prop="script_name" label="脚本名称"></el-table-column>
+        <el-table-column prop="create_time" label="创建时间"></el-table-column>
+        <el-table-column prop="description" label="备注"></el-table-column>
+        <el-table-column width="300" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" :type="scope.row">编辑</el-button>
-            <el-button size="mini" type="danger">删除</el-button>
+            <el-button size="mini" @click="runJmxScript(scope.row)">执行</el-button>
+            <el-button size="mini" @click="executiveLogging(scope.row)">执行记录</el-button>
+            <el-button size="mini" @click="editJmxScript(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="deleteJmxScript(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
-      <el-dialog title="编辑脚本" :visible.sync="dialogFormVisible" width="40%">
-        <el-form label-position="right" label-width="80px" :model="formLabelAlign">
-          <el-form-item label="脚本名称">
-            <el-input v-model="formLabelAlign.name"></el-input>
-          </el-form-item>
-          <el-form-item label="上传脚本">
-            <!-- <el-upload
-              ref="upload"
-              class="upload-demo"
-              drag
-              action="#"
-              multiple
-              :limit="1"
-              :auto-upload="false"
-              :http-request="upload"
-             >
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">
-                将文件拖到此处，或
-                <em>点击上传</em>
-              </div>
-              <div class="el-upload__tip" slot="tip">只能上传jmx文件，且不超过500kb</div>
-            </el-upload>-->
-            <el-upload
-              class="upload-demo"
-              drag
-              :action="url"
-              multiple
-              :limit="1"
-              :headers='headers'
-            >
-              <i class="el-icon-upload"></i>
-              <div class="el-upload__text">
-                将文件拖到此处，或
-                <em>点击上传</em>
-              </div>
-              <div class="el-upload__tip" slot="tip">只能上传jpg/png文件，且不超过500kb</div>
-            </el-upload>
-          </el-form-item>
-          <el-form-item label="备注">
-            <el-input v-model="formLabelAlign.type"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="submitUpload">确 定</el-button>
-        </div>
-      </el-dialog>
       <!-- 分页显示 -->
       <el-pagination
         style="text-align:center"
@@ -93,93 +47,211 @@
         layout="total, sizes, prev, pager, next, jumper"
         :total="tableData.length"
       >//这是显示总共有多少数据，</el-pagination>
+      <el-dialog title="编辑脚本" :visible.sync="dialogFormVisible" width="40%">
+        <el-form label-position="right" label-width="80px" :model="form">
+          <el-form-item label="脚本名称">
+            <el-input v-model="form.script_name"></el-input>
+          </el-form-item>
+          <el-form-item label="上传脚本">
+            <el-upload
+              multiple
+              accept=".jmx"
+              class="upload-demo"
+              thumbnail-mode
+              :on-change="handleChange"
+              :on-remove="remove"
+              action
+              :file-list="fileList"
+              :http-request="uploadfile"
+            >
+              <el-button size="small" type="primary" class="upload">上传jmx脚本</el-button>
+              <div slot="tip" class="el-upload__tip">支持格式：.jmx，单个文件不能超过20MB。</div>
+            </el-upload>
+          </el-form-item>
+          <el-form-item label="描述">
+            <el-input v-model="form.description"></el-input>
+          </el-form-item>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="dialogFormVisible = false">取 消</el-button>
+          <el-button type="primary" @click="confirm">确 定</el-button>
+        </div>
+      </el-dialog>
+      <el-dialog title="执行记录" :visible.sync="executiveLoggingVisible">
+        <el-table :data="executiveLoggingData">
+          <el-table-column prop="script_name" label="脚本名称"></el-table-column>
+          <el-table-column property="create_time" label="执行日期"></el-table-column>
+          <el-table-column width="300" label="操作">
+            <template slot-scope="scope">
+              <el-button size="mini" @click="executiveReport(scope.row)">查看执行报告</el-button>
+              <el-button size="mini" @click="download(scope.row)">下载</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
+import QS from "qs";
+import { getToken } from "@/utils/auth";
 import {
-  update_global_variable,
-  get_global_variable,
-  delete_global_variable
-} from "@/api/interfaceTesting";
+  jmx_script,
+  upload_file,
+  run_jmx_script,
+  jmx_script_results,
+  jmx_script_results_report
+} from "@/api/performanceTesting";
 export default {
   data() {
     return {
-      headers:{'Authorization': 'JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNjM2NzQxODE1LCJlbWFpbCI6IiIsIm9yaWdfaWF0IjoxNjM2NzEzMDE1fQ.-GvbtSI3k116V8LBWo9ADq82Grhux0HVLGp0JsiiPak'},
-      // url: `${process.env.VUE_APP_BASE_API}/fileUpload/upload/`,
-      url: 'http://127.0.0.1:8000/fileUpload/upload/',
-      formLabelAlign: {
-        name: "",
-        region: "",
-        type: ""
+      executiveLoggingData: [], //执行记录数据
+      executiveLoggingVisible: false, //执行记录弹窗
+      // headers: { Authorization: "JWT " + getToken() },
+      // url: "http://127.0.0.1:8000/fileUpload/upload/",
+      fileList: [], //文件列表
+      //jmx脚本表单
+      form: {
+        script_name: "",
+        description: "",
+        file_id: null
       },
-      dialogFormVisible: false,
-      project_id: localStorage.getItem("project_id"),
+      dialogFormVisible: false, //新增jmx脚本的表单
+      project_id: localStorage.getItem("project_id"), //在local获取project_id
       currentPage: 1, //初始页
-      pagesize: 10, //    每页的数据
-      tableData: [
-        {
-          date: "2016-05-02",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1518 弄"
-        },
-        {
-          date: "2016-05-04",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1517 弄"
-        },
-        {
-          date: "2016-05-01",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1519 弄"
-        },
-        {
-          date: "2016-05-03",
-          name: "王小虎",
-          address: "上海市普陀区金沙江路 1516 弄"
-        }
-      ],
+      pagesize: 10, //每页的数据
+      tableData: [], //脚本列表
       seareVariableKey: "" //搜索框的值
     };
   },
   methods: {
-    // 点击上传：手动上传到服务器，此时会触发组件的http-request
-    submitUpload() {
-      this.$refs.upload.submit();
+    //下载jtl文件
+    download(row){
+      window.open(process.env.VUE_APP_BASE_API + row.file.substring(1))
     },
-    // upload(param) {
-    //   const formData = new FormData(); //FormData对象，添加参数只能通过append('key', value)的形式添加
-    //   formData.append("file", param.file); //添加文件对象
-    //   formData.append("uploadType", this.rulesType);
-    // const url = `${this.myBaseURL}/operation/ruleImport/importData`; //上传地址
-    // console.log(formData)
-    // axios
-    //   .post(url, formData)
-    //   .then(res => {
-    //     const {
-    //       data: { code, mark }
-    //     } = res;
-    //     if (code === 0) {
-    //       param.onSuccess(); // 上传成功的文件显示绿色的对勾
-    //       this.uploadMark = mark;
-    //     }
-    //     return this.countData(this.uploadMark); //根据mark值调用统计结果接口
-    //   })
-    //   .then(res => {
-    //     //调用统计结果的响应，没有这一步可以省略了
-    //     const {
-    //       data: { code, data }
-    //     } = res;
-    //     if (code === 0) {
-    //       console.log("结果", data);
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log("失败", err);
-    //     param.onError(); //上传失败的文件会从文件列表中删除
-    //   });
-    // },
+    //查看执行报告
+    executiveReport(row) {
+      console.log(row);
+      jmx_script_results_report("get", { jmx_script_result_id: row.id }).then(
+        response => {
+          console.log(process.env.VUE_APP_BASE_API + response.data);
+          window.open(
+            process.env.VUE_APP_BASE_API + response.data.substring(1)
+          );
+        }
+      );
+    },
+    //查看执行记录
+    executiveLogging(row) {
+      console.log(row);
+      this.executiveLoggingVisible = true;
+      jmx_script_results("get", { jmx_script_id: row.id }).then(response => {
+        this.executiveLoggingData = response.data;
+        this.executiveLoggingData.forEach(ele => {
+          ele.script_name = row.script_name;
+        });
+        console.log(response.data);
+      });
+    },
+    //执行
+    runJmxScript(row) {
+      run_jmx_script("post", { id: row.id, project_id: this.project_id }).then(response => {
+        console.log(response);
+      });
+    },
+    //删除脚本
+    deleteJmxScript(row) {
+      jmx_script("delete", { id: row.id }).then(response => {
+        console.log(response);
+        this.$message.success(response.message);
+        jmx_script("get", { project_id: this.project_id }).then(response => {
+          console.log(response);
+          this.tableData = response.data;
+        });
+      });
+    },
+    //编辑jmx脚本
+    editJmxScript(row) {
+      this.dialogFormVisible = true;
+      this.form.script_name = row.script_name;
+      this.form.description = row.description;
+      this.form.id = row.id;
+      this.form.file_id = row.file;
+      this.fileList = [
+        {
+          name: row.file_name,
+          url: process.env.VUE_APP_BASE_API + row.file_path
+        }
+      ];
+    },
+    //移除文件
+    remove(file, a, b) {
+      console.log(file, a, b);
+      // upload_file("delete", { id: this.form.file_id })
+      //     .then(res => {
+      //       this.$message.success("删除成功");
+      //     })
+      //     .catch(error => {
+      //       // this.$message.error("删");
+      //     });
+    },
+    //上传文件
+    uploadfile(file) {
+      let formData = new FormData();
+      formData.append("file", file.file);
+      // 上传文件接口
+      upload_file("post", formData)
+        .then(res => {
+          this.form.file_id = res.data.id;
+          this.$message.success("上传成功");
+        })
+        .catch(error => {
+          this.$message.error("上传失败");
+        });
+    },
+    //只能上传一个文件，保留最新的文件
+    handleChange(file, fileList) {
+      console.log(fileList.length);
+      //如果文件列表等于2就删除旧文件，保留最新的文件
+      if (fileList.length == 2) {
+        // 删除文件接口
+        upload_file("delete", { id: this.form.file_id })
+          .then(res => {
+            this.$message.success("删除成功");
+          })
+          .catch(error => {
+            // this.$message.error("删");
+          });
+        this.fileList = fileList.slice(-1);
+      }
+    },
+    //确定添加
+    confirm() {
+      console.log(this.form);
+      this.form.project_id = this.project_id;
+      if (this.form.script_name != "" && this.form.file_id != "") {
+        // 保存脚本接口
+        jmx_script("post", this.form)
+          .then(response => {
+            console.log(response);
+            this.$message.success(response.message);
+            this.dialogFormVisible = false;
+            // 获取jmx脚本列表接口
+            jmx_script("get", { project_id: this.project_id }).then(
+              response => {
+                console.log(response);
+                this.tableData = response.data;
+              }
+            );
+          })
+          .catch(erroe => {
+            this.$message.error(erroe.message);
+          });
+      } else {
+        this.$message.error("脚本名称和文件不能为空");
+      }
+    },
     //初始页currentPage、初始每页数据数pagesize和数据data
     handleSizeChange: function(size) {
       this.pagesize = size;
@@ -207,7 +279,27 @@ export default {
       });
     }
   },
-  created() {}
+  //组件创建之前发送获取jmx脚本列表的接口
+  created() {
+    jmx_script("get", { project_id: this.project_id }).then(response => {
+      console.log(response);
+      this.tableData = response.data;
+      // this.$message.success(response.message);
+    });
+  },
+  watch: {
+    // 如果dialogFormVisible被修改为false那么就清空form表单和文件列表
+    dialogFormVisible(val) {
+      if (!val) {
+        this.form = {
+          script_name: "",
+          description: "",
+          file_id: null
+        };
+        this.fileList = [];
+      }
+    }
+  }
 };
 </script>
 

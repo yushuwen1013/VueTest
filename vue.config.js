@@ -39,12 +39,12 @@ module.exports = {
     //     }
     //   }
     // },
-    port: port,
-    open: true,
-    overlay: {
-      warnings: false,
-      errors: true
-    },
+    // port: port,
+    // open: true,
+    // overlay: {
+    //   warnings: false,
+    //   errors: true
+    // },
     // 使用mock数据用before，使用后端接口用after，否则会请求失败报超时5000ms
     after: require('./mock/mock-server.js')
   },
