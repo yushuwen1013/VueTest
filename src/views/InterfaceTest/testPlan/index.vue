@@ -24,7 +24,7 @@
           type="primary"
           icon="el-icon-plus"
           size="small"
-          @click="isShowEditTasks=true"
+          @click="addTasks"
         >添加</el-button>
       </el-form>
       <el-table
@@ -214,10 +214,18 @@ export default {
           });
         });
     },
+    //添加任务
+    addTasks() {
+      this.isShowEditTasks = true;
+      this.$nextTick(() => {
+        //调用子组件EditTasks的选中用例方法
+        this.$refs.EditTasks.selectedInterface();
+      });
+    },
     //点击编辑
     clickEdit(row) {
-      console.log(row);
-      console.log(JSON.parse(row.business_case));
+      // console.log(row);
+      // console.log(JSON.parse(row.business_case));
       // 编辑任务的表单
       this.updateForm = {
         id: row.id, // 任务id
@@ -232,7 +240,7 @@ export default {
         interface_case: JSON.parse(row.interface_case), //选中的接口用例
         project_id: localStorage.getItem("project_id") // 项目id
       };
-      console.log(this.updateForm, "父组件的form");
+      // console.log(this.updateForm, "父组件的form");
       //显示编辑任务面板
       this.isShowEditTasks = true;
       //最后在执行

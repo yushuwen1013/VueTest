@@ -142,6 +142,8 @@
                 ref="myUseCaseData"
                 :default-expanded-keys="[1]"
                 :filter-node-method="filterUseCaseData"
+                :draggable="true"
+                :allow-drop="allowDrop"
               >
                 <span class="custom-tree-node" slot-scope="{ node }">
                   <span class="tmp" :title="node.data.file_name">
@@ -174,6 +176,25 @@ export default {
     };
   },
   methods: {
+    // 停止拖拽时节点可放置的位置
+    allowDrop(moveNode, inNode, type) {
+      console.log(moveNode, inNode, type);
+      // 停止拖拽后树节点位置不发生改变
+      // return type == 'next';
+      // 一级拖动到一级
+      if (moveNode.level == 1 && inNode.level == 1) {
+        // 四种情况
+        if (moveNode.nextSibling == undefined) {
+          return type == "prev";
+        } else if (inNode.nextSibling == undefined) {
+          return type == "next";
+        } else if (moveNode.nextSibling.id !== inNode.id) {
+          return type == "prev";
+        } else {
+          return type == "next";
+        }
+      }
+    },
     //禁止输入小数和负数
     prevent(e, value) {
       var keynum = window.event ? e.keyCode : e.which; //获取键盘码
@@ -212,7 +233,7 @@ export default {
         });
         if (interface_case.length == 0 && business_case.length == 0) {
           this.$message({
-            message: "用例不能为空",
+            message: "用例不能为空,请勾选用例后再保存！",
             type: "error"
           });
         } else {
@@ -288,49 +309,49 @@ export default {
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
         mailAddress: "", //邮件地址
+        interface_case: [],
+        business_case: [],
         project_id: localStorage.getItem("project_id") // 项目id
       };
     },
     //选中用例的方法
     selectedInterface() {
+      //获取全部文件接口列表
+      get_all_file({ project_id: this.project_id })
+        .then(response => {
+          console.log(response.data);
+          this.myInterfaceData = response.data.filter(ele => {
+            return ele.children.length > 0;
+          });
+        })
+        .catch(error => {
+          this.$message({
+            message: "获取失败",
+            type: "error"
+          });
+          console.log(error);
+        });
+      //获取用例列表
+      get_use_case({ project_id: this.project_id })
+        .then(response => {
+          console.log(response.data);
+          this.myUseCaseData = response.data.filter(ele => {
+            return ele.interfaceNumber > 0;
+          });
+        })
+        .catch(error => {
+          this.$message({
+            message: "获取失败",
+            type: "error"
+          });
+          console.log(error);
+        });
       console.log("我要选中啦", this.updateForm);
       //选中接口用例
       this.$refs.myInterfaceData.setCheckedKeys(this.updateForm.interface_case);
       //选中业务用例
       this.$refs.myUseCaseData.setCheckedKeys(this.updateForm.business_case);
     }
-  },
-  created() {
-    //获取全部文件接口列表
-    get_all_file({ project_id: this.project_id })
-      .then(response => {
-        console.log(response.data);
-        this.myInterfaceData = response.data.filter(ele => {
-          return ele.children.length > 0;
-        });
-      })
-      .catch(error => {
-        this.$message({
-          message: "获取失败",
-          type: "error"
-        });
-        console.log(error);
-      });
-    //获取用例列表
-    get_use_case({ project_id: this.project_id })
-      .then(response => {
-        console.log(response.data);
-        this.myUseCaseData = response.data.filter(ele=>{
-          return ele.interfaceNumber > 0
-        });
-      })
-      .catch(error => {
-        this.$message({
-          message: "获取失败",
-          type: "error"
-        });
-        console.log(error);
-      });
   },
   watch: {
     filterInterfaceText(val) {

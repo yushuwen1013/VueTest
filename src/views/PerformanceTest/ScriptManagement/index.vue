@@ -78,13 +78,14 @@
         </div>
       </el-dialog>
       <el-dialog title="执行记录" :visible.sync="executiveLoggingVisible">
-        <el-table :data="executiveLoggingData">
+        <el-table :data="executiveLoggingData" style="overflow:auto;" height="300">
           <el-table-column prop="script_name" label="脚本名称"></el-table-column>
           <el-table-column property="create_time" label="执行日期"></el-table-column>
           <el-table-column width="300" label="操作">
             <template slot-scope="scope">
-              <el-button size="mini" @click="executiveReport(scope.row)">查看执行报告</el-button>
-              <el-button size="mini" @click="download(scope.row)">下载</el-button>
+              <el-button size="mini" type="primary" plain @click="executiveReport(scope.row)">查看执行报告</el-button>
+              <el-button size="mini" type="primary" plain @click="download(scope.row)">下载</el-button>
+              <el-button size="mini" type="danger" plain @click="deleteReport(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -126,9 +127,28 @@ export default {
     };
   },
   methods: {
+    //删除记录
+    deleteReport(row) {
+      console.log(row);
+      jmx_script_results("delete", { jmx_script_result_id: row.id })
+        .then(response => {
+          this.$message.success(response.message);
+          jmx_script_results("get", { jmx_script_id: this.jmx_id }).then(
+            response => {
+              this.executiveLoggingData = response.data;
+              this.executiveLoggingData.forEach(ele => {
+                ele.script_name = row.script_name;
+              });
+            }
+          );
+        })
+        .catch(error => {
+          this.$message.error(error.message);
+        });
+    },
     //下载jtl文件
-    download(row){
-      window.open(process.env.VUE_APP_BASE_API + row.file.substring(1))
+    download(row) {
+      window.open(process.env.VUE_APP_BASE_API + row.file.substring(1));
     },
     //查看执行报告
     executiveReport(row) {
@@ -145,6 +165,7 @@ export default {
     //查看执行记录
     executiveLogging(row) {
       console.log(row);
+      this.jmx_id = row.id
       this.executiveLoggingVisible = true;
       jmx_script_results("get", { jmx_script_id: row.id }).then(response => {
         this.executiveLoggingData = response.data;
@@ -156,9 +177,11 @@ export default {
     },
     //执行
     runJmxScript(row) {
-      run_jmx_script("post", { id: row.id, project_id: this.project_id }).then(response => {
-        console.log(response);
-      });
+      run_jmx_script("post", { id: row.id, project_id: this.project_id }).then(
+        response => {
+          console.log(response);
+        }
+      );
     },
     //删除脚本
     deleteJmxScript(row) {
