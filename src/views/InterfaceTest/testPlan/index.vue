@@ -114,6 +114,8 @@ export default {
         task_name: "", // 任务名称
         task_status: true, //定时任务
         fromDate: "", // 起始日期
+        timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
+        timingDetails: {}, //定时详情
         interval_time: {
           //间隔时间
           day: 0,

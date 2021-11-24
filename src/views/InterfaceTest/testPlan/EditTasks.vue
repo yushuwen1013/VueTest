@@ -16,7 +16,34 @@
           <el-form-item label="定时任务" label-width="80px" size="small">
             <el-switch v-model="updateForm.task_status"></el-switch>
           </el-form-item>
-          <el-form-item label="起始日期" label-width="80px" size="small">
+          <el-form-item label="定时类型" label-width="80px" size="small">
+            <el-radio-group v-model="updateForm.timer_type">
+              <el-tooltip content="到达设置的执行时间执行一次" placement="bottom" effect="light">
+                <el-radio disabled :label="1">定点执行一次</el-radio>
+              </el-tooltip>
+              <el-tooltip content="根据间隔时间循环执行" placement="bottom" effect="light">
+                <el-radio :label="2">间隔执行</el-radio>
+              </el-tooltip>
+              <el-tooltip placement="bottom" effect="light">
+                <div slot="content">
+                  当前时间与所有指定的时间约束匹配时触发，类似于Linux cron定时任务程序。
+                  <br />month（int | str） - 月（1-12）
+                  <br />day（int | str） - （1-31）日
+                  <br />day_of_week（int | str） - 工作日的数字或名称（0-6或星期一，星期二，星期三，星期四，星期五，星期五，星期日）
+                  <br />hour （int | str） - 小时（0-23）
+                  <br />minute（int | str） - 分钟（0-59）
+                  <br />second（int | str） - second（0-59）
+                </div>
+                <el-radio disabled :label="3">cron</el-radio>
+              </el-tooltip>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item
+            v-show="updateForm.timer_type == 2 || updateForm.timer_type == 3"
+            label="起始日期"
+            label-width="80px"
+            size="small"
+           >
             <template>
               <div class="block">
                 <span class="demonstration"></span>
@@ -31,7 +58,7 @@
               </div>
             </template>
           </el-form-item>
-          <el-form-item label="间隔时间" label-width="80px" size="small">
+          <el-form-item v-show="updateForm.timer_type == 2" label="间隔时间" label-width="80px" size="small">
             <el-input
               v-model.number="updateForm.interval_time.day"
               autocomplete="off"
@@ -64,6 +91,64 @@
             >
               <span slot="suffix">秒</span>
             </el-input>
+          </el-form-item>
+          <el-form-item v-show="updateForm.timer_type == 3" label="执行时间" label-width="80px" size="small">
+            <el-input
+              v-model.number="updateForm.interval_time.day"
+              autocomplete="off"
+              style="width:80px;"
+              @keyup.native="prevent($event, 'day')"
+            >
+              <span slot="suffix">周</span>
+            </el-input>
+            <el-input
+              v-model.number="updateForm.interval_time.day"
+              autocomplete="off"
+              style="width:80px;"
+              @keyup.native="prevent($event, 'day')"
+            >
+              <span slot="suffix">月</span>
+            </el-input>
+            <el-input
+              v-model.number="updateForm.interval_time.day"
+              autocomplete="off"
+              style="width:80px;"
+              @keyup.native="prevent($event, 'day')"
+            >
+              <span slot="suffix">天</span>
+            </el-input>
+            <el-input
+              v-model.number="updateForm.interval_time.hour"
+              autocomplete="off"
+              style="width:80px;margin-left: 10px;"
+              @keyup.native="prevent($event, 'hour')"
+            >
+              <span slot="suffix">时</span>
+            </el-input>
+            <el-input
+              v-model.number="updateForm.interval_time.minute"
+              autocomplete="off"
+              style="width:80px;margin-left: 10px;"
+              @keyup.native="prevent($event, 'minute')"
+            >
+              <span slot="suffix">分</span>
+            </el-input>
+            <el-input
+              v-model.number="updateForm.interval_time.second"
+              autocomplete="off"
+              style="width:80px;margin-left: 10px;"
+              @keyup.native="prevent($event, 'second')"
+            >
+              <span slot="suffix">秒</span>
+            </el-input>
+          </el-form-item>
+          <el-form-item v-show="updateForm.timer_type == 1" label="执行时间" label-width="80px" size="small">
+            <el-date-picker
+              value-format="yyyy-MM-dd HH:mm:ss"
+              v-model="executionTime"
+              type="datetime"
+              placeholder="选择日期时间"
+            ></el-date-picker>
           </el-form-item>
           <el-form-item label="描述" label-width="80px" size="small">
             <!-- <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input> -->
@@ -167,6 +252,8 @@ export default {
   props: ["updateForm"],
   data() {
     return {
+      executionTime: "", //
+      // timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
       filterUseCaseText: "", //过滤业务用例
       filterInterfaceText: "", //过滤单接口用例
       //项目id

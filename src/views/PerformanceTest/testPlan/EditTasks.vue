@@ -93,23 +93,12 @@
         </el-form>
       </div>
     </el-card>
-    <el-card class="box-card" style="float:right;margin-left: 10px;width: 58%;height:700px;">
+    <!-- <el-card class="box-card" style="float:right;margin-left: 10px;width: 58%;height:700px;">
       <div slot="header" class="clearfix">
         <span>请选择用例</span>
       </div>
       <template>
         <el-tabs @tab-click="handleClick" activeName="first">
-          <!-- <el-tab-pane label="单接口用例" name="first">
-            <div
-              @click="slide(item, index)"
-              v-for="(item, index) in wpList"
-              :key="item.id"
-              style="width: 200px; height:40px; line-height: 40px;"
-              :class="{active:active == item.file_name}">
-              <i class="el-icon-folder" style="margin-right: 10px;"></i>
-              {{ item.file_name }}
-            </div>
-          </el-tab-pane>-->
           <el-tab-pane label="单接口用例" name="first">
             <div>
               <el-input placeholder="输入关键字进行过滤" v-model="filterInterfaceText"></el-input>
@@ -154,11 +143,38 @@
           </el-tab-pane>
         </el-tabs>
       </template>
+    </el-card>-->
+    <el-card class="box-card" style="float:right;margin-left: 10px;width: 58%;height:700px;">
+      <div slot="header" class="clearfix">
+        <span>请选择脚本</span>
+      </div>
+      <template>
+        <div>
+          <el-input placeholder="输入关键字进行过滤" v-model="filterUseCaseText"></el-input>
+          <el-tree
+            style="height:500px;overflow:auto;"
+            :data="myUseCaseData"
+            show-checkbox
+            node-key="id"
+            ref="myUseCaseData"
+            :default-expanded-keys="[1]"
+            :filter-node-method="filterUseCaseData"
+          >
+            <span class="custom-tree-node" slot-scope="{ node }">
+              <span class="tmp" :title="node.data.file_name">
+                <i :class="node.data.children ?'el-icon-folder':'el-icon-tickets'"></i>
+                {{ node.data.script_name}}
+              </span>
+            </span>
+          </el-tree>
+        </div>
+      </template>
     </el-card>
   </div>
 </template>
 
 <script>
+import {jmx_script} from "@/api/performanceTesting"
 import { update_task, get_task } from "@/api/interfaceTesting";
 import { get_all_file, get_use_case } from "@/api/interfaceTesting";
 export default {
@@ -301,36 +317,26 @@ export default {
     }
   },
   created() {
-    //获取全部文件接口列表
-    get_all_file({ project_id: this.project_id })
-      .then(response => {
-        console.log(response.data);
-        this.myInterfaceData = response.data.filter(ele => {
-          return ele.children.length > 0;
-        });
-      })
-      .catch(error => {
-        this.$message({
-          message: "获取失败",
-          type: "error"
-        });
-        console.log(error);
-      });
-    //获取用例列表
-    get_use_case({ project_id: this.project_id })
-      .then(response => {
-        console.log(response.data);
-        this.myUseCaseData = response.data.filter(ele=>{
-          return ele.interfaceNumber > 0
-        });
-      })
-      .catch(error => {
-        this.$message({
-          message: "获取失败",
-          type: "error"
-        });
-        console.log(error);
-      });
+    // //获取全部文件接口列表
+    // get_all_file({ project_id: this.project_id })
+    //   .then(response => {
+    //     console.log(response.data);
+    //     this.myInterfaceData = response.data.filter(ele => {
+    //       return ele.children.length > 0;
+    //     });
+    //   })
+    //   .catch(error => {
+    //     this.$message({
+    //       message: "获取失败",
+    //       type: "error"
+    //     });
+    //     console.log(error);
+    //   });
+    //获取脚本列表
+    jmx_script("get", { project_id: this.project_id }).then(response => {
+      console.log(response);
+      this.myUseCaseData = response.data;
+    });
   },
   watch: {
     filterInterfaceText(val) {
