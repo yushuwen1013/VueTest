@@ -268,6 +268,7 @@ export function delete_extract_parameter(data) {
 //新增或更新任务
 export function update_task(data) {
   return request({
+    baseURL: process.env.VUE_APP_BASE_API_TIMED_TASK,
     url: '/request/update_task',
     method: 'post',
     data
@@ -288,6 +289,7 @@ export function get_task(data) {
 //删除任务
 export function delete_task(data) {
   return request({
+    baseURL: process.env.VUE_APP_BASE_API_TIMED_TASK,
     url: '/request/delete_task',
     method: 'post',
     data
@@ -297,6 +299,7 @@ export function delete_task(data) {
 //执行任务
 export function execute_task(data) {
   return request({
+    baseURL: process.env.VUE_APP_BASE_API_TIMED_TASK,
     url: '/request/execute_task',
     method: 'get',
     params: data
@@ -306,6 +309,7 @@ export function execute_task(data) {
 //切换任务状态
 export function switch_stake_state(data) {
   return request({
+    baseURL: process.env.VUE_APP_BASE_API_TIMED_TASK,
     url: '/request/switch_stake_state',
     method: 'get',
     params: data
