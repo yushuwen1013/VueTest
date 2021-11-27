@@ -84,6 +84,7 @@
           <el-table-column width="300" label="操作">
             <template slot-scope="scope">
               <el-button size="mini" type="primary" plain @click="executiveReport(scope.row)">查看执行报告</el-button>
+              <!-- <a :href="download_jtl"></a> -->
               <el-button size="mini" type="primary" plain @click="download(scope.row)">下载</el-button>
               <el-button size="mini" type="danger" plain @click="deleteReport(scope.row)">删除</el-button>
             </template>
@@ -100,6 +101,7 @@ import { getToken } from "@/utils/auth";
 import {
   jmx_script,
   upload_file,
+  dowload_file,
   run_jmx_script,
   jmx_script_results,
   jmx_script_results_report
@@ -107,6 +109,7 @@ import {
 export default {
   data() {
     return {
+      download_jtl: process.env.VUE_APP_BASE_API,
       executiveLoggingData: [], //执行记录数据
       executiveLoggingVisible: false, //执行记录弹窗
       // headers: { Authorization: "JWT " + getToken() },
@@ -148,7 +151,18 @@ export default {
     },
     //下载jtl文件
     download(row) {
-      window.open(process.env.VUE_APP_BASE_API + row.file.substring(1));
+      console.log(row);
+      // dowload_file({file_path: row.file}).then(res=>{
+      //   console.log("sssssssssssssssssssssssss")
+      //  let url = window.URL.createObjectURL(new Blob([res.data]));
+      //     let link = document.createElement("a");
+      //     link.style.display = "none";
+      //     link.href = url;
+      //     link.setAttribute("download", "result.jtl"); //指定下载后的文件名，防跳转
+      //     document.body.appendChild(link);
+      //     link.click();
+      // })
+      window.open(process.env.VUE_APP_BASE_API + "fileUpload/download_file/?file_path=" + row.file);
     },
     //查看执行报告
     executiveReport(row) {
@@ -165,7 +179,7 @@ export default {
     //查看执行记录
     executiveLogging(row) {
       console.log(row);
-      this.jmx_id = row.id
+      this.jmx_id = row.id;
       this.executiveLoggingVisible = true;
       jmx_script_results("get", { jmx_script_id: row.id }).then(response => {
         this.executiveLoggingData = response.data;

@@ -2,11 +2,28 @@ import request from '@/utils/request'
 
 //上传文件
 export function upload_file(method, data) {
-  return request({
-    url: 'fileUpload/upload/',
-    method: method,
-    data
-  })
+  if (method == 'get') {
+    return request({
+      url: 'fileUpload/upload/',
+      method: method,
+      params: data
+    })
+  } else {
+    return request({
+      url: 'fileUpload/upload/',
+      method: method,
+      data
+    })
+  }
+}
+//下载文件
+export function dowload_file(data) {
+    return request({
+      url: 'fileUpload/upload/',
+      method: "get",
+      params: data,
+      responseType: 'blob'
+    })
 }
 
 
@@ -16,7 +33,7 @@ export function jmx_script(method, data) {
     return request({
       url: '/script/jmx_script/',
       method: method,
-      params:data
+      params: data
     })
   } else {
     return request({
