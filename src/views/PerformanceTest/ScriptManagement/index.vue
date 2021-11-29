@@ -27,11 +27,12 @@
         <el-table-column prop="script_name" label="脚本名称"></el-table-column>
         <el-table-column prop="create_time" label="创建时间"></el-table-column>
         <el-table-column prop="description" label="备注"></el-table-column>
-        <el-table-column width="300" label="操作">
+        <el-table-column width="370" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" @click="runJmxScript(scope.row)">执行</el-button>
-            <el-button size="mini" @click="executiveLogging(scope.row)">执行记录</el-button>
-            <el-button size="mini" @click="editJmxScript(scope.row)">编辑</el-button>
+            <el-button size="mini" type="success" plain @click="runJmxScript(scope.row)">执行</el-button>
+            <el-button size="mini" plain @click="executiveLogging(scope.row)">执行记录</el-button>
+            <el-button size="mini" type="primary" plain @click="downloadJmx(scope.row)">下载</el-button>
+            <el-button size="mini" plain @click="editJmxScript(scope.row)">编辑</el-button>
             <el-button size="mini" type="danger" @click="deleteJmxScript(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -130,6 +131,16 @@ export default {
     };
   },
   methods: {
+    //下在jmx脚本
+    downloadJmx(row) {
+      console.log(row);
+      console.log("sssssssss");
+      window.open(
+        process.env.VUE_APP_BASE_API +
+          "fileUpload/download_file/?file_path=/media/" +
+          row.file_path
+      );
+    },
     //删除记录
     deleteReport(row) {
       console.log(row);
@@ -149,7 +160,7 @@ export default {
           this.$message.error(error.message);
         });
     },
-    //下载jtl文件
+    // 下载jtl文件
     download(row) {
       console.log(row);
       // dowload_file({file_path: row.file}).then(res=>{
@@ -162,7 +173,11 @@ export default {
       //     document.body.appendChild(link);
       //     link.click();
       // })
-      window.open(process.env.VUE_APP_BASE_API + "fileUpload/download_file/?file_path=" + row.file);
+      window.open(
+        process.env.VUE_APP_BASE_API +
+          "fileUpload/download_file/?file_path=" +
+          row.file
+      );
     },
     //查看执行报告
     executiveReport(row) {
@@ -170,9 +185,13 @@ export default {
       jmx_script_results_report("get", { jmx_script_result_id: row.id }).then(
         response => {
           console.log(process.env.VUE_APP_BASE_API + response.data);
-          window.open(
-            process.env.VUE_APP_BASE_API + response.data.substring(1)
-          );
+          if (response.data == "脚本执行失败") {
+            this.$message.error(response.data);
+          } else {
+            window.open(
+              process.env.VUE_APP_BASE_API + response.data.substring(1)
+            );
+          }
         }
       );
     },
@@ -240,6 +259,7 @@ export default {
       // 上传文件接口
       upload_file("post", formData)
         .then(res => {
+          console.log(res.data.id, "sssssssssssssssssssssssss");
           this.form.file_id = res.data.id;
           this.$message.success("上传成功");
         })
