@@ -33,7 +33,7 @@
           </el-form-item>
           <el-form-item label="间隔时间" label-width="80px" size="small">
             <el-input
-              v-model.number="updateForm.interval_time.day"
+              v-model.number="updateForm.timingDetails.interval_time.day"
               autocomplete="off"
               style="width:80px;"
               @keyup.native="prevent($event, 'day')"
@@ -41,7 +41,7 @@
               <span slot="suffix">天</span>
             </el-input>
             <el-input
-              v-model.number="updateForm.interval_time.hour"
+              v-model.number="updateForm.timingDetails.interval_time.hour"
               autocomplete="off"
               style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'hour')"
@@ -49,7 +49,7 @@
               <span slot="suffix">时</span>
             </el-input>
             <el-input
-              v-model.number="updateForm.interval_time.minute"
+              v-model.number="updateForm.timingDetails.interval_time.minute"
               autocomplete="off"
               style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'minute')"
@@ -57,7 +57,7 @@
               <span slot="suffix">分</span>
             </el-input>
             <el-input
-              v-model.number="updateForm.interval_time.second"
+              v-model.number="updateForm.timingDetails.interval_time.second"
               autocomplete="off"
               style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'second')"
@@ -197,7 +197,7 @@ export default {
         this.$message.warning("禁止输入小数以及负数");
       }
       if (e.target.value == "") {
-        this.updateForm.interval_time[value] = 0;
+        this.updateForm.timingDetails.interval_time[value] = 0;
       }
     },
     //保存任务
@@ -206,10 +206,10 @@ export default {
       console.log(this.$refs.myUseCaseData.getCheckedNodes());
       // console.log(updateForm);
       if (
-        updateForm.interval_time.day == 0 &&
-        updateForm.interval_time.hour == 0 &&
-        updateForm.interval_time.minute == 0 &&
-        updateForm.interval_time.second < 60
+        updateForm.timingDetails.interval_time.day == 0 &&
+        updateForm.timingDetails.interval_time.hour == 0 &&
+        updateForm.timingDetails.interval_time.minute == 0 &&
+        updateForm.timingDetails.interval_time.second < 60
       ) {
         this.$message({
           message: "间隔时间不能小于1分钟",
@@ -237,7 +237,7 @@ export default {
             task_name: updateForm.task_name, //任务名称Str
             task_status: updateForm.task_status, //任务状态
             fromDate: updateForm.fromDate == null ? [] : updateForm.fromDate, //起始日期
-            interval_time: updateForm.interval_time, //间隔时间Str
+            interval_time: updateForm.timingDetails.interval_time, //间隔时间Str
             description: updateForm.description, //描述Str
             sendmailStatus: updateForm.sendmailStatus, //发送邮件状态
             mail_address: updateForm.mail_address, //邮箱地址

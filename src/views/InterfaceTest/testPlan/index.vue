@@ -34,12 +34,25 @@
         :header-cell-style="{background:'#DCDFE6',color:'#303133'}"
       >
         <el-table-column :show-overflow-tooltip="true" prop="task_name" label="任务名称"></el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="fromDate" label="起始日期">
+        <el-table-column :show-overflow-tooltip="true" prop="timer_type" label="定时类型">
+          <template slot-scope="scope">
+            <span v-show="scope.row.timer_type == 1?true:false">
+              <el-tag>定点执行</el-tag>
+            </span>
+            <span v-show="scope.row.timer_type == 2?true:false">
+              <el-tag>间隔执行</el-tag>
+            </span>
+            <span v-show="scope.row.timer_type == 3?true:false">
+              <el-tag>cron</el-tag>
+            </span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column :show-overflow-tooltip="true" prop="fromDate" label="起始日期">
           <template slot-scope="scope">
             <span>{{scope.row.fromDate.substring(2,21)}}—{{scope.row.fromDate.substring(25,44)}}</span>
           </template>
-        </el-table-column>
-        <el-table-column :show-overflow-tooltip="true" prop="interval_time" label="间隔时间">
+        </el-table-column>-->
+        <!-- <el-table-column :show-overflow-tooltip="true" prop="interval_time" label="间隔时间">
           <template slot-scope="scope">
             <el-tag>
               <span
@@ -56,7 +69,7 @@
               >{{JSON.parse(scope.row.interval_time).second + "秒"}}</span>
             </el-tag>
           </template>
-        </el-table-column>
+        </el-table-column>-->
         <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="create_time" label="创建时间"></el-table-column>
         <el-table-column :show-overflow-tooltip="true" prop="task_status" label="状态" width="70px">
@@ -113,15 +126,17 @@ export default {
       updateForm: {
         task_name: "", // 任务名称
         task_status: true, //定时任务
-        fromDate: "", // 起始日期
         timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
-        timingDetails: {}, //定时详情
-        interval_time: {
-          //间隔时间
-          day: 0,
-          hour: 0,
-          minute: 0,
-          second: 0
+        timingDetails: {
+          //定时详情
+          fromDate: "", // 起始日期
+          interval_time: {
+            //间隔时间
+            day: 0,
+            hour: 0,
+            minute: 0,
+            second: 0
+          }
         },
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
@@ -172,12 +187,19 @@ export default {
       switch_stake_state({
         task_id: row.id,
         task_status: row.task_status
-      }).then(response => {
-        console.log(response);
-        get_task({ project_id: this.project_id }).then(response => {
-          this.taskData = response.data;
+      })
+        .then(response => {
+          console.log(response);
+          get_task({ project_id: this.project_id }).then(response => {
+            this.taskData = response.data;
+          });
+        })
+        .catch(error => {
+          get_task({ project_id: this.project_id }).then(response => {
+            this.taskData = response.data;
+          });
+          this.$message.error(error.message);
         });
-      });
     },
     //删除任务
     deleteTask(index, row) {
@@ -226,15 +248,15 @@ export default {
     },
     //点击编辑
     clickEdit(row) {
-      // console.log(row);
+      console.log(row);
       // console.log(JSON.parse(row.business_case));
       // 编辑任务的表单
       this.updateForm = {
         id: row.id, // 任务id
         task_name: row.task_name, // 任务名称
         task_status: row.task_status, //定时任务
-        fromDate: JSON.parse(row.fromDate), // 起始日期
-        interval_time: JSON.parse(row.interval_time),
+        timingDetails: row.timing_details, //定时详情
+        timer_type: row.timer_type, //定时类型
         description: row.description, // 描述
         sendmailStatus: JSON.parse(row.sendmailStatus), //发送邮件1-是，2-否，3-失败时发送
         mailAddress: row.mail_address, //邮件地址
@@ -242,7 +264,44 @@ export default {
         interface_case: JSON.parse(row.interface_case), //选中的接口用例
         project_id: localStorage.getItem("project_id") // 项目id
       };
-      // console.log(this.updateForm, "父组件的form");
+      if (this.updateForm.timer_type == 1) {
+        this.updateForm.timingDetails.fromDate = "";
+        this.updateForm.timingDetails.interval_time = {
+          //间隔时间
+          day: 0,
+          hour: 0,
+          minute: 0,
+          second: 0
+        };
+        this.updateForm.cron_expression = "";
+      } else if (this.updateForm.timer_type == 2) {
+        this.updateForm.cron_expression = "";
+        this.executionTime = "";
+      } else if (this.updateForm.timer_type == 3) {
+        this.updateForm.timingDetails.fromDate = "";
+        this.updateForm.timingDetails.interval_time = {
+          //间隔时间
+          day: 0,
+          hour: 0,
+          minute: 0,
+          second: 0
+        };
+        this.executionTime = "";
+      }
+      // !this.updateForm.timingDetails.fromDate
+      //   ? this.updateForm.timingDetails.fromDate
+      //   : "";
+      // !this.updateForm.timingDetails.interval_time
+      //   ? this.updateForm.timingDetails.interval_time
+      //   : {
+      //       //间隔时间
+      //       day: 0,
+      //       hour: 0,
+      //       minute: 0,
+      //       second: 0
+      //     };
+      // this.updateForm.cron_expression = "";
+      console.log(this.updateForm, "父组件的form");
       //显示编辑任务面板
       this.isShowEditTasks = true;
       //最后在执行
