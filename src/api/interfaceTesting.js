@@ -54,6 +54,33 @@ export function delete_environment_configuration(data) {
   })
 }
 
+//更新或添加数据库
+export function update_db(data) {
+  return request({
+    url: '/request/update_db',
+    method: 'post',
+    data
+  })
+}
+
+//获取数据库列表
+export function get_db(data) {
+  return request({
+    url: '/request/get_db',
+    method: 'get',
+    params: data
+  })
+}
+
+//删除数据库
+export function delete_db(data) {
+  return request({
+    url: '/request/delete_db',
+    method: 'post',
+    data
+  })
+}
+
 // 接口调试
 export function request_debug(data) {
   return request({
