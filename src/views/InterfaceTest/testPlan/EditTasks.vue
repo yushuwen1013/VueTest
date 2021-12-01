@@ -52,7 +52,7 @@
                 <span class="demonstration"></span>
                 <el-date-picker
                   value-format="yyyy-MM-dd HH:mm:ss"
-                  v-model="updateForm.timingDetails.fromDate"
+                  v-model="fromDate"
                   type="datetimerange"
                   range-separator="至"
                   start-placeholder="开始日期"
@@ -68,7 +68,7 @@
             size="small"
           >
             <el-input
-              v-model.number="updateForm.timingDetails.interval_time.day"
+              v-model.number="interval_time.day"
               autocomplete="off"
               style="width:80px;"
               @keyup.native="prevent($event, 'day')"
@@ -76,7 +76,7 @@
               <span slot="suffix">天</span>
             </el-input>
             <el-input
-              v-model.number="updateForm.timingDetails.interval_time.hour"
+              v-model.number="interval_time.hour"
               autocomplete="off"
               style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'hour')"
@@ -84,7 +84,7 @@
               <span slot="suffix">时</span>
             </el-input>
             <el-input
-              v-model.number="updateForm.timingDetails.interval_time.minute"
+              v-model.number="interval_time.minute"
               autocomplete="off"
               style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'minute')"
@@ -92,7 +92,7 @@
               <span slot="suffix">分</span>
             </el-input>
             <el-input
-              v-model.number="updateForm.timingDetails.interval_time.second"
+              v-model.number="interval_time.second"
               autocomplete="off"
               style="width:80px;margin-left: 10px;"
               @keyup.native="prevent($event, 'second')"
@@ -100,72 +100,13 @@
               <span slot="suffix">秒</span>
             </el-input>
           </el-form-item>
-          <!-- <el-form-item
-            v-show="updateForm.timer_type == 3"
-            label="执行时间"
-            label-width="80px"
-            size="small"
-           >
-            <el-input
-              v-model.number="updateForm.timingDetails.cron_time.day_of_week"
-              autocomplete="off"
-              style="width:80px;"
-              @keyup.native="prevent($event, 'day_of_week')"
-            >
-              <span slot="suffix">周</span>
-            </el-input>
-            <el-input
-              v-model.number="updateForm.timingDetails.interval_time.month"
-              autocomplete="off"
-              style="width:80px;"
-              @keyup.native="prevent($event, 'month')"
-            >
-              <span slot="suffix">月</span>
-            </el-input>
-            <el-input
-              v-model.number="updateForm.timingDetails.interval_time.day"
-              autocomplete="off"
-              style="width:80px;"
-              @keyup.native="prevent($event, 'day')"
-            >
-              <span slot="suffix">天</span>
-            </el-input>
-            <el-input
-              v-model.number="updateForm.timingDetails.interval_time.hour"
-              autocomplete="off"
-              style="width:80px;margin-left: 10px;"
-              @keyup.native="prevent($event, 'hour')"
-            >
-              <span slot="suffix">时</span>
-            </el-input>
-            <el-input
-              v-model.number="updateForm.timingDetails.interval_time.minute"
-              autocomplete="off"
-              style="width:80px;margin-left: 10px;"
-              @keyup.native="prevent($event, 'minute')"
-            >
-              <span slot="suffix">分</span>
-            </el-input>
-            <el-input
-              v-model.number="updateForm.timingDetails.interval_time.second"
-              autocomplete="off"
-              style="width:80px;margin-left: 10px;"
-              @keyup.native="prevent($event, 'second')"
-            >
-              <span slot="suffix">秒</span>
-            </el-input>
-          </el-form-item>-->
           <el-form-item
             v-show="updateForm.timer_type == 3"
             label="cron表达式"
             label-width="90px"
             size="small"
           >
-            <el-input
-              v-model="updateForm.timingDetails.cron_expression"
-              autocomplete="off"
-              placeholder="请输入cron表达式"
-            ></el-input>
+            <el-input v-model="cron_expression" autocomplete="off" placeholder="请输入cron表达式"></el-input>
           </el-form-item>
           <el-form-item
             v-show="updateForm.timer_type == 1"
@@ -175,7 +116,7 @@
           >
             <el-date-picker
               value-format="yyyy-MM-dd HH:mm:ss"
-              v-model="updateForm.timingDetails.executionTime"
+              v-model="executionTime"
               type="datetime"
               placeholder="选择日期时间"
             ></el-date-picker>
@@ -282,6 +223,17 @@ export default {
   props: ["updateForm"],
   data() {
     return {
+      executionTime: "",
+      cron_expression: "",
+      //间隔时间
+      interval_time: {
+        //间隔时间
+        day: 0,
+        hour: 0,
+        minute: 0,
+        second: 0
+      },
+      fromDate: "",
       // timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
       filterUseCaseText: "", //过滤业务用例
       filterInterfaceText: "", //过滤单接口用例
@@ -293,8 +245,10 @@ export default {
   },
   methods: {
     //跳转帮助
-    help(){
-      window.open("http://note.youdao.com/noteshare?id=c6290ca3b7c22996847de66d5f0a6e60&sub=571EBF4ADEB3489D835FD3099D55E479")
+    help() {
+      window.open(
+        "http://note.youdao.com/noteshare?id=c6290ca3b7c22996847de66d5f0a6e60&sub=571EBF4ADEB3489D835FD3099D55E479"
+      );
     },
     // 停止拖拽时节点可放置的位置
     allowDrop(moveNode, inNode, type) {
@@ -322,8 +276,11 @@ export default {
         this.$message.warning("禁止输入小数以及负数");
       }
       if (e.target.value == "") {
-        this.updateForm.timingDetails.interval_time[value] = 0;
+        this.interval_time[value] = 0;
       }
+    },
+    save(updateForm) {
+      console.log(updateForm);
     },
     //保存任务
     save(updateForm) {
@@ -332,10 +289,10 @@ export default {
       // console.log(updateForm);
       if (
         updateForm.timer_type == 2 &&
-        updateForm.timingDetails.interval_time.day == 0 &&
-        updateForm.timingDetails.interval_time.hour == 0 &&
-        updateForm.timingDetails.interval_time.minute == 0 &&
-        updateForm.timingDetails.interval_time.second < 60
+        this.interval_time.day == 0 &&
+        this.interval_time.hour == 0 &&
+        this.interval_time.minute == 0 &&
+        this.interval_time.second < 60
       ) {
         this.$message({
           message: "间隔时间不能小于1分钟",
@@ -358,7 +315,6 @@ export default {
             type: "error"
           });
         } else {
-          console.log(updateForm, "updateForm.fromDate");
           const request_data = {
             task_name: updateForm.task_name, //任务名称Str
             task_status: updateForm.task_status, //任务状态
@@ -376,17 +332,16 @@ export default {
           }
           if (request_data.timer_type == 2) {
             request_data.timing_details = {
-              fromDate: updateForm.fromDate == null ? [] : updateForm.fromDate, //起始日期
-              interval_time: updateForm.timingDetails.interval_time //间隔时间Str
+              fromDate:this.fromDate == null ? [] : this.fromDate, //起始日期
+              interval_time: this.interval_time //间隔时间Str
             };
           } else if (request_data.timer_type == 1) {
             request_data.timing_details = {
-              executionTime: updateForm.timingDetails.executionTime //执行时间
+              executionTime: this.executionTime //执行时间
             };
           } else if (request_data.timer_type == 3) {
             request_data.timing_details = {
-              // fromDate: updateForm.fromDate == null ? [] : updateForm.fromDate, //起始日期
-              cron_expression: updateForm.timingDetails.cron_expression //执行时间
+              cron_expression: this.cron_expression //执行时间
             };
           }
           console.log(request_data);
@@ -431,7 +386,7 @@ export default {
     //返回
     back() {
       this.$parent.isShowEditTasks = false;
-      this.$parent.updateForm = {
+      this.$parent.updateForm =  {
         task_name: "", // 任务名称
         task_status: true, //定时任务
         timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
@@ -441,10 +396,12 @@ export default {
           interval_time: {
             //间隔时间
             day: 0,
-            hour: 0,
+            hour: 1,
             minute: 0,
             second: 0
-          }
+          },
+          executionTime: "",
+          cron_expression: "* * 1 * * * *",
         },
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
@@ -487,6 +444,11 @@ export default {
           console.log(error);
         });
       console.log("我要选中啦", this.updateForm);
+      this.interval_time = this.updateForm.timingDetails.interval_time;
+      this.fromDate = this.updateForm.timingDetails.fromDate;
+      this.executionTime =  this.updateForm.timingDetails.executionTime;
+      this.cron_expression = this.updateForm.timingDetails.cron_expression;
+      console.log(this.interval_time, this.fromDate);
       //选中接口用例
       this.$refs.myInterfaceData.setCheckedKeys(this.updateForm.interface_case);
       //选中业务用例

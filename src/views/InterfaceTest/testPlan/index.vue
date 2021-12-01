@@ -133,10 +133,12 @@ export default {
           interval_time: {
             //间隔时间
             day: 0,
-            hour: 0,
+            hour: 1,
             minute: 0,
             second: 0
-          }
+          },
+          executionTime: "",
+          cron_expression: "* * 1 * * * *",
         },
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
@@ -248,8 +250,7 @@ export default {
     },
     //点击编辑
     clickEdit(row) {
-      console.log(row);
-      // console.log(JSON.parse(row.business_case));
+      console.log(row, "ssssssssss");
       // 编辑任务的表单
       this.updateForm = {
         id: row.id, // 任务id
@@ -269,43 +270,30 @@ export default {
         this.updateForm.timingDetails.interval_time = {
           //间隔时间
           day: 0,
-          hour: 0,
+          hour: 1,
           minute: 0,
           second: 0
         };
-        this.updateForm.cron_expression = "";
+        this.updateForm.timingDetails.cron_expression = "* * 1 * * * *";
       } else if (this.updateForm.timer_type == 2) {
-        this.updateForm.cron_expression = "";
+        this.updateForm.timingDetails.cron_expression = "* * 1 * * * *";
         this.executionTime = "";
       } else if (this.updateForm.timer_type == 3) {
         this.updateForm.timingDetails.fromDate = "";
         this.updateForm.timingDetails.interval_time = {
           //间隔时间
           day: 0,
-          hour: 0,
+          hour: 1,
           minute: 0,
           second: 0
         };
-        this.executionTime = "";
+        this.updateForm.timingDetails.executionTime = "";
       }
-      // !this.updateForm.timingDetails.fromDate
-      //   ? this.updateForm.timingDetails.fromDate
-      //   : "";
-      // !this.updateForm.timingDetails.interval_time
-      //   ? this.updateForm.timingDetails.interval_time
-      //   : {
-      //       //间隔时间
-      //       day: 0,
-      //       hour: 0,
-      //       minute: 0,
-      //       second: 0
-      //     };
-      // this.updateForm.cron_expression = "";
       console.log(this.updateForm, "父组件的form");
-      //显示编辑任务面板
-      this.isShowEditTasks = true;
       //最后在执行
       this.$nextTick(() => {
+        //显示编辑任务面板
+        this.isShowEditTasks = true;
         //调用子组件EditTasks的选中用例方法
         this.$refs.EditTasks.selectedInterface();
       });
