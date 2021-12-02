@@ -149,6 +149,11 @@
             </el-table>
           </template>
         </el-tab-pane>
+        <!-- 数据库断言 -->
+        <el-tab-pane  v-if="isEnvironment"  label="数据库断言">
+          <!-- <b-ace-editor v-model="pythonData" lang="javascript" width="100%" height="250"></b-ace-editor> -->
+          <Coder/>
+        </el-tab-pane>
       </el-tabs>
     </el-form>
     <div style="margin-top: 55px;">
@@ -194,6 +199,7 @@
 </template>
 
 <script>
+import Coder from "./Coder"
 import vueJsonEditor from "vue-json-editor";
 import {
   request_debug,
@@ -205,7 +211,7 @@ import Response from "./Response";
 import Tables from "./Tables";
 import { createNamespacedHelpers } from "vuex";
 export default {
-  components: { vueJsonEditor, Response, Tables },
+  components: { vueJsonEditor, Response, Tables, Coder },
   data() {
     //不为空的表单校验
     const notNull = (rule, value, callback) => {
@@ -217,6 +223,8 @@ export default {
       }
     };
     return {
+      //python脚本
+      pythonData: ``,
       //参数提取表单
       extraction_details: [
         {

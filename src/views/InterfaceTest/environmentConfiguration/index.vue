@@ -15,16 +15,9 @@
       </p>
     </div>
     <div>
-      <el-form
-        :inline="true"
-        class="demo-form-inline"
-        style="margin-left: 35px"
-      >
+      <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px">
         <el-form-item label="环境名称">
-          <el-input
-            v-model="seareEnvironment_name"
-            placeholder="请输入环境名称"
-          ></el-input>
+          <el-input v-model="seareEnvironment_name" placeholder="请输入环境名称"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="inquire">查询</el-button>
@@ -35,8 +28,7 @@
           type="primary"
           icon="el-icon-plus"
           @click="dialogFormVisible = true"
-          >添加</el-button
-        >
+        >添加</el-button>
       </el-form>
       <el-table
         height="600"
@@ -46,35 +38,14 @@
         style="width: 100%; left: 20px"
         :header-cell-style="{ background: '#DCDFE6', color: '#303133' }"
       >
-        <el-table-column
-          :show-overflow-tooltip="true"
-          prop="environment_name"
-          label="环境名称"
-        ></el-table-column>
-        <el-table-column
-          :show-overflow-tooltip="true"
-          prop="environment_url"
-          label="环境地址"
-        ></el-table-column>
-        <el-table-column
-          :show-overflow-tooltip="true"
-          prop="description"
-          label="描述"
-        ></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="environment_name" label="环境名称"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="environment_url" label="环境地址"></el-table-column>
+        <el-table-column :show-overflow-tooltip="true" prop="description" label="描述"></el-table-column>
         <el-table-column width="300" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="dbConfig(scope.row)"
-              >配置数据库</el-button
-            >
-            <el-button size="mini" @click="clickEdit(scope.row)"
-              >编辑</el-button
-            >
-            <el-button
-              size="mini"
-              type="danger"
-              @click="deleteVariable(scope.$index, scope.row)"
-              >删除</el-button
-            >
+            <el-button size="mini" type="primary" @click="dbConfig(scope.row)">配置数据库</el-button>
+            <el-button size="mini" @click="clickEdit(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="deleteVariable(scope.$index, scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -88,31 +59,18 @@
         :page-size="pagesize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="tableData.length"
-        >//这是显示总共有多少数据，</el-pagination
-      >
+      >//这是显示总共有多少数据，</el-pagination>
     </div>
     <el-dialog title="环境配置" :visible.sync="dialogFormVisible" width="40%">
       <el-form :model="updateForm">
         <el-form-item label="环境名称" label-width="80px">
-          <el-input
-            v-model="updateForm.environment_name"
-            autocomplete="off"
-            placeholder="请输入环境名称"
-          ></el-input>
+          <el-input v-model="updateForm.environment_name" autocomplete="off" placeholder="请输入环境名称"></el-input>
         </el-form-item>
         <el-form-item label="环境地址" label-width="80px">
-          <el-input
-            v-model="updateForm.environment_url"
-            autocomplete="off"
-            placeholder="请输入环境地址"
-          ></el-input>
+          <el-input v-model="updateForm.environment_url" autocomplete="off" placeholder="请输入环境地址"></el-input>
         </el-form-item>
         <el-form-item label="描述" label-width="80px">
-          <el-input
-            v-model="updateForm.description"
-            autocomplete="off"
-            placeholder="请输入描述"
-          ></el-input>
+          <el-input v-model="updateForm.description" autocomplete="off" placeholder="请输入描述"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -121,12 +79,7 @@
       </div>
     </el-dialog>
     <el-dialog title="配置数据库" width="65%" :visible.sync="dbTableVisible">
-      <el-dialog
-        width="30%"
-        title="添加数据库"
-        :visible.sync="dbEditVisible"
-        append-to-body
-      >
+      <el-dialog width="30%" title="添加数据库" :visible.sync="dbEditVisible" append-to-body>
         <el-form
           style="margin-right: 20px"
           :model="dbForm"
@@ -154,16 +107,14 @@
             <el-input v-model="dbForm.user"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="pwd">
-            <el-input v-model="dbForm.pwd"></el-input>
+            <el-input v-model="dbForm.pwd" show-password></el-input>
           </el-form-item>
           <el-form-item label="数据库名" prop="db_name">
             <el-input v-model="dbForm.db_name"></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submitForm('dbForm')"
-              >立即创建</el-button
-            >
-            <el-button @click="resetForm('dbForm')">重置</el-button>
+            <el-button type="primary" @click="submitForm('dbForm')">确定</el-button>
+            <el-button type="primary" @click="dbEditVisible = false">取消</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -171,22 +122,16 @@
         <el-table-column prop="name" label="引用名称"></el-table-column>
         <el-table-column prop="db_type" label="数据库类型"></el-table-column>
         <el-table-column prop="host" label="ip"></el-table-column>
-        <el-table-column prop="port" label="端口" width="50"></el-table-column>
+        <el-table-column prop="port" label="端口"></el-table-column>
         <el-table-column prop="user" label="用户名"></el-table-column>
         <el-table-column prop="db_name" label="数据库名"></el-table-column>
-        <el-table-column width="225" label="操作">
+        <el-table-column label="操作">
           <template slot="header">
-            <el-button size="mini" type="primary" @click="addDB"
-              >添加数据库</el-button
-            >
+            <el-button size="mini" type="primary" @click="addDB">添加数据库</el-button>
           </template>
           <template slot-scope="scope">
-            <el-button size="mini" @click="clickEdit(scope.row)"
-              >编辑</el-button
-            >
-            <el-button size="mini" type="danger" @click="deleteDB(scope.row)"
-              >删除</el-button
-            >
+            <el-button size="mini" @click="editDB(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="deleteDB(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -199,7 +144,7 @@ import { update_db, get_db, delete_db } from "@/api/interfaceTesting";
 import {
   update_environment_configuration,
   get_environment_configuration,
-  delete_environment_configuration,
+  delete_environment_configuration
 } from "@/api/interfaceTesting";
 export default {
   data() {
@@ -212,90 +157,96 @@ export default {
         port: "",
         user: "",
         pwd: "",
-        db_name: "",
+        db_name: ""
       },
       rules: {
         //添加数据库的校验规则
         name: [
-          { required: true, message: "请输入引用名称", trigger: "blur" },
+          { required: true, message: "请输入引用名称", trigger: "blur" }
           // { min: 3, max: 5, message: "长度在 3 到 5 个字符", trigger: "blur" }
         ],
         db_type: [
-          { required: true, message: "请选择数据库类型", trigger: "change" },
+          { required: true, message: "请选择数据库类型", trigger: "change" }
         ],
         host: [{ required: true, message: "请输入ip", trigger: "blur" }],
         port: [{ required: true, message: "请输入端口", trigger: "blur" }],
         user: [{ required: true, message: "请输入用户名", trigger: "blur" }],
         pwd: [{ required: true, message: "请输入密码", trigger: "blur" }],
         db_name: [
-          { required: true, message: "请数据数据库名", trigger: "blur" },
-        ],
+          { required: true, message: "请数据数据库名", trigger: "blur" }
+        ]
       },
       dbEditVisible: false, // 数据库编辑弹窗
       dbTableVisible: false, // 数据库表格弹窗
-      dbTableData: [
-        // 数据库表格的数据
-        // {
-        //   name: "MySQL的一个库",
-        //   db_type: "mysql",
-        //   host:"127.0.0.1",
-        //   port:3306,
-        //   user: "root",
-        //   pwd: "123456",
-        //   db_name: "sys"
-        // }
-      ],
+      dbTableData: [], //数据库表格
       project_id: localStorage.getItem("project_id"), //项目id
       updateForm: {
+        //更新环境信息表单
         environment_name: "",
         environment_url: "",
         description: "",
-        project_id: localStorage.getItem("project_id"),
+        project_id: localStorage.getItem("project_id")
       },
       dialogFormVisible: false, //添加或编辑弹窗
       currentPage: 1, //初始页
       pagesize: 10, //    每页的数据
       tableData: [],
-      seareEnvironment_name: "", //搜索框的值
+      seareEnvironment_name: "" //搜索框的值
     };
   },
   methods: {
+    //编辑数据库
+    editDB(row) {
+      console.log(row)
+      this.dbForm = row;
+      this.dbEditVisible = true;
+    },
     //删除数据库
     deleteDB(row) {
       delete_db({ id: row.id })
-        .then((res) => {
+        .then(res => {
           this.$message.success(res.message);
           get_db({ environment_id: this.dbForm.environment_id }).then(
-            (response) => {
+            response => {
               this.dbTableData = response.data;
             }
           );
         })
-        .catch((error) => {
+        .catch(error => {
           this.$message.error(error.message);
         });
     },
     //添加数据库
     addDB() {
+      this.dbForm = {
+        //添加数据库表单
+        name: "",
+        db_type: "mysql",
+        host: "",
+        port: "",
+        user: "",
+        pwd: "",
+        db_name: ""
+      };
       this.dbEditVisible = true;
     },
     //确定添加
     submitForm(formName) {
       console.log(formName);
-      this.$refs[formName].validate((valid) => {
+      this.$refs[formName].validate(valid => {
         if (valid) {
           // alert("submit!");
           update_db(this.dbForm)
-            .then((res) => {
+            .then(res => {
               this.$message.success(res.message);
-              this.dbEditVisible = false;
               get_db({ environment_id: this.dbForm.environment_id }).then(
-                (response) => {
+                response => {
                   this.dbTableData = response.data;
                 }
               );
+              this.dbEditVisible = false;
             })
-            .catch((error) => {
+            .catch(error => {
               this.$message.error(error.message);
             });
         } else {
@@ -304,24 +255,21 @@ export default {
         }
       });
     },
-    //重置添加数据库表单数据
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    },
     //配置数据库
     dbConfig(row) {
       this.dbForm.environment_id = row.id;
-      get_db({ environment_id: row.id }).then((response) => {
+      console.log(this.dbForm)
+      get_db({ environment_id: row.id }).then(response => {
         this.dbTableData = response.data;
       });
       this.dbTableVisible = true;
     },
     //初始页currentPage、初始每页数据数pagesize和数据data
-    handleSizeChange: function (size) {
+    handleSizeChange: function(size) {
       this.pagesize = size;
       console.log(this.pagesize); //每页下拉显示数据
     },
-    handleCurrentChange: function (currentPage) {
+    handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
     },
@@ -331,36 +279,36 @@ export default {
       this.$confirm("此操作将永久删除该变量, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
           //删除变量接口
           const id = { id: row.id };
           delete_environment_configuration(id)
-            .then((response) => {
+            .then(response => {
               console.log(response.data);
               get_environment_configuration({
-                project_id: this.project_id,
-              }).then((response) => {
+                project_id: this.project_id
+              }).then(response => {
                 this.tableData = response.data;
               });
             })
-            .catch((error) => {
+            .catch(error => {
               this.$message({
                 message: "删除失败",
-                type: "error",
+                type: "error"
               });
               console.log(error);
             });
           this.$message({
             type: "success",
-            message: "删除成功!",
+            message: "删除成功!"
           });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除",
+            message: "已取消删除"
           });
         });
     },
@@ -372,7 +320,7 @@ export default {
         environment_url: row.environment_url,
         description: row.description,
         project_id: localStorage.getItem("project_id"),
-        id: row.id,
+        id: row.id
       };
     },
     //确定添加变量
@@ -384,13 +332,13 @@ export default {
       ) {
         this.$message({
           message: "名称和地址不能为空",
-          type: "error",
+          type: "error"
         });
       } else {
         update_environment_configuration(this.updateForm)
-          .then((response) => {
+          .then(response => {
             get_environment_configuration({ project_id: this.project_id }).then(
-              (response) => {
+              response => {
                 this.tableData = response.data;
               }
             );
@@ -398,19 +346,19 @@ export default {
               environment_name: "",
               environment_url: "",
               description: "",
-              project_id: localStorage.getItem("project_id"),
+              project_id: localStorage.getItem("project_id")
             };
             this.$message({
               message: response.data,
-              type: "success",
+              type: "success"
             });
             this.dialogFormVisible = false;
           })
-          .catch((error) => {
+          .catch(error => {
             console.log(error);
             this.$message({
               message: error.message,
-              type: "error",
+              type: "error"
             });
             console.log(error);
           });
@@ -420,29 +368,29 @@ export default {
     inquire() {
       const request_data = {
         environment_name: this.seareEnvironment_name,
-        project_id: this.project_id,
+        project_id: this.project_id
       };
-      get_environment_configuration(request_data).then((response) => {
+      get_environment_configuration(request_data).then(response => {
         this.tableData = response.data;
       });
     },
     //重置
     reset() {
       get_environment_configuration({ project_id: this.project_id }).then(
-        (response) => {
+        response => {
           this.tableData = response.data;
           this.seareEnvironment_name = "";
         }
       );
-    },
+    }
   },
   created() {
     get_environment_configuration({ project_id: this.project_id }).then(
-      (response) => {
+      response => {
         this.tableData = response.data;
       }
     );
-  },
+  }
 };
 </script>
 

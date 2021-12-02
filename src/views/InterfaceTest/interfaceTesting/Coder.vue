@@ -1,17 +1,19 @@
 <!-- editor -->
 <template>
-  <AceEditor
-    v-model="value"
-    @init="init"
-    :enableBasicAutocompletion="true"
-    :enableLiveAutocompletion="true"
-    :enableSnippets="true"
-    :options="cmOptions"
-    lang="python"
-    theme="chrome"
-    width="500px"
-    height="500px"
-  />
+  <div>
+    <AceEditor
+      v-model="value"
+      @init="init"
+      :enableBasicAutocompletion="true"
+      :enableLiveAutocompletion="true"
+      :enableSnippets="true"
+      :options="cmOptions"
+      lang="python"
+      theme="chrome"
+      width="100%"
+      height="260px"
+    />
+  </div>
 </template>
 
 <script>
@@ -30,7 +32,9 @@ export default {
     content: {
       type: String,
       required: false,
-      default: () => ""
+      default: () =>
+        `def assert(response):
+    return response`
     },
     readOnly: {
       required: false,
@@ -53,22 +57,22 @@ export default {
       require("brace/ext/language_tools"); //language extension prerequsite...
       require("brace/mode/python");
       require("brace/snippets/python"); //snippet
-      editor.on("change", this.change);
-      editor.commands.addCommand({
-        name: "save",
-        bindKey: { win: "Ctrl-S", mac: "Command-S" },
-        exec: editor => this.$emit("save-change", this.value, editor)
-      });
-      editor.commands.addCommand({
-        name: "formatter",
-        bindKey: { win: "Ctrl-Shift-F", mac: "Command-Shift-F" },
-        exec: () => this.$emit("formatter", this.editor)
-      });
-    },
-    change() {
-      setTimeout(() => {
-        this.$emit("editor-change", this.codeContent_);
-      }, 10);
+      //   editor.on("change", this.change);
+      //   editor.commands.addCommand({
+      //     name: "save",
+      //     bindKey: { win: "Ctrl-S", mac: "Command-S" },
+      //     exec: editor => this.$emit("save-change", this.value, editor)
+      //   });
+      //   editor.commands.addCommand({
+      //     name: "formatter",
+      //     bindKey: { win: "Ctrl-Shift-F", mac: "Command-Shift-F" },
+      //     exec: () => this.$emit("formatter", this.editor)
+      //   });
+      // },
+      // change() {
+      //   setTimeout(() => {
+      //     this.$emit("editor-change", this.codeContent_);
+      //   }, 10);
     }
   },
   computed: {
