@@ -197,7 +197,7 @@ export default {
   methods: {
     //编辑数据库
     editDB(row) {
-      console.log(row)
+      console.log(row);
       this.dbForm = row;
       this.dbEditVisible = true;
     },
@@ -258,7 +258,7 @@ export default {
     //配置数据库
     dbConfig(row) {
       this.dbForm.environment_id = row.id;
-      console.log(this.dbForm)
+      console.log(this.dbForm);
       get_db({ environment_id: row.id }).then(response => {
         this.dbTableData = response.data;
       });
@@ -273,16 +273,20 @@ export default {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
     },
-    //删除变量
+    //删除环境
     deleteVariable(index, row) {
       console.log(index, row);
-      this.$confirm("此操作将永久删除该变量, 是否继续?", "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
+      this.$confirm(
+        "此操作将永久删除该环境以及引用该环境的所有用例, 是否继续?",
+        "提示",
+        {
+          confirmButtonText: "确定",
+          cancelButtonText: "取消",
+          type: "warning"
+        }
+      )
         .then(() => {
-          //删除变量接口
+          //删除环境接口
           const id = { id: row.id };
           delete_environment_configuration(id)
             .then(response => {
@@ -323,7 +327,7 @@ export default {
         id: row.id
       };
     },
-    //确定添加变量
+    //确定添加环境
     addVariable() {
       console.log(this.updateForm);
       if (

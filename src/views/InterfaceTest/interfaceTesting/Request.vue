@@ -150,9 +150,71 @@
           </template>
         </el-tab-pane>
         <!-- 数据库断言 -->
-        <el-tab-pane  v-if="isEnvironment"  label="数据库断言">
+        <el-tab-pane v-if="isEnvironment" label="数据库断言">
           <!-- <b-ace-editor v-model="pythonData" lang="javascript" width="100%" height="250"></b-ace-editor> -->
-          <Coder/>
+          <!-- <Coder/> -->
+          <template height="250">
+            <el-table :data="dbAssertData" style="width: 100%">
+              <el-table-column label="数据库" width="200" align="center">
+                <template slot-scope="scope">
+                  <el-select v-model="scope.row.name" placeholder="请选择数据库">
+                    <el-option label="响应文本（正则）" :value="1"></el-option>
+                    <el-option label="响应文本（JSON）" :value="2"></el-option>
+                    <el-option label="响应状态码" :value="3"></el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="SQL" align="center">
+                <template slot-scope="scope">
+                  <el-input
+                    :disabled="scope.row.assertType==3?true:false"
+                    placeholder="请输入SQL"
+                    v-model="scope.row.sql"
+                    clearable
+                  ></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="字段名" align="center">
+                <template slot-scope="scope">
+                  <el-input placeholder="请输入字段名" v-model="scope.row.field_name" clearable></el-input>
+                </template>
+              </el-table-column>
+              <el-table-column label="期望关系" width="200" align="center">
+                <template slot-scope="scope">
+                  <el-select
+                    :disabled="scope.row.assertType == 3? true: false"
+                    v-model="scope.row.relation"
+                    placeholder="请选择断言类型"
+                  >
+                    <el-option label="包含" :value="1"></el-option>
+                    <el-option label="匹配" :value="2"></el-option>
+                  </el-select>
+                </template>
+              </el-table-column>
+              <el-table-column label="期望值" align="center">
+                <template slot-scope="scope">
+                  <el-input placeholder="请输入期望值" v-model="scope.row.expectancyValue" clearable></el-input>
+                </template>
+              </el-table-column>
+              <slot></slot>
+              <el-table-column fixed="right" width="125" align="center">
+                <template slot="header" slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="addRow(scope.$index, assertData)"
+                    type="primary"
+                    size="medium"
+                  >添加</el-button>
+                </template>
+                <template slot-scope="scope">
+                  <el-button
+                    @click.native.prevent="deleteRow(scope.$index, assertData)"
+                    type="text"
+                    size="medium"
+                  >移除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
         </el-tab-pane>
       </el-tabs>
     </el-form>
@@ -199,9 +261,10 @@
 </template>
 
 <script>
-import Coder from "./Coder"
+import Coder from "./Coder";
 import vueJsonEditor from "vue-json-editor";
 import {
+  get_db,
   request_debug,
   get_file_list,
   update_request,
@@ -262,10 +325,27 @@ export default {
           relation: ""
         }
       ],
+      //数据库断言表单
+      dbAssertData: [
+        {
+          //数据库引用名称
+          name: "",
+          //断言提取表达式
+          sql: "",
+          //字段名
+          field_name: "",
+          //期望值
+          expectancyValue: "",
+          //关系
+          relation: ""
+        }
+      ],
       //项目id
       project_id: localStorage.getItem("project_id"),
       //环境选项
       environment_options: [],
+      //数据库选项
+      db_options: [],
       //请求数据状态码 1是params,2是Json
       dataStateCode: 2,
       //:rules: rules表单规则校验
@@ -462,16 +542,16 @@ export default {
               this.responseData.response_headers = JSON.stringify(
                 this.responseData.response_headers
               );
-              if(this.responseData.response_code == 200){
+              if (this.responseData.response_code == 200) {
                 this.$message({
-                message: response.message,
-                type: "success"
-              });
-              }else{
+                  message: response.message,
+                  type: "success"
+                });
+              } else {
                 this.$message({
-                message: response.message,
-                type: "error"
-              });
+                  message: response.message,
+                  type: "error"
+                });
               }
             })
             .catch(error => {
@@ -592,7 +672,7 @@ export default {
               this.responseData.response_headers
             );
             request_data.extraction_result = this.responseData.extraction_result;
-            request_data.assert_result = this.responseData.assert_result,
+            (request_data.assert_result = this.responseData.assert_result),
               //发送保存请求
               update_request(request_data)
                 .then(response => {
@@ -634,6 +714,18 @@ export default {
     handleSelectionChange(val) {
       console.log(val);
       this.saveForm.multipleSelection = val;
+    }
+  },
+  watch: {
+    "form.environment"(val) {
+      console.log(val, "environment");
+      if (val) {
+        get_db({ environment_id: val }).then(
+          response => {
+            this.db_options = response.data;
+          }
+        );
+      }
     }
   },
   created() {
