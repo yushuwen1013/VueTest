@@ -154,17 +154,16 @@
         <span>请选择脚本</span>
       </div>
       <template>
-        <el-tabs @tab-click="handleClick" activeName="Jmx">
-         
-          <el-tab-pane label="Jmx脚本" name="Jmx">
+        <el-tabs @tab-click="handleClick" activeName="jmx">
+          <el-tab-pane label="Jmx脚本" name="jmx">
             <div>
               <el-input placeholder="输入关键字进行过滤" v-model="filterUseCaseText"></el-input>
               <el-tree
                 style="height:500px;overflow:auto;"
-                :data="myUseCaseData"
+                :data="myJmxScript"
                 show-checkbox
                 node-key="id"
-                ref="myUseCaseData"
+                ref="myJmxScript"
                 :default-expanded-keys="[1]"
                 :filter-node-method="filterUseCaseData"
                 :draggable="true"
@@ -173,7 +172,7 @@
                 <span class="custom-tree-node" slot-scope="{ node }">
                   <span class="tmp" :title="node.data.file_name">
                     <i :class="node.data.children ?'el-icon-folder':'el-icon-tickets'"></i>
-                    {{ node.data.use_case_name}}
+                    {{ node.data.script_name}}
                   </span>
                 </span>
               </el-tree>
@@ -186,8 +185,9 @@
 </template>
 
 <script>
-import { update_task, get_task } from "@/api/interfaceTesting";
+import { update_task, get_task } from "@/api/performanceTesting";
 import { get_all_file, get_use_case } from "@/api/interfaceTesting";
+import { jmx_script } from "@/api/performanceTesting";
 export default {
   props: ["updateForm"],
   data() {
@@ -208,8 +208,7 @@ export default {
       filterInterfaceText: "", //过滤单接口用例
       //项目id
       project_id: localStorage.getItem("project_id"),
-      myUseCaseData: [], //业务用例数据
-      myInterfaceData: [] //单接口用例数据
+      myJmxScript: [], //业务用例数据
     };
   },
   methods: {
@@ -253,8 +252,7 @@ export default {
     },
     //保存任务
     save(updateForm) {
-      console.log(this.$refs.myInterfaceData.getCheckedNodes());
-      console.log(this.$refs.myUseCaseData.getCheckedNodes());
+      console.log(this.$refs.myJmxScript.getCheckedNodes());
       // console.log(updateForm);
       if (
         updateForm.timer_type == 2 &&
@@ -268,17 +266,11 @@ export default {
           type: "error"
         });
       } else {
-        const interface_case = [];
-        this.$refs.myInterfaceData.getCheckedNodes().forEach(element => {
-          if (!element.children) {
-            interface_case.push(element.id);
-          }
+        const jmx_script = [];
+        this.$refs.myJmxScript.getCheckedNodes().forEach(element => {
+          jmx_script.push(element.id);
         });
-        const business_case = [];
-        this.$refs.myUseCaseData.getCheckedNodes().forEach(element => {
-          business_case.push(element.id);
-        });
-        if (interface_case.length == 0 && business_case.length == 0) {
+        if (jmx_script.length == 0) {
           this.$message({
             message: "用例不能为空,请勾选用例后再保存！",
             type: "error"
@@ -290,8 +282,7 @@ export default {
             description: updateForm.description, //描述Str
             sendmailStatus: updateForm.sendmailStatus, //发送邮件状态
             mail_address: updateForm.mailAddress, //邮箱地址
-            interface_case, //单接口用例数组
-            business_case, //业务用例数组
+            jmx_script, //jmx数组
             project_id: this.$parent.project_id, //项目id
             timer_type: updateForm.timer_type //定时类想
           };
@@ -301,7 +292,7 @@ export default {
           }
           if (request_data.timer_type == 2) {
             request_data.timing_details = {
-              fromDate:this.fromDate == null ? [] : this.fromDate, //起始日期
+              fromDate: this.fromDate == null ? [] : this.fromDate, //起始日期
               interval_time: this.interval_time //间隔时间Str
             };
           } else if (request_data.timer_type == 1) {
@@ -336,26 +327,18 @@ export default {
         }
       }
     },
-    //过滤单接口用例
-    filterInterfaceData(value, data) {
-      if (!value) return true;
-      return data.file_name.indexOf(value) !== -1;
-    },
     //过滤业务用例
     filterUseCaseData(value, data) {
       if (!value) return true;
-      return data.use_case_name.indexOf(value) !== -1;
+      return data.script_name.indexOf(value) !== -1;
     },
-    // slide(item, index) {
-    //   this.active = item.file_name;
-    // },
     handleClick(tab, event) {
       console.log(tab, event);
     },
     //返回
     back() {
       this.$parent.isShowEditTasks = false;
-      this.$parent.updateForm =  {
+      this.$parent.updateForm = {
         task_name: "", // 任务名称
         task_status: true, //定时任务
         timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
@@ -370,66 +353,35 @@ export default {
             second: 0
           },
           executionTime: "",
-          cron_expression: "* * 1 * * * *",
+          cron_expression: "* * 1 * * * *"
         },
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
         mailAddress: "", //邮件地址
-        business_case: [], //选中的业务用例
-        interface_case: [], //选中的接口用例
+        jmx_script: [], //选中的jmx脚本
         project_id: localStorage.getItem("project_id") // 项目id
-      } //任务表单
+      }; //任务表单
     },
-    //选中用例的方法
+    //选中jmx脚本的方法
     selectedInterface() {
-      //获取全部文件接口列表
-      get_all_file({ project_id: this.project_id })
-        .then(response => {
-          console.log(response.data);
-          this.myInterfaceData = response.data.filter(ele => {
-            return ele.children.length > 0;
-          });
-        })
-        .catch(error => {
-          this.$message({
-            message: "获取失败",
-            type: "error"
-          });
-          console.log(error);
-        });
       //获取用例列表
-      get_use_case({ project_id: this.project_id })
-        .then(response => {
-          console.log(response.data);
-          this.myUseCaseData = response.data.filter(ele => {
-            return ele.interfaceNumber > 0;
-          });
-        })
-        .catch(error => {
-          this.$message({
-            message: "获取失败",
-            type: "error"
-          });
-          console.log(error);
-        });
+      jmx_script("get", { project_id: this.project_id }).then(response => {
+        console.log(response);
+        this.myJmxScript = response.data;
+      });
       console.log("我要选中啦", this.updateForm);
       this.interval_time = this.updateForm.timingDetails.interval_time;
       this.fromDate = this.updateForm.timingDetails.fromDate;
-      this.executionTime =  this.updateForm.timingDetails.executionTime;
+      this.executionTime = this.updateForm.timingDetails.executionTime;
       this.cron_expression = this.updateForm.timingDetails.cron_expression;
       console.log(this.interval_time, this.fromDate);
-      //选中接口用例
-      this.$refs.myInterfaceData.setCheckedKeys(this.updateForm.interface_case);
       //选中业务用例
-      this.$refs.myUseCaseData.setCheckedKeys(this.updateForm.business_case);
+      this.$refs.myJmxScript.setCheckedKeys(this.updateForm.jmx_script);
     }
   },
   watch: {
-    filterInterfaceText(val) {
-      this.$refs.myInterfaceData.filter(val);
-    },
     filterUseCaseText(val) {
-      this.$refs.myUseCaseData.filter(val);
+      this.$refs.myJmxScript.filter(val);
     },
     "updateForm.isSendmail": {
       handler(val) {

@@ -100,7 +100,7 @@ import {
   delete_task,
   execute_task,
   switch_stake_state
-} from "@/api/interfaceTesting";
+} from "@/api/performanceTesting";
 export default {
   components: { EditTasks },
   data() {
@@ -245,8 +245,8 @@ export default {
         description: row.description, // 描述
         sendmailStatus: JSON.parse(row.sendmailStatus), //发送邮件1-是，2-否，3-失败时发送
         mailAddress: row.mail_address, //邮件地址
-        business_case: JSON.parse(row.business_case), //选中的业务用例
-        interface_case: JSON.parse(row.interface_case), //选中的接口用例
+        // business_case: JSON.parse(row.business_case), //选中的业务用例
+        jmx_script: JSON.parse(row.jmx_script),
         project_id: localStorage.getItem("project_id") // 项目id
       };
       if (this.updateForm.timer_type == 1) {
