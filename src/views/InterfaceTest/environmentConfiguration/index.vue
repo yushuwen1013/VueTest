@@ -16,13 +16,12 @@
     </div>
     <div>
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px">
-        <el-form-item label="环境名称">
-          <el-input v-model="seareEnvironment_name" placeholder="请输入环境名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="inquire">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-        </el-form-item>
+        <el-input
+          v-model="seareEnvironment_name"
+          placeholder="请输入环境名称"
+          suffix-icon="el-icon-search"
+          style="width:250px"
+        ></el-input>
         <el-button
           style="float: right; margin-bottom: 20px; margin-right: 50px"
           type="primary"
@@ -394,6 +393,18 @@ export default {
         this.tableData = response.data;
       }
     );
+  },
+  watch: {
+    seareEnvironment_name(newVal) {
+      const request_data = {
+        environment_name: this.seareEnvironment_name,
+        project_id: this.project_id
+      };
+      get_environment_configuration(request_data).then(response => {
+        this.tableData = response.data;
+        this.currentPage = 1;
+      });
+    }
   }
 };
 </script>

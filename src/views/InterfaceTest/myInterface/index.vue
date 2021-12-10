@@ -69,13 +69,12 @@
                       class="demo-form-inline"
                       style="margin-left: 10px; padding-top: 15px"
                     >
-                      <el-form-item label="接口名称">
-                        <el-input v-model="seareRequestName" placeholder="请输入接口名称"></el-input>
-                      </el-form-item>
-                      <el-form-item>
-                        <el-button type="primary" size="small" @click="inquire">查询</el-button>
-                        <el-button type="primary" size="small" @click="reset">重置</el-button>
-                      </el-form-item>
+                      <el-input
+                        v-model="seareRequestName"
+                        placeholder="请输入接口名称"
+                        suffix-icon="el-icon-search"
+                        style="width:250px"
+                      ></el-input>
                       <el-button
                         style="
                           float: right;
@@ -260,30 +259,6 @@ export default {
     };
   },
   methods: {
-    //查询
-    inquire() {
-      get_request_list({
-        file_id: this.file_id,
-        request_name: this.seareRequestName
-      })
-        .then(response => {
-          this.tableData = response.data;
-        })
-        .catch(error => {
-          this.$message({
-            message: "查询失败",
-            type: "error"
-          });
-          console.log(error);
-        });
-    },
-    //重置
-    reset() {
-      this.seareRequestName = "";
-      get_request_list({ file_id: this.file_id }).then(response => {
-        this.tableData = response.data;
-      });
-    },
     //添加
     addRequest() {
       this.request_data = {
@@ -496,10 +471,7 @@ export default {
         .then(() => {
           delete_request({ id: row.id })
             .then(response => {
-              this.$message({
-                type: "success",
-                message: "删除成功!"
-              });
+              this.$message.success(response.message);
               const data = { file_id: this.file_id };
               // 获取接口列表
               get_request_list(data).then(response => {
@@ -516,11 +488,7 @@ export default {
               });
             })
             .catch(erro => {
-              console.log(erro);
-              this.$message({
-                type: "error",
-                message: erro
-              });
+              this.$message.error(erro.message);
             });
         })
         .catch(() => {
@@ -641,7 +609,7 @@ export default {
           const id = { id: node.data.id };
           delete_file(id)
             .then(response => {
-              console.log(response.data);
+              this.$message.success(response.message);
               get_file_list({ project_id: this.project_id }).then(response => {
                 this.fileData = response.data;
               });
@@ -654,16 +622,8 @@ export default {
               }, 100);
             })
             .catch(error => {
-              this.$message({
-                message: "删除失败",
-                type: "error"
-              });
-              console.log(error);
+              this.$message.error(error.message);
             });
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
         })
         .catch(() => {
           this.$message({
@@ -718,6 +678,15 @@ export default {
     }, 100);
   },
   watch: {
+    seareRequestName(newVal) {
+      get_request_list({
+        file_id: this.file_id,
+        request_name: this.seareRequestName
+      }).then(response => {
+        this.tableData = response.data;
+        this.currentPage = 1;
+      });
+    },
     file_id(val) {
       console.log(val, "监听");
       const data = { file_id: this.file_id };

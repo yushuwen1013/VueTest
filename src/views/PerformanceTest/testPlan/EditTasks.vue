@@ -157,7 +157,7 @@
         <el-tabs @tab-click="handleClick" activeName="jmx">
           <el-tab-pane label="Jmx脚本" name="jmx">
             <div>
-              <el-input placeholder="输入关键字进行过滤" v-model="filterUseCaseText"></el-input>
+              <el-input placeholder="输入关键字进行过滤" v-model="filterJmxScript"></el-input>
               <el-tree
                 style="height:500px;overflow:auto;"
                 :data="myJmxScript"
@@ -168,6 +168,7 @@
                 :filter-node-method="filterUseCaseData"
                 :draggable="true"
                 :allow-drop="allowDrop"
+                @check-change="handleClick"
               >
                 <span class="custom-tree-node" slot-scope="{ node }">
                   <span class="tmp" :title="node.data.file_name">
@@ -204,11 +205,10 @@ export default {
       },
       fromDate: "",
       // timer_type: 2, //定时任务类型 1：定点执行一次，2：间隔执行 3：cron
-      filterUseCaseText: "", //过滤业务用例
-      filterInterfaceText: "", //过滤单接口用例
+      filterJmxScript: "", //过滤业务用例
       //项目id
       project_id: localStorage.getItem("project_id"),
-      myJmxScript: [], //业务用例数据
+      myJmxScript: [] //业务用例数据
     };
   },
   methods: {
@@ -332,9 +332,16 @@ export default {
       if (!value) return true;
       return data.script_name.indexOf(value) !== -1;
     },
-    handleClick(tab, event) {
-      console.log(tab, event);
+    //选择节点
+    handleClick(data, checked, node) {
+      if (checked) {
+        //关键
+        this.$refs.myJmxScript.setCheckedNodes([data]);
+      }
     },
+    // handleClick(tab, event) { 
+    //   console.log(tab, event);
+    // },
     //返回
     back() {
       this.$parent.isShowEditTasks = false;
@@ -374,13 +381,13 @@ export default {
       this.fromDate = this.updateForm.timingDetails.fromDate;
       this.executionTime = this.updateForm.timingDetails.executionTime;
       this.cron_expression = this.updateForm.timingDetails.cron_expression;
-      console.log(this.interval_time, this.fromDate);
+      console.log(this.interval_time, this.fromDate, "22222222");
       //选中业务用例
       this.$refs.myJmxScript.setCheckedKeys(this.updateForm.jmx_script);
     }
   },
   watch: {
-    filterUseCaseText(val) {
+    filterJmxScript(val) {
       this.$refs.myJmxScript.filter(val);
     },
     "updateForm.isSendmail": {

@@ -9,13 +9,12 @@
     </div>
     <div>
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="变量名称">
-          <el-input v-model="seareVariableKey" placeholder="请输入变量名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" size="small" @click="inquire">查询</el-button>
-          <el-button type="primary" size="small" @click="reset">重置</el-button>
-        </el-form-item>
+        <el-input
+          v-model="seareScriptName"
+          placeholder="请输入脚本名称"
+          suffix-icon="el-icon-search"
+          style="width:250px"
+        ></el-input>
         <el-button
           style="float: right;margin-bottom: 20px;margin-right: 50px;"
           type="primary"
@@ -27,12 +26,13 @@
         <el-table-column prop="script_name" label="脚本名称"></el-table-column>
         <el-table-column prop="create_time" label="创建时间"></el-table-column>
         <el-table-column prop="description" label="备注"></el-table-column>
-        <el-table-column width="370" label="操作">
+        <el-table-column width="500" label="操作">
           <template slot-scope="scope">
             <el-button size="mini" type="success" plain @click="runJmxScript(scope.row)">执行</el-button>
             <el-button size="mini" plain @click="executiveLogging(scope.row)">执行记录</el-button>
             <el-button size="mini" type="primary" plain @click="downloadJmx(scope.row)">下载</el-button>
             <el-button size="mini" plain @click="editJmxScript(scope.row)">编辑</el-button>
+            <el-button size="mini" plain @click="threadAttributes(scope.row)">线程属性</el-button>
             <el-button size="mini" type="danger" @click="deleteJmxScript(scope.row)">删除</el-button>
           </template>
         </el-table-column>
@@ -92,6 +92,30 @@
           </el-table-column>
         </el-table>
       </el-dialog>
+      <el-dialog title="线程属性" :visible.sync="threadVisible">
+        <el-table :data="threadAttributesData" style="overflow:auto;" height="450">
+          <el-table-column property="thread_name" label="线程名称"></el-table-column>
+          <el-table-column property="num_threads" label="线程数">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.num_threads"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column property="ramp_time" label="Ramp-Up时间">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.ramp_time"></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column property="cycle_index" label="循环次数">
+            <template slot-scope="scope">
+              <el-input v-model="scope.row.cycle_index"></el-input>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="threadVisible = false">取 消</el-button>
+          <el-button type="primary" @click="editThread">确 定</el-button>
+        </div>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -110,7 +134,10 @@ import {
 export default {
   data() {
     return {
-      download_jtl: process.env.VUE_APP_BASE_API,
+      threadVisible: false,
+      threadAttributesData: [], //线程属性列表
+      formLabelWidth: "120px",
+      download_jtl: process.env.VUE_APP_BASE_API, //下载jtl路径
       executiveLoggingData: [], //执行记录数据
       executiveLoggingVisible: false, //执行记录弹窗
       // headers: { Authorization: "JWT " + getToken() },
@@ -127,11 +154,34 @@ export default {
       currentPage: 1, //初始页
       pagesize: 10, //每页的数据
       tableData: [], //脚本列表
-      seareVariableKey: "" //搜索框的值
+      seareScriptName: "", //搜索框的值
+      jmx_id: ""
     };
   },
   methods: {
-    //下在jmx脚本
+    //点击线程属性
+    threadAttributes(row) {
+      this.threadAttributesData = JSON.parse(row.thread_attributes);
+      console.log(this.threadAttributesData);
+      this.jmx_id = row.id;
+      this.threadVisible = true;
+    },
+    //编辑线程属性
+    editThread() {
+      console.log(JSON.stringify(this.threadAttributesData));
+      jmx_script("put", {
+        id: this.jmx_id,
+        thread_attributes: this.threadAttributesData
+      }).then(res => {
+        this.$message.success(res.message);
+        jmx_script("get", { project_id: this.project_id }).then(response => {
+          console.log(response);
+          this.tableData = response.data;
+        });
+        this.threadVisible = false;
+      });
+    },
+    //下载jmx脚本
     downloadJmx(row) {
       console.log(row);
       console.log("sssssssss");
@@ -147,14 +197,15 @@ export default {
       jmx_script_results("delete", { jmx_script_result_id: row.id })
         .then(response => {
           this.$message.success(response.message);
-          jmx_script_results("get", { jmx_script_id: this.jmx_id }).then(
-            response => {
-              this.executiveLoggingData = response.data;
-              this.executiveLoggingData.forEach(ele => {
-                ele.script_name = row.script_name;
-              });
-            }
-          );
+          jmx_script_results("get", {
+            jmx_script_id: this.jmx_id,
+            project_id: this.project_id
+          }).then(response => {
+            this.executiveLoggingData = response.data;
+            this.executiveLoggingData.forEach(ele => {
+              ele.script_name = row.script_name;
+            });
+          });
         })
         .catch(error => {
           this.$message.error(error.message);
@@ -182,25 +233,29 @@ export default {
     //查看执行报告
     executiveReport(row) {
       console.log(row);
-      jmx_script_results_report("get", { jmx_script_result_id: row.id }).then(
-        response => {
-          console.log(process.env.VUE_APP_BASE_API + response.data);
-          if (response.data == "脚本执行失败") {
-            this.$message.error(response.data);
-          } else {
-            window.open(
-              process.env.VUE_APP_BASE_API + response.data.substring(1)
-            );
-          }
+      jmx_script_results_report("get", {
+        jmx_script_result_id: row.id,
+        project_id: this.project_id
+      }).then(response => {
+        console.log(process.env.VUE_APP_BASE_API + response.data);
+        if (response.data == "脚本执行失败") {
+          this.$message.error(response.data);
+        } else {
+          window.open(
+            process.env.VUE_APP_BASE_API + response.data.substring(1)
+          );
         }
-      );
+      });
     },
     //查看执行记录
     executiveLogging(row) {
       console.log(row);
       this.jmx_id = row.id;
       this.executiveLoggingVisible = true;
-      jmx_script_results("get", { jmx_script_id: row.id }).then(response => {
+      jmx_script_results("get", {
+        jmx_script_id: row.id,
+        project_id: this.project_id
+      }).then(response => {
         this.executiveLoggingData = response.data;
         this.executiveLoggingData.forEach(ele => {
           ele.script_name = row.script_name;
@@ -317,23 +372,6 @@ export default {
     handleCurrentChange: function(currentPage) {
       this.currentPage = currentPage;
       console.log(this.currentPage); //点击第几页
-    },
-    //查询
-    inquire() {
-      const request_data = {
-        project_id: this.project_id,
-        variable_key: this.seareVariableKey
-      };
-      get_global_variable(request_data).then(response => {
-        this.tableData = response.data;
-      });
-    },
-    //重置
-    reset() {
-      get_global_variable({ project_id: this.project_id }).then(response => {
-        this.tableData = response.data;
-        this.seareVariableKey = "";
-      });
     }
   },
   //组件创建之前发送获取jmx脚本列表的接口
@@ -345,6 +383,16 @@ export default {
     });
   },
   watch: {
+    seareScriptName() {
+      const request_data = {
+        project_id: this.project_id,
+        script_name: this.seareScriptName
+      };
+      jmx_script("get", request_data).then(response => {
+        this.tableData = response.data;
+        this.currentPage = 1;
+      });
+    },
     // 如果dialogFormVisible被修改为false那么就清空form表单和文件列表
     dialogFormVisible(val) {
       if (!val) {

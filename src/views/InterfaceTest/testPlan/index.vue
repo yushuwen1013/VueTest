@@ -12,13 +12,12 @@
     </div>
     <div v-show="!isShowEditTasks">
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="任务名称">
-          <el-input v-model="seareTaskName" placeholder="请输入任务名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" size="small" @click="inquire">查询</el-button>
-          <el-button type="primary" size="small" @click="reset">重置</el-button>
-        </el-form-item>
+        <el-input
+          v-model="seareTaskName"
+          placeholder="请输入任务名称"
+          suffix-icon="el-icon-search"
+          style="width:250px"
+        ></el-input>
         <el-button
           style="float: right;margin-bottom: 20px;margin-right: 50px;"
           type="primary"
@@ -138,7 +137,7 @@ export default {
             second: 0
           },
           executionTime: "",
-          cron_expression: "* * 1 * * * *",
+          cron_expression: "* * 1 * * * *"
         },
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
@@ -319,6 +318,18 @@ export default {
     get_task({ project_id: this.project_id }).then(response => {
       this.taskData = response.data;
     });
+  },
+  watch: {
+    seareTaskName(newVal) {
+      const request_data = {
+        project_id: this.project_id,
+        task_name: this.seareTaskName
+      };
+      get_task(request_data).then(response => {
+        this.taskData = response.data;
+        this.currentPage = 1;
+      });
+    }
   }
 };
 </script>

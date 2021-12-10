@@ -22,7 +22,7 @@
       <div>
         <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;float: left">
           <el-form-item>
-            <el-input placeholder="请输入任务名称或id" suffix-icon="el-icon-search" v-model="seareTaskName"></el-input>
+            <el-input placeholder="请输入任务id" suffix-icon="el-icon-search" v-model="seareTaskName"></el-input>
           </el-form-item>
           <el-form-item>
             <el-button

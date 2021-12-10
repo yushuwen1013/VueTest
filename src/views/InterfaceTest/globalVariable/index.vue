@@ -9,13 +9,12 @@
     </div>
     <div>
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="变量名称">
-          <el-input v-model="seareVariableKey" placeholder="请输入变量名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="inquire">查询</el-button>
-          <el-button type="primary" @click="reset">重置</el-button>
-        </el-form-item>
+        <el-input
+          v-model="seareVariableKey"
+          placeholder="请输入变量名称"
+          suffix-icon="el-icon-search"
+          style="width:250px"
+        ></el-input>
         <el-button
           style="float: right;margin-bottom: 20px;margin-right: 50px;"
           type="primary"
@@ -80,12 +79,12 @@ import {
 export default {
   data() {
     return {
-      project_id : localStorage.getItem('project_id'),
+      project_id: localStorage.getItem("project_id"),
       updateForm: {
         key: "",
         value: "",
         description: "",
-        project_id: localStorage.getItem('project_id'),
+        project_id: localStorage.getItem("project_id")
       },
       dialogFormVisible: false, //添加或编辑弹窗
       currentPage: 1, //初始页
@@ -118,9 +117,11 @@ export default {
           delete_global_variable(id)
             .then(response => {
               console.log(response.data);
-              get_global_variable({project_id: this.project_id,}).then(response => {
-                this.tableData = response.data;
-              });
+              get_global_variable({ project_id: this.project_id }).then(
+                response => {
+                  this.tableData = response.data;
+                }
+              );
             })
             .catch(error => {
               this.$message({
@@ -143,19 +144,18 @@ export default {
     },
     //点击编辑
     clickEdit(row) {
-      
       this.dialogFormVisible = true;
       this.updateForm = {
         key: row.key,
         value: row.value,
         description: row.description,
-        project_id: localStorage.getItem('project_id'),
+        project_id: localStorage.getItem("project_id"),
         id: row.id
       };
     },
     //确定添加变量
     addVariable() {
-      console.log(this.project_id)
+      console.log(this.project_id);
       console.log(this.updateForm);
       if (
         this.updateForm.key.trim() == "" ||
@@ -168,14 +168,16 @@ export default {
       } else {
         update_global_variable(this.updateForm)
           .then(response => {
-            get_global_variable({project_id: this.project_id}).then(response => {
-              this.tableData = response.data;
-            });
+            get_global_variable({ project_id: this.project_id }).then(
+              response => {
+                this.tableData = response.data;
+              }
+            );
             this.updateForm = {
               key: "",
               value: "",
               description: "",
-              project_id: localStorage.getItem('project_id'),
+              project_id: localStorage.getItem("project_id")
             };
             this.$message({
               message: response.data,
@@ -192,29 +194,24 @@ export default {
             console.log(error);
           });
       }
-    },
-    //查询
-    inquire() {
+    }
+  },
+  created() {
+    get_global_variable({ project_id: this.project_id }).then(response => {
+      this.tableData = response.data;
+    });
+  },
+  watch: {
+    seareVariableKey(newVal) {
       const request_data = {
         project_id: this.project_id,
         variable_key: this.seareVariableKey
       };
       get_global_variable(request_data).then(response => {
         this.tableData = response.data;
-      });
-    },
-    //重置
-    reset() {
-      get_global_variable({project_id: this.project_id,}).then(response => {
-        this.tableData = response.data;
-        this.seareVariableKey = "";
+        this.currentPage = 1;
       });
     }
-  },
-  created() {
-    get_global_variable({project_id: this.project_id}).then(response => {
-      this.tableData = response.data;
-    });
   }
 };
 </script>

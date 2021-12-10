@@ -12,13 +12,12 @@
     </div>
     <div v-show="!isShowEditTasks">
       <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px;">
-        <el-form-item label="任务名称">
-          <el-input v-model="seareTaskName" placeholder="请输入任务名称"></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" size="small" @click="inquire">查询</el-button>
-          <el-button type="primary" size="small" @click="reset">重置</el-button>
-        </el-form-item>
+        <el-input
+          v-model="seareTaskName"
+          placeholder="请输入任务名称"
+          suffix-icon="el-icon-search"
+          style="width:250px"
+        ></el-input>
         <el-button
           style="float: right;margin-bottom: 20px;margin-right: 50px;"
           type="primary"
@@ -88,7 +87,7 @@
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="dialogFormVisible = false">确 定</el-button>
       </div>
-    </el-dialog> -->
+    </el-dialog>-->
   </div>
 </template>
 
@@ -127,8 +126,9 @@ export default {
         description: "", // 描述
         sendmailStatus: 1, //发送邮件1-是，2-否，3-失败时发送
         mailAddress: "", //邮件地址
-        business_case: [], //选中的业务用例
-        interface_case: [], //选中的接口用例
+        // business_case: [], //选中的业务用例
+        // interface_case: [], //选中的接口用例
+        jmx_script: [], //jmx脚本列表
         project_id: localStorage.getItem("project_id") // 项目id
       }, //任务表单
       dialogFormVisible: false, //添加或编辑弹窗
@@ -281,9 +281,15 @@ export default {
         //调用子组件EditTasks的选中用例方法
         this.$refs.EditTasks.selectedInterface();
       });
-    },
-    //查询
-    inquire() {
+    }
+  },
+  created() {
+    get_task({ project_id: this.project_id }).then(response => {
+      this.taskData = response.data;
+    });
+  },
+  watch: {
+    seareTaskName() {
       const request_data = {
         project_id: this.project_id,
         task_name: this.seareTaskName
@@ -291,18 +297,7 @@ export default {
       get_task(request_data).then(response => {
         this.taskData = response.data;
       });
-    },
-    //重置
-    reset() {
-      get_task({ project_id: this.project_id }).then(response => {
-        this.taskData = response.data;
-      });
     }
-  },
-  created() {
-    get_task({ project_id: this.project_id }).then(response => {
-      this.taskData = response.data;
-    });
   }
 };
 </script>

@@ -16,28 +16,11 @@
          "
         >
           <span style>项目管理</span>
-          <span style='margin-left: 150px;'>
-             当前项目： 
-            <el-select v-model="project_id" placeholder="请选择项目">
-              <el-option
-                v-for="item in tableData"
-                :key="item.id"
-                :label="item.project_name"
-                :value="item.id"
-              ></el-option>
-            </el-select>
-          </span>
         </p>
       </div>
       <div>
         <el-form :inline="true" class="demo-form-inline" style="margin-left: 35px">
-          <el-form-item label="项目名称">
-            <el-input v-model="seareProject_name" placeholder="请输入项目名称"></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="inquire">查询</el-button>
-            <el-button type="primary" @click="reset">重置</el-button>
-          </el-form-item>
+          <el-input v-model="seareProject_name" placeholder="请输入项目名称" suffix-icon="el-icon-search" style="width:250px"></el-input>
           <el-button
             style="float: right; margin-bottom: 20px; margin-right: 50px"
             type="primary"
@@ -109,7 +92,6 @@ export default {
   components: { EnvironmentConfiguration },
   data() {
     return {
-      project_id:"",
       showEnvironmentConfiguration: false,
       updateForm: {
         project_name: "",
@@ -217,33 +199,22 @@ export default {
             console.log(error);
           });
       }
-    },
-    //查询
-    inquire() {
-      const request_data = {
-        project_name: this.seareProject_name
-      };
-      get_project_list(request_data).then(response => {
-        this.tableData = response.data;
-      });
-    },
-    //重置
-    reset() {
-      get_project_list().then(response => {
-        this.tableData = response.data;
-        this.seareProject_name = "";
-      });
     }
   },
   created() {
     get_project_list().then(response => {
       this.tableData = response.data;
     });
-    this.project_id = parseInt(localStorage.getItem('project_id'))
   },
-  watch:{
-    project_id(newValue){
-        localStorage.setItem('project_id',JSON.stringify(newValue))
+  watch: {
+    seareProject_name(newVal) {
+      const request_data = {
+        project_name: this.seareProject_name
+      };
+      get_project_list(request_data).then(response => {
+        this.tableData = response.data;
+        this.currentPage = 1;
+      });
     }
   }
 };
