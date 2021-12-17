@@ -1,0 +1,20 @@
+import request from '@/utils/request'
+
+
+//用例内容
+export function UseCase(method, data) {
+    if (method == 'get') {
+        return request({
+            url: '/WebUiTest/UseCase/UseCase/',
+            method: method,
+            params: data
+        })
+    } else {
+        return request({
+            url: '/WebUiTest/UseCase/UseCase/',
+            method: method,
+            data
+        })
+    }
+}
+

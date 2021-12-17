@@ -55,8 +55,8 @@
                       {{ node.data.use_case_name }}
                     </span>
                     <span>
-                      <el-button type="text" size="mini" @click="() => editFile(node)">编辑</el-button>
-                      <el-button type="text" size="mini" @click="() => deleteFile(node)">删除</el-button>
+                      <el-button type="text" size="mini" @click="() => editUseCase(node)">编辑</el-button>
+                      <el-button type="text" size="mini" @click="() => deleteUseCase(node)">删除</el-button>
                     </span>
                   </span>
                 </el-tree>
@@ -1497,7 +1497,7 @@ export default {
         });
     },
     //编辑文件
-    editFile(node) {
+    editUseCase(node) {
       console.log(node, "2222222222222");
       this.$prompt("请输入文件名", "提示", {
         confirmButtonText: "确定",
@@ -1542,42 +1542,33 @@ export default {
           });
         });
     },
-    //删除文件
-    deleteFile(node) {
+    //删除用例
+    deleteUseCase(node) {
       console.log(node);
-      this.$confirm("此操作将永久删除该文件, 是否继续?", "提示", {
+      this.$confirm("此操作将永久删除该用例, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
         .then(() => {
-          //删除文件接口
+          //删除用例接口
           const id = { id: node.data.id };
           delete_use_case(id)
             .then(response => {
-              console.log(response.data);
               get_use_case({ project_id: this.project_id }).then(response => {
                 this.fileData = response.data;
               });
               setTimeout(() => {
                 if (this.fileData.length != 0) {
                   this.$refs.dataConfigTree.setCurrentKey(this.fileData[0].id);
-                  console.log(this.fileData[0].id);
                   this.file_id = this.fileData[0].id;
                 }
               }, 100);
+              this.$message.success(response.message);
             })
             .catch(error => {
-              this.$message({
-                message: "删除失败",
-                type: "error"
-              });
-              console.log(error);
+              this.$message.error(error.message);
             });
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
         })
         .catch(() => {
           this.$message({

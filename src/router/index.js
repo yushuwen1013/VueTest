@@ -185,7 +185,7 @@ export const constantRoutes = [
   {
     path: '/performance',
     component: Layout,
-    redirect: '/ScriptManagement',
+    redirect: '/performance/ScriptManagement',
     meta: { title: '性能测试', icon: 'form' },
     children: [
       {
@@ -211,21 +211,41 @@ export const constantRoutes = [
       },
     ]
   },
-  //小工具
-  //工具
+  //WebUI自动化测试
   {
-    path: '/tools',
+    path: '/webui',
     component: Layout,
-    redirect: '/json',
-    meta: { title: '工具', icon: 'form' },
+    redirect: '/webui/PageElement',
+    meta: { title: 'WebUI测试', icon: 'form' },
     children: [
       {
-        //jmx脚本管理
-        path: 'json',
-        name: 'json',
-        component: () => import('@/views/tools/json/index'),
-        meta: { title: 'json解析', icon: 'form' }
+        //元素操作
+        path: 'ElementAction',
+        name: 'ElementAction',
+        component: () => import('@/views/WebUiTest/ElementAction'),
+        meta: { title: '元素操作', icon: 'form' }
       },
+      {
+        //页面元素
+        path: 'PageElement',
+        name: 'PageElement',
+        component: () => import('@/views/WebUiTest/PageElement'),
+        meta: { title: '页面元素', icon: 'form' }
+      },
+      {
+        //用例管理
+        path: 'UiCaseManagement',
+        name: 'UiCaseManagement',
+        component: () => import('@/views/WebUiTest/CaseManagement'),
+        meta: { title: '用例管理', icon: 'form' }
+      },
+      // //测试页面
+      // {
+      //   path: 'test',
+      //   name: 'test',
+      //   component: () => import('@/views/tools/test/index'),
+      //   meta: { title: '测试页面', icon: 'form' }
+      // }
       // //定时任务
       // {
       //   path: 'testPlan',
@@ -235,6 +255,37 @@ export const constantRoutes = [
       // }
     ]
   },
+  //工具
+  {
+    path: '/tools',
+    component: Layout,
+    redirect: '/tools/json',
+    meta: { title: '工具', icon: 'form' },
+    children: [
+      {
+        //jmx脚本管理
+        path: 'json',
+        name: 'json',
+        component: () => import('@/views/tools/json/index'),
+        meta: { title: 'json解析', icon: 'form' }
+      },
+      //测试页面
+      {
+        path: 'test',
+        name: 'test',
+        component: () => import('@/views/tools/test/index'),
+        meta: { title: '测试页面', icon: 'form' }
+      }
+      // //定时任务
+      // {
+      //   path: 'testPlan',
+      //   name: 'PerformanceTestPlan',
+      //   component: () => import('@/views/PerformanceTest/testPlan/index'),
+      //   meta: { title: '测试计划', icon: 'form' }
+      // }
+    ]
+  },
+
   // {
   //   path: '/form',
   //   component: Layout,
