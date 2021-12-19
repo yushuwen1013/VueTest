@@ -3,37 +3,41 @@
     <div style="background: #fff">
       <p
         style="
-            height: 50px;
-            font-size: 22px;
-            margin-top: 0px;
-            line-height: 55px;
-            text-align: center;
-            margin-bottom: 10px;
-          "
+          height: 50px;
+          font-size: 22px;
+          margin-top: 0px;
+          line-height: 55px;
+          text-align: center;
+          margin-bottom: 10px;
+        "
       >
         <span>用例管理</span>
       </p>
     </div>
     <div>
-      <el-card style="width: 18%; float: left;margin-left: 5px;height:780px;" class="box-card">
+      <el-card
+        style="width: 25%; float: left; margin-left: 5px; height: 780px"
+        class="box-card"
+      >
         <div slot="header" class="clearfix">
           <el-input
             size="mini"
             placeholder="请输入内容"
             suffix-icon="el-icon-search"
             v-model="filterCase"
-            style="width:63%"
+            style="width: 63%"
           ></el-input>
           <!-- <el-button type="primary"  size="mini" icon="el-icon-folder-add" style="float:right;width:10%" circle></el-button> -->
           <el-button
             type="primary"
             size="mini"
             icon="el-icon-folder-add"
-            style="float:right;width:35%"
-            @click="addFile({id:null})"
-          >添加</el-button>
+            style="float: right; width: 35%"
+            @click="addFile({ id: null })"
+            >添加</el-button
+          >
         </div>
-        <div style="width: 100%;height:690px;overflow:auto;">
+        <div style="width: 100%; height: 690px; overflow: auto">
           <el-tree
             :highlight-current="highlight"
             ref="dataConfigTree"
@@ -46,11 +50,14 @@
               <div class="showfile">
                 <span class="tmp" :title="node.data.name">
                   <i
-                    v-show="node.data.type==2?true:false"
+                    v-show="node.data.type == 2 ? true : false"
                     class="el-icon-document"
-                    style="color:#E6A23C"
+                    style="color: #e6a23c"
                   ></i>
-                  <i v-show="node.data.type==1?true:false" class="el-icon-folder-opened"></i>
+                  <i
+                    v-show="node.data.type == 1 ? true : false"
+                    class="el-icon-folder-opened"
+                  ></i>
                   {{ node.data.name }}
                 </span>
               </div>
@@ -66,15 +73,27 @@
                   </span>
                   <el-dropdown-menu slot="dropdown">
                     <div v-show="isCase">
-                      <el-dropdown-item :command="['edit', node, data]">编辑</el-dropdown-item>
-                      <el-dropdown-item :command="['delete', node, data]">删除</el-dropdown-item>
+                      <el-dropdown-item :command="['edit', node, data]"
+                        >编辑</el-dropdown-item
+                      >
+                      <el-dropdown-item :command="['delete', node, data]"
+                        >删除</el-dropdown-item
+                      >
                       <!-- <el-dropdown-item>螺蛳粉</el-dropdown-item> -->
                     </div>
                     <div v-show="isFile">
-                      <el-dropdown-item :command="['addFile', node.data]">新建文件夹</el-dropdown-item>
-                      <el-dropdown-item :command="['addUseCase', node.data]">新建用例</el-dropdown-item>
-                      <el-dropdown-item :command="['edit', node, data]">编辑</el-dropdown-item>
-                      <el-dropdown-item :command="['delete', node, data]">删除</el-dropdown-item>
+                      <el-dropdown-item :command="['addFile', node.data]"
+                        >新建文件夹</el-dropdown-item
+                      >
+                      <el-dropdown-item :command="['addUseCase', node.data]"
+                        >新建用例</el-dropdown-item
+                      >
+                      <el-dropdown-item :command="['edit', node, data]"
+                        >编辑</el-dropdown-item
+                      >
+                      <el-dropdown-item :command="['delete', node, data]"
+                        >删除</el-dropdown-item
+                      >
                     </div>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -83,37 +102,7 @@
           </el-tree>
         </div>
       </el-card>
-      <!-- <el-card style="width: 17%; float: left;margin-left: 2px;height:780px" class="box-card">
-        <el-table
-          ref="eltable"
-          height="750"
-          style="overflow-y: auto;"
-          :data="pageData.filter(data => !searchPageName || data.page_name.toLowerCase().includes(searchPageName.toLowerCase()))"
-          @row-click="btn"
-          highlight-current-row
-          :cell-style="{ padding: '1px 0' }"
-        >
-          <el-table-column header-align="center" prop="page_name">
-           
-            <template slot="header" slot-scope="scope">
-              {{scope.row}}
-              <el-input
-                size="small"
-                placeholder="请输入操作名称"
-                suffix-icon="el-icon-search"
-                v-model="searchPageName"
-              ></el-input>
-            </template>
-          </el-table-column>
-          <el-table-column align="right" width="90">
-            <template slot-scope="scope">
-              <el-button type="text" size="mini" @click="deletePage(scope.$index, scope.row)">添加</el-button>
-              <el-button type="text" size="mini" @click="deletePage(scope.$index, scope.row)">删除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-card>-->
-      <el-card style="width: 14%; float: left;margin-left: 2px;height:780px;" class="box-card">
+      <!-- <el-card style="width: 18%; float: left;margin-left: 2px;height:780px;" class="box-card">
         <div slot="header" class="clearfix">
           <el-input
             size="mini"
@@ -141,19 +130,41 @@
             </span>
           </el-tree>
         </div>
-      </el-card>
-      <el-card style="width: 67%; float: left;margin-left: 2px; height:780px" class="box-card">
-        <div slot="header" class="clearfix">
-          <el-input
+      </el-card> -->
+      <el-card
+        style="width: 74%; float: left; margin-left: 2px; height: 780px"
+        class="box-card"
+      >
+        <div v-show="highlight" slot="header" class="clearfix">
+          <!-- <el-input
             size="mini"
             placeholder="请输入元素操作名称"
             suffix-icon="el-icon-search"
             v-model="filterAction"
-            style="width:20%"
-          ></el-input>
+            style="width: 20%"
+          ></el-input> -->
+          <el-button
+            type="primary"
+            style="float: right; margin-right: 10px"
+            size="mini"
+            @click="saveUseCase(useCase_id, UseCaseData)"
+            >保存</el-button
+          >
         </div>
-        <div style="width: 100%;height:690px;overflow-y: auto;">
-          <el-table :data="UseCaseData" height="690" border style="width: 100%" size="small">
+        <div
+          v-show="highlight"
+          style="width: 100%; height: 690px; overflow-y: auto"
+        >
+          <el-table
+            :data="UseCaseData"
+            height="690"
+            border
+            style="width: 100%"
+            size="small"
+            row-key="id"
+          >
+            <!-- <el-table-column prop="id" label="id" width="50 ">
+              </el-table-column> -->
             <el-table-column prop="description" label="步骤描述" width="180">
               <template slot-scope="scope">
                 <el-input
@@ -166,13 +177,31 @@
             </el-table-column>
             <el-table-column prop="action" label="操作" width="180">
               <template slot-scope="scope">
-                <el-select v-model="scope.row.action" size="mini" placeholder="请选择元素操作">
-                  <el-option
+                <el-select
+                  clearable
+                  v-model="scope.row.action"
+                  size="mini"
+                  placeholder="请选择元素操作"
+                >
+                  <el-tooltip placement="left" effect="light">
+                    <span class="showname">
+                      <el-option
+                        v-for="item in actionOptions"
+                        :key="item.id"
+                        :label="item.action_name"
+                        :value="item.action_method"
+                        @mouseover.native="hoverAction(item)"
+                      >
+                      </el-option>
+                    </span>
+                    <div v-html="toBreak(action_detailed)" slot="content"></div>
+                  </el-tooltip>
+                  <!-- <el-option
                     v-for="item in actionOptions"
                     :key="item.id"
                     :label="item.action_name"
                     :value="item.action_method"
-                  ></el-option>
+                  ></el-option> -->
                 </el-select>
               </template>
             </el-table-column>
@@ -181,8 +210,13 @@
                 <div class="block">
                   <!-- <span class="demonstration">单选可搜索</span> -->
                   <el-cascader
+                    clearable
                     v-model="scope.row.element"
-                    :props="{label: 'element_name', value: 'id',expandTrigger: 'hover'}"
+                    :props="{
+                      label: 'element_name',
+                      value: 'id',
+                      expandTrigger: 'hover',
+                    }"
                     size="mini"
                     placeholder="搜索"
                     :options="pageElementOptions"
@@ -203,17 +237,26 @@
             </el-table-column>
             <el-table-column width="62" label="状态">
               <template slot-scope="scope">
-                <el-switch v-model="scope.row.isUse" @change="isUse(scope.$index, scope.row)"></el-switch>
+                <el-switch
+                  v-model="scope.row.isUse"
+                  @change="isUse(scope.$index, scope.row)"
+                ></el-switch>
               </template>
             </el-table-column>
-            <el-table-column fixed="right" width="150" align="center">
+            <el-table-column width="70" align="center">
               <template slot="header">
-                <el-button type="primary" size="mini" @click="actionVisible=true">添加</el-button>
-                <el-button type="primary" size="mini" @click="saveUseCase">保存</el-button>
+                <el-button type="primary" size="mini" @click="addUsecase"
+                  >添加</el-button
+                >
               </template>
               <template slot-scope="scope">
-                <el-button type="primary" plain size="mini">编辑</el-button>
-                <el-button type="danger" plain size="mini">删除</el-button>
+                <el-button
+                  type="danger"
+                  plain
+                  @click.native.prevent="deleteUsecase(scope.$index)"
+                  size="mini"
+                  >删除</el-button
+                >
               </template>
             </el-table-column>
           </el-table>
@@ -223,26 +266,27 @@
   </div>
 </template>
 <script>
+import Sortable from "sortablejs";
 import { ElementAction } from "@/api/WebUiTest/elementAction";
-import { UseCase } from "@/api/WebUiTest/useCaseManagement";
+import { UseCase, UseCaseStep } from "@/api/WebUiTest/useCaseManagement";
 import { Page, PageElement } from "@/api/WebUiTest/pageElement";
 export default {
   data() {
     return {
+      action_detailed: "",
+      caseStep: false, //用例步骤显隐
       pageElementOptions: [], //页面元素列表
       actionOptions: [], //元素操作列表
       //用例数据列表
       UseCaseData: [
-        {
-          // date: "2016-05-03",
-          // name: "王小虎",
-          // address: "上海市普陀区金沙江路 1518 弄",
-          description: "",
-          action: "",
-          element: "",
-          action_parameter: "",
-          isUse: true
-        }
+        // {
+        //   id: 1,
+        //   description: "",
+        //   action: "",
+        //   element: "",
+        //   action_parameter: "",
+        //   isUse: true,
+        // },
       ],
       filterAction: "", //搜索元素操作方法
       actionData: [], //页面数据
@@ -252,12 +296,107 @@ export default {
       isFile: false, //文件选项开关
       project_id: localStorage.getItem("project_id"), //项目id
       data: [], //用例数据
-      useCase_id: "" //用例id
+      useCase_id: "", //用例id
     };
   },
   methods: {
-    saveUseCase() {
+    hoverAction(item) {
+      console.log(item);
+      this.action_detailed = item;
+    },
+    //添加用例
+    addUsecase() {
+      // this.UseCaseData.push({
+      //   description: "",
+      //   action: "",
+      //   element: "",
+      //   action_parameter: "",
+      //   isUse: true,
+      // });
+      if (this.UseCaseData.length == 0) {
+        this.UseCaseData.push({
+          id: 1,
+          description: "",
+          action: "",
+          element: "",
+          action_parameter: "",
+          isUse: true,
+        });
+      } else {
+        const id = Math.max.apply(
+          Math,
+          this.UseCaseData.map(function (o) {
+            return o.id;
+          })
+        );
+        this.UseCaseData.push({
+          id: id + 1,
+          description: "",
+          action: "",
+          element: "",
+          action_parameter: "",
+          isUse: true,
+        });
+      }
+    },
+    //删除用例
+    deleteUsecase(index) {
+      // console.log(row);
+      this.UseCaseData.splice(index, 1);
+    },
+    //行拖拽
+    rowDrop() {
+      const tbody = document.querySelector(".el-table__body-wrapper tbody");
+      const _this = this;
+      Sortable.create(tbody, {
+        draggable: ".el-table__row",
+        onEnd({ newIndex, oldIndex }) {
+          const currRow = _this.UseCaseData.splice(oldIndex, 1)[0];
+          _this.UseCaseData.splice(newIndex, 0, currRow);
+        },
+      });
+    },
+    //保存
+    saveUseCase(useCase_id, UseCaseData) {
       console.log(this.UseCaseData);
+      // 验证属性列表
+      var result = true;
+      var message = [];
+      this.UseCaseData.forEach((item, index) => {
+        let no = index + 1;
+        if (item.description == "") {
+          result = result && false;
+          message.push("第" + no + "行：步骤描述不能为空");
+        }
+        if (item.action == "") {
+          result = result && false;
+          message.push("第" + no + "行：元素操作不能为空");
+        }
+        // if (item.element_value == "") {
+        //   result = result && false;
+        //   message.push("第" + no + "行：元素定位值不能为空");
+        // }
+      });
+      if (!result) {
+        var temp = "";
+        message.forEach((v) => {
+          temp += `<li>${v}</li>`;
+        });
+        return this.$notify({
+          title: "元素列表提示",
+          dangerouslyUseHTMLString: true,
+          type: "error",
+          duration: 3000,
+          message: `<ul>${temp}</ul>`,
+        });
+      }
+      UseCaseStep("post", { id: useCase_id, case_step: UseCaseData }).then(
+        (res) => {
+          console.log(res);
+          this.$message.success(res.message);
+          // this.UseCaseData = res.data;
+        }
+      );
     },
     //是否使用
     isUse(index, row) {
@@ -283,16 +422,18 @@ export default {
       // });
     },
     //元素操作提示
-    toBreak(val, data) {
+    toBreak(val) {
       val =
         "操作名称：" +
-        data.action_name +
+        val.action_name +
         "<br/>" +
         "操作方法：" +
-        data.action_method +
+        val.action_method +
         "<br/>" +
-        val;
+        val.description;
       return val.split("\n").join("<br/>");
+      // console.log(val);
+      // return val;
     },
     append(data) {
       console.log(data);
@@ -318,32 +459,33 @@ export default {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         inputErrorMessage: "输入不能为空",
+        inputValue: data.name,
         // inputValue: row.page_name,
-        inputValidator: value => {
+        inputValidator: (value) => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value) {
             return "输入不能为空";
           }
-        }
+        },
       })
         .then(({ value }) => {
           //发送更新用例或文件接口
           UseCase("put", {
             id: node.data.id,
-            name: value
+            name: value,
           })
-            .then(res => {
+            .then((res) => {
               data.name = value;
               this.$message.success(res.message);
             })
-            .catch(err => {
+            .catch((err) => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入"
+            message: "取消编辑",
           });
         });
     },
@@ -352,31 +494,31 @@ export default {
       this.$confirm("此操作将永久删除该项，以及所有子项, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning"
+        type: "warning",
       })
         .then(() => {
           UseCase("delete", {
-            id: node.data.id
+            id: node.data.id,
           })
-            .then(res => {
+            .then((res) => {
               if (node.data.id == this.useCase_id) {
                 this.useCase_id = "";
               }
               console.log(node);
               const parent = node.parent;
               const children = parent.data.children || parent.data;
-              const index = children.findIndex(d => d.id === data.id);
+              const index = children.findIndex((d) => d.id === data.id);
               children.splice(index, 1);
               this.$message.success(res.message);
             })
-            .catch(err => {
+            .catch((err) => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除"
+            message: "已取消删除",
           });
         });
     },
@@ -388,12 +530,12 @@ export default {
         cancelButtonText: "取消",
         inputErrorMessage: "输入不能为空",
         // inputValue: row.page_name,
-        inputValidator: value => {
+        inputValidator: (value) => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value) {
             return "输入不能为空";
           }
-        }
+        },
       })
         .then(({ value }) => {
           //发送新增用例接口
@@ -401,9 +543,9 @@ export default {
             name: value,
             type: 2,
             project_id: this.project_id,
-            parent: data.id
+            parent: data.id,
           })
-            .then(res => {
+            .then((res) => {
               // UseCase("get").then(res => {
               //   this.data = res.data;
               //   this.$nextTick(() => {
@@ -420,14 +562,14 @@ export default {
               }
               this.$message.success(res.message);
             })
-            .catch(err => {
+            .catch((err) => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入"
+            message: "取消输入",
           });
         });
     },
@@ -439,12 +581,12 @@ export default {
         cancelButtonText: "取消",
         inputErrorMessage: "输入不能为空",
         // inputValue: row.page_name,
-        inputValidator: value => {
+        inputValidator: (value) => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value) {
             return "输入不能为空";
           }
-        }
+        },
       })
         .then(({ value }) => {
           //发送新增文件接口
@@ -452,9 +594,9 @@ export default {
             name: value,
             type: 1,
             project_id: this.project_id,
-            parent: data.id
+            parent: data.id,
           })
-            .then(res => {
+            .then((res) => {
               if (data.id == null) {
                 this.data.push(res.data);
               } else {
@@ -477,14 +619,14 @@ export default {
               // });
               this.$message.success(res.message);
             })
-            .catch(err => {
+            .catch((err) => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入"
+            message: "取消输入",
           });
         });
     },
@@ -535,7 +677,7 @@ export default {
     filterActionNode(value, data) {
       if (!value) return true;
       return data.action_name.indexOf(value) !== -1;
-    }
+    },
   },
   watch: {
     filterCase(val) {
@@ -549,34 +691,50 @@ export default {
     useCase_id(val) {
       if (val != "") {
         this.highlight = true;
+        this.caseStep = true;
+        console.log(val, "usecase_id");
+        UseCaseStep("get", { id: val }).then((res) => {
+          console.log(res);
+          this.UseCaseData = res.data;
+        });
       } else {
+        tthis.UseCaseData = [];
+        this.caseStep = false;
         this.highlight = false;
       }
-    }
+    },
   },
   created() {
     //获取文件用例列表
-    UseCase("get").then(res => {
+    UseCase("get").then((res) => {
       this.data = res.data;
       this.$nextTick(() => {
         this.$refs.dataConfigTree.setCurrentKey(1);
       });
     });
     //获取元素操作列表
-    ElementAction("get").then(res => {
+    ElementAction("get").then((res) => {
       this.actionData = res.data;
       this.actionOptions = res.data;
     });
     //获取页面元素
-    PageElement("get", { project_id: this.project_id }).then(res => {
+    PageElement("get", { project_id: this.project_id }).then((res) => {
       // this.actionData = res.data;
       this.pageElementOptions = res.data;
     });
-  }
+  },
+  mounted() {
+    // 阻止默认行为
+    document.body.ondrop = function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    this.rowDrop();
+  },
 };
 </script>
 
-<style scoped>
+<style >
 /* .el-tree-node__content {
   background-color: #ffffff;
   height: 25px;
@@ -593,7 +751,7 @@ export default {
   background-color: #bac8e5 !important;
 }
 </style>
-<style scoped>
+<style >
 .custom-tree-node {
   flex: 1;
   display: flex;
@@ -608,6 +766,7 @@ export default {
 }
 .showname {
   width: 120px;
+  /* width: 70%; */
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -615,6 +774,7 @@ export default {
 }
 .showfile {
   width: 200px;
+  /* width: 70%; */
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

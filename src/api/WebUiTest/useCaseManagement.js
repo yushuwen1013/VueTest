@@ -18,3 +18,21 @@ export function UseCase(method, data) {
     }
 }
 
+//用例操作步骤
+export function UseCaseStep(method, data) {
+    if (method == 'get') {
+        return request({
+            url: '/WebUiTest/UseCase/UseCaseStep/',
+            method: method,
+            params: data
+        })
+    } else {
+        return request({
+            url: '/WebUiTest/UseCase/UseCaseStep/',
+            method: method,
+            data
+        })
+    }
+}
+
+
