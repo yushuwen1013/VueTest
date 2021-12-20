@@ -15,10 +15,7 @@
       </p>
     </div>
     <div>
-      <el-card
-        style="width: 25%; float: left; margin-left: 5px; height: 780px"
-        class="box-card"
-      >
+      <el-card style="width: 25%; float: left; margin-left: 5px; height: 780px" class="box-card">
         <div slot="header" class="clearfix">
           <el-input
             size="mini"
@@ -34,8 +31,7 @@
             icon="el-icon-folder-add"
             style="float: right; width: 35%"
             @click="addFile({ id: null })"
-            >添加</el-button
-          >
+          >添加</el-button>
         </div>
         <div style="width: 100%; height: 690px; overflow: auto">
           <el-tree
@@ -54,10 +50,7 @@
                     class="el-icon-document"
                     style="color: #e6a23c"
                   ></i>
-                  <i
-                    v-show="node.data.type == 1 ? true : false"
-                    class="el-icon-folder-opened"
-                  ></i>
+                  <i v-show="node.data.type == 1 ? true : false" class="el-icon-folder-opened"></i>
                   {{ node.data.name }}
                 </span>
               </div>
@@ -73,27 +66,15 @@
                   </span>
                   <el-dropdown-menu slot="dropdown">
                     <div v-show="isCase">
-                      <el-dropdown-item :command="['edit', node, data]"
-                        >编辑</el-dropdown-item
-                      >
-                      <el-dropdown-item :command="['delete', node, data]"
-                        >删除</el-dropdown-item
-                      >
+                      <el-dropdown-item :command="['edit', node, data]">编辑</el-dropdown-item>
+                      <el-dropdown-item :command="['delete', node, data]">删除</el-dropdown-item>
                       <!-- <el-dropdown-item>螺蛳粉</el-dropdown-item> -->
                     </div>
                     <div v-show="isFile">
-                      <el-dropdown-item :command="['addFile', node.data]"
-                        >新建文件夹</el-dropdown-item
-                      >
-                      <el-dropdown-item :command="['addUseCase', node.data]"
-                        >新建用例</el-dropdown-item
-                      >
-                      <el-dropdown-item :command="['edit', node, data]"
-                        >编辑</el-dropdown-item
-                      >
-                      <el-dropdown-item :command="['delete', node, data]"
-                        >删除</el-dropdown-item
-                      >
+                      <el-dropdown-item :command="['addFile', node.data]">新建文件夹</el-dropdown-item>
+                      <el-dropdown-item :command="['addUseCase', node.data]">新建用例</el-dropdown-item>
+                      <el-dropdown-item :command="['edit', node, data]">编辑</el-dropdown-item>
+                      <el-dropdown-item :command="['delete', node, data]">删除</el-dropdown-item>
                     </div>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -130,31 +111,29 @@
             </span>
           </el-tree>
         </div>
-      </el-card> -->
-      <el-card
-        style="width: 74%; float: left; margin-left: 2px; height: 780px"
-        class="box-card"
-      >
+      </el-card>-->
+      <el-card style="width: 74%; float: left; margin-left: 2px; height: 780px" class="box-card">
         <div v-show="highlight" slot="header" class="clearfix">
-          <!-- <el-input
-            size="mini"
-            placeholder="请输入元素操作名称"
-            suffix-icon="el-icon-search"
-            v-model="filterAction"
-            style="width: 20%"
-          ></el-input> -->
           <el-button
             type="primary"
             style="float: right; margin-right: 10px"
             size="mini"
             @click="saveUseCase(useCase_id, UseCaseData)"
-            >保存</el-button
-          >
+          >保存</el-button>
+          <el-button
+            type="primary"
+            style="float: right; margin-right: 50px"
+            size="mini"
+            @click="debugRecord(useCase_id)"
+          >调试记录</el-button>
+          <el-button
+            type="primary"
+            style="float: right; margin-right: 10px"
+            size="mini"
+            @click="debug(useCase_id)"
+          >调试</el-button>
         </div>
-        <div
-          v-show="highlight"
-          style="width: 100%; height: 690px; overflow-y: auto"
-        >
+        <div v-show="highlight" style="width: 100%; height: 690px; overflow-y: auto">
           <el-table
             :data="UseCaseData"
             height="690"
@@ -164,7 +143,7 @@
             row-key="id"
           >
             <!-- <el-table-column prop="id" label="id" width="50 ">
-              </el-table-column> -->
+            </el-table-column>-->
             <el-table-column prop="description" label="步骤描述" width="180">
               <template slot-scope="scope">
                 <el-input
@@ -177,12 +156,7 @@
             </el-table-column>
             <el-table-column prop="action" label="操作" width="180">
               <template slot-scope="scope">
-                <el-select
-                  clearable
-                  v-model="scope.row.action"
-                  size="mini"
-                  placeholder="请选择元素操作"
-                >
+                <el-select clearable v-model="scope.row.action" size="mini" placeholder="请选择元素操作">
                   <el-tooltip placement="left" effect="light">
                     <span class="showname">
                       <el-option
@@ -191,8 +165,7 @@
                         :label="item.action_name"
                         :value="item.action_method"
                         @mouseover.native="hoverAction(item)"
-                      >
-                      </el-option>
+                      ></el-option>
                     </span>
                     <div v-html="toBreak(action_detailed)" slot="content"></div>
                   </el-tooltip>
@@ -201,7 +174,7 @@
                     :key="item.id"
                     :label="item.action_name"
                     :value="item.action_method"
-                  ></el-option> -->
+                  ></el-option>-->
                 </el-select>
               </template>
             </el-table-column>
@@ -237,17 +210,12 @@
             </el-table-column>
             <el-table-column width="62" label="状态">
               <template slot-scope="scope">
-                <el-switch
-                  v-model="scope.row.isUse"
-                  @change="isUse(scope.$index, scope.row)"
-                ></el-switch>
+                <el-switch v-model="scope.row.isUse" @change="isUse(scope.$index, scope.row)"></el-switch>
               </template>
             </el-table-column>
             <el-table-column width="70" align="center">
               <template slot="header">
-                <el-button type="primary" size="mini" @click="addUsecase"
-                  >添加</el-button
-                >
+                <el-button type="primary" size="mini" @click="addUsecase">添加</el-button>
               </template>
               <template slot-scope="scope">
                 <el-button
@@ -255,8 +223,7 @@
                   plain
                   @click.native.prevent="deleteUsecase(scope.$index)"
                   size="mini"
-                  >删除</el-button
-                >
+                >删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -268,7 +235,11 @@
 <script>
 import Sortable from "sortablejs";
 import { ElementAction } from "@/api/WebUiTest/elementAction";
-import { UseCase, UseCaseStep } from "@/api/WebUiTest/useCaseManagement";
+import {
+  UseCase,
+  UseCaseStep,
+  RunUseCase
+} from "@/api/WebUiTest/useCaseManagement";
 import { Page, PageElement } from "@/api/WebUiTest/pageElement";
 export default {
   data() {
@@ -296,10 +267,23 @@ export default {
       isFile: false, //文件选项开关
       project_id: localStorage.getItem("project_id"), //项目id
       data: [], //用例数据
-      useCase_id: "", //用例id
+      useCase_id: "" //用例id
     };
   },
   methods: {
+    //调试记录
+    debugRecord(id) {
+      RunUseCase("get", { id }).then(res => {
+        this.$message.success(res.message);
+      });
+    },
+    //调试
+    debug(id) {
+      RunUseCase("post", { id }).then(res => {
+        this.$message.success(res.message);
+      });
+    },
+    //hover元素操作时的事件
     hoverAction(item) {
       console.log(item);
       this.action_detailed = item;
@@ -320,12 +304,12 @@ export default {
           action: "",
           element: "",
           action_parameter: "",
-          isUse: true,
+          isUse: true
         });
       } else {
         const id = Math.max.apply(
           Math,
-          this.UseCaseData.map(function (o) {
+          this.UseCaseData.map(function(o) {
             return o.id;
           })
         );
@@ -335,7 +319,7 @@ export default {
           action: "",
           element: "",
           action_parameter: "",
-          isUse: true,
+          isUse: true
         });
       }
     },
@@ -353,7 +337,7 @@ export default {
         onEnd({ newIndex, oldIndex }) {
           const currRow = _this.UseCaseData.splice(oldIndex, 1)[0];
           _this.UseCaseData.splice(newIndex, 0, currRow);
-        },
+        }
       });
     },
     //保存
@@ -366,11 +350,11 @@ export default {
         let no = index + 1;
         if (item.description == "") {
           result = result && false;
-          message.push("第" + no + "行：步骤描述不能为空");
+          message.push("【步骤" + no + "】步骤描述不能为空");
         }
         if (item.action == "") {
           result = result && false;
-          message.push("第" + no + "行：元素操作不能为空");
+          message.push("【步骤" + no + "】元素操作不能为空");
         }
         // if (item.element_value == "") {
         //   result = result && false;
@@ -379,7 +363,7 @@ export default {
       });
       if (!result) {
         var temp = "";
-        message.forEach((v) => {
+        message.forEach(v => {
           temp += `<li>${v}</li>`;
         });
         return this.$notify({
@@ -387,18 +371,18 @@ export default {
           dangerouslyUseHTMLString: true,
           type: "error",
           duration: 3000,
-          message: `<ul>${temp}</ul>`,
+          message: `<ul>${temp}</ul>`
         });
       }
       UseCaseStep("post", { id: useCase_id, case_step: UseCaseData }).then(
-        (res) => {
+        res => {
           console.log(res);
           this.$message.success(res.message);
           // this.UseCaseData = res.data;
         }
       );
     },
-    //是否使用
+    //是否使用 xx
     isUse(index, row) {
       console.log(index, row);
       // const request_data = {
@@ -461,31 +445,31 @@ export default {
         inputErrorMessage: "输入不能为空",
         inputValue: data.name,
         // inputValue: row.page_name,
-        inputValidator: (value) => {
+        inputValidator: value => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value) {
             return "输入不能为空";
           }
-        },
+        }
       })
         .then(({ value }) => {
           //发送更新用例或文件接口
           UseCase("put", {
             id: node.data.id,
-            name: value,
+            name: value
           })
-            .then((res) => {
+            .then(res => {
               data.name = value;
               this.$message.success(res.message);
             })
-            .catch((err) => {
+            .catch(err => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消编辑",
+            message: "取消编辑"
           });
         });
     },
@@ -494,31 +478,31 @@ export default {
       this.$confirm("此操作将永久删除该项，以及所有子项, 是否继续?", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
-        type: "warning",
+        type: "warning"
       })
         .then(() => {
           UseCase("delete", {
-            id: node.data.id,
+            id: node.data.id
           })
-            .then((res) => {
+            .then(res => {
               if (node.data.id == this.useCase_id) {
                 this.useCase_id = "";
               }
               console.log(node);
               const parent = node.parent;
               const children = parent.data.children || parent.data;
-              const index = children.findIndex((d) => d.id === data.id);
+              const index = children.findIndex(d => d.id === data.id);
               children.splice(index, 1);
               this.$message.success(res.message);
             })
-            .catch((err) => {
+            .catch(err => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "已取消删除",
+            message: "已取消删除"
           });
         });
     },
@@ -530,12 +514,12 @@ export default {
         cancelButtonText: "取消",
         inputErrorMessage: "输入不能为空",
         // inputValue: row.page_name,
-        inputValidator: (value) => {
+        inputValidator: value => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value) {
             return "输入不能为空";
           }
-        },
+        }
       })
         .then(({ value }) => {
           //发送新增用例接口
@@ -543,15 +527,9 @@ export default {
             name: value,
             type: 2,
             project_id: this.project_id,
-            parent: data.id,
+            parent: data.id
           })
-            .then((res) => {
-              // UseCase("get").then(res => {
-              //   this.data = res.data;
-              //   this.$nextTick(() => {
-              //     this.$refs.dataConfigTree.setCurrentKey(this.useCase_id);
-              //   });
-              // });
+            .then(res => {
               if (data.id == null) {
                 this.data.push(res.data);
               } else {
@@ -562,14 +540,14 @@ export default {
               }
               this.$message.success(res.message);
             })
-            .catch((err) => {
+            .catch(err => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入",
+            message: "取消输入"
           });
         });
     },
@@ -581,12 +559,12 @@ export default {
         cancelButtonText: "取消",
         inputErrorMessage: "输入不能为空",
         // inputValue: row.page_name,
-        inputValidator: (value) => {
+        inputValidator: value => {
           // 点击按钮时，对文本框里面的值进行验证
           if (!value) {
             return "输入不能为空";
           }
-        },
+        }
       })
         .then(({ value }) => {
           //发送新增文件接口
@@ -594,9 +572,9 @@ export default {
             name: value,
             type: 1,
             project_id: this.project_id,
-            parent: data.id,
+            parent: data.id
           })
-            .then((res) => {
+            .then(res => {
               if (data.id == null) {
                 this.data.push(res.data);
               } else {
@@ -605,28 +583,16 @@ export default {
                 }
                 data.children.push(res.data);
               }
-              // console.log(res.data);
-              // this.data.push(res.data);
-              // UseCase("get").then(res => {
-              //   // const newChild = { id: id++, label: "testtest", children: [] };
-              //   // if (!data.children) {
-              //   //   this.$set(data, "children", []);
-              //   // }
-              //   // this.data = res.data;
-              //   // this.$nextTick(() => {
-              //   //   this.$refs.dataConfigTree.setCurrentKey(this.useCase_id);
-              //   // });
-              // });
               this.$message.success(res.message);
             })
-            .catch((err) => {
+            .catch(err => {
               this.$message.error(err.message);
             });
         })
         .catch(() => {
           this.$message({
             type: "info",
-            message: "取消输入",
+            message: "取消输入"
           });
         });
     },
@@ -677,7 +643,7 @@ export default {
     filterActionNode(value, data) {
       if (!value) return true;
       return data.action_name.indexOf(value) !== -1;
-    },
+    }
   },
   watch: {
     filterCase(val) {
@@ -693,7 +659,7 @@ export default {
         this.highlight = true;
         this.caseStep = true;
         console.log(val, "usecase_id");
-        UseCaseStep("get", { id: val }).then((res) => {
+        UseCaseStep("get", { id: val }).then(res => {
           console.log(res);
           this.UseCaseData = res.data;
         });
@@ -702,35 +668,35 @@ export default {
         this.caseStep = false;
         this.highlight = false;
       }
-    },
+    }
   },
   created() {
     //获取文件用例列表
-    UseCase("get").then((res) => {
+    UseCase("get", { project_id: this.project_id }).then(res => {
       this.data = res.data;
       this.$nextTick(() => {
         this.$refs.dataConfigTree.setCurrentKey(1);
       });
     });
     //获取元素操作列表
-    ElementAction("get").then((res) => {
+    ElementAction("get").then(res => {
       this.actionData = res.data;
       this.actionOptions = res.data;
     });
     //获取页面元素
-    PageElement("get", { project_id: this.project_id }).then((res) => {
+    PageElement("get", { project_id: this.project_id }).then(res => {
       // this.actionData = res.data;
       this.pageElementOptions = res.data;
     });
   },
   mounted() {
     // 阻止默认行为
-    document.body.ondrop = function (event) {
+    document.body.ondrop = function(event) {
       event.preventDefault();
       event.stopPropagation();
     };
     this.rowDrop();
-  },
+  }
 };
 </script>
 

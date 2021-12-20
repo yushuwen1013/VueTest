@@ -35,4 +35,21 @@ export function UseCaseStep(method, data) {
     }
 }
 
+//用例调试
+export function RunUseCase(method, data) {
+    if (method == 'get') {
+        return request({
+            url: '/WebUiTest/UseCase/RunUseCase/',
+            method: method,
+            params: data
+        })
+    } else {
+        return request({
+            url: '/WebUiTest/UseCase/RunUseCase/',
+            method: method,
+            data
+        })
+    }
+}
+
 
