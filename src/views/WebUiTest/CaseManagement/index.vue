@@ -229,6 +229,117 @@
           </el-table>
         </div>
       </el-card>
+      <el-drawer title="调试详情" :visible.sync="debugRecordVisible" size="80%">
+        <el-card class="box-card" style="width:25%;height:100%;float:left">
+          <div slot="header" class="clearfix">
+            <span>调试记录</span>
+          </div>
+          <div>
+            <!-- :data="
+              debugRecordData.filter(
+                (data) =>
+                  !searchPageName ||
+                  data.page_name
+                    .toLowerCase()
+                    .includes(searchPageName.toLowerCase())
+            )-->
+            <el-table
+              :header-cell-style="{ height:'20px',padding:'2px'}"
+              ref="eltable"
+              height="750"
+              style="overflow-y: auto"
+              :data="
+              debugRecordData
+            "
+              @row-click="btn"
+              highlight-current-row
+              :cell-style="{ padding: '4px 0' }"
+            >
+              <el-table-column header-align="center" label="执行时间" prop="create_time"></el-table-column>
+              <el-table-column align="right" width="150">
+                <template slot-scope="scope">
+                  <el-tag
+                    size="mini"
+                    style="margin-right: 10px;"
+                    :type="scope.row.result?'success':'danger'"
+                  >{{scope.row.result?"成功":"失败"}}</el-tag>
+                  <el-button
+                    type="danger"
+                    icon="el-icon-delete"
+                    circle
+                    size="mini"
+                    @click="deleteRecord(scope.$index, scope.row)"
+                  ></el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+        </el-card>
+        <el-card
+          class="box-card"
+          style="width:74%;height:100%;float:right;margin-right: 10px;overflow-y:auto"
+        >
+          <div slot="header" class="clearfix">
+            <span>步骤内容</span>
+          </div>
+          <div>
+            <el-row>
+              <el-descriptions direction="vertical" :column="4" border style="margin-bottom: 10px;">
+                <el-descriptions-item label="开始时间">{{stepRow.start_time}}</el-descriptions-item>
+                <el-descriptions-item label="结束时间">{{stepRow.end_time}}</el-descriptions-item>
+                <el-descriptions-item label="耗时" :span="2">{{stepRow.time_consuming}}</el-descriptions-item>
+              </el-descriptions>
+              <el-col v-for="(step,index) in stepData" :key="index">
+                <el-card
+                  style="width:29%;float:left"
+                  :body-style="{ padding: '0px', width:'100%' }"
+                >
+                  <!-- <div style="padding: 14px;">
+                    <span>{{step.result}}</span>
+                  </div>-->
+                  <el-descriptions :column="1" border width="50px">
+                    <el-descriptions-item
+                      :contentStyle="{ 'text-align': 'center' }"
+                      label="步骤"
+                    >{{step.id}}</el-descriptions-item>
+                    <el-descriptions-item
+                      :contentStyle="{ 'text-align': 'center' }"
+                      label="步骤描述"
+                    >{{step.description}}</el-descriptions-item>
+                    <el-descriptions-item
+                      :contentStyle="{ 'text-align': 'center' }"
+                      label="元素操作"
+                    >{{step.action}}</el-descriptions-item>
+                    <el-descriptions-item
+                      :contentStyle="{ 'text-align': 'center' }"
+                      label="操作参数"
+                    >{{step.action_parameter}}</el-descriptions-item>
+                    <el-descriptions-item
+                      :contentStyle="{ 'text-align': 'center' }"
+                      label="结果"
+                    >{{step.result?"成功":"失败"}}</el-descriptions-item>
+                  </el-descriptions>
+                </el-card>
+                <!--  v-for="(index,1  ) in 5" :key="o" :offset="1" -->
+                <el-card style="width:70%" :body-style="{ padding: '0px', width:'100%' }">
+                  <!-- <div style="padding: 14px;">
+                    <span>{{step.result}}</span>
+                  </div>-->
+                  <viewer :images="stepData">
+                    <!-- <img v-for="src in imgArr" :src="src" :key="src" width="200"> -->
+                    <img
+                      v-show="step.picture_path"
+                      style="height: 300px;"
+                      :src="baseURL + 'media/webui/' + step.picture_path"
+                      class="image"
+                    />
+                  </viewer>
+                </el-card>
+              </el-col>
+            </el-row>
+          </div>
+        </el-card>
+      </el-drawer>
     </div>
   </div>
 </template>
@@ -244,6 +355,16 @@ import { Page, PageElement } from "@/api/WebUiTest/pageElement";
 export default {
   data() {
     return {
+      //当前选中的调试记录数据
+      stepRow: {
+        start_time: "",
+        end_time: "",
+        time_consuming: ""
+      },
+      baseURL: process.env.VUE_APP_BASE_API, //基础url
+      stepData: [], // 步骤数据
+      debugRecordData: [], //调试记录数据
+      debugRecordVisible: false, //调试记录面板显隐
       action_detailed: "",
       caseStep: false, //用例步骤显隐
       pageElementOptions: [], //页面元素列表
@@ -271,10 +392,33 @@ export default {
     };
   },
   methods: {
+    //选中调试记录触发的事件
+    btn(row, col, event) {
+      this.stepData = row.case_step_details;
+      this.stepRow = row;
+      // this.page_id = row.id;
+      console.log(row, col, event);
+      console.log(this.stepData);
+    },
+    //删除调试记录
+    deleteRecord(index, row) {
+      console.log(index, row);
+      RunUseCase("delete", { id: row.id })
+        .then(res => {
+          this.$message.success(res.message);
+          this.debugRecordData.splice(index, 1);
+        })
+        .catch(err => {
+          this.$message.error(err.message);
+        });
+    },
     //调试记录
     debugRecord(id) {
+      //发送获取调试记录的接口
       RunUseCase("get", { id }).then(res => {
         this.$message.success(res.message);
+        this.debugRecordData = res.data.reverse(); //倒序排列
+        this.debugRecordVisible = true;
       });
     },
     //调试
@@ -668,6 +812,16 @@ export default {
         this.caseStep = false;
         this.highlight = false;
       }
+    },
+    debugRecordVisible(val) {
+      if (!val) {
+        this.stepData = [];
+        this.stepRow = {
+          start_time: "",
+          end_time: "",
+          time_consuming: ""
+        };
+      }
     }
   },
   created() {
@@ -715,6 +869,10 @@ export default {
 } */
 .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
   background-color: #bac8e5 !important;
+}
+.el-table__body tr.current-row > td {
+  background: #409eff !important;
+  color: rgb(255, 255, 255);
 }
 </style>
 <style >
