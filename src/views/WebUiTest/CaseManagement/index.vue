@@ -157,7 +157,7 @@
             <el-table-column prop="action" label="操作" width="180">
               <template slot-scope="scope">
                 <el-select clearable v-model="scope.row.action" size="mini" placeholder="请选择元素操作">
-                  <el-tooltip placement="left" effect="light">
+                  <el-tooltip placement="right" effect="light">
                     <span class="showname">
                       <el-option
                         v-for="item in actionOptions"
@@ -278,7 +278,7 @@
         <el-card
           class="box-card"
           style="width:74%;height:100%;float:right;margin-right: 10px;overflow-y:auto"
-        >
+         >
           <div slot="header" class="clearfix">
             <span>步骤内容</span>
           </div>
@@ -314,10 +314,16 @@
                       :contentStyle="{ 'text-align': 'center' }"
                       label="操作参数"
                     >{{step.action_parameter}}</el-descriptions-item>
-                    <el-descriptions-item
+                    <el-descriptions-item :contentStyle="{ 'text-align': 'center' }" label="结果">
+                      <el-tag :type="step.result?'success':'danger'">{{step.result?"成功":"失败"}}</el-tag>
+                    </el-descriptions-item>
+                    <!-- <el-descriptions-item
+                      v-if="!step.result"
                       :contentStyle="{ 'text-align': 'center' }"
-                      label="结果"
-                    >{{step.result?"成功":"失败"}}</el-descriptions-item>
+                      label="错误信息"
+                    >
+                      {{step.err_info}}
+                    </el-descriptions-item>-->
                   </el-descriptions>
                 </el-card>
                 <!--  v-for="(index,1  ) in 5" :key="o" :offset="1" -->
@@ -335,6 +341,18 @@
                     />
                   </viewer>
                 </el-card>
+                <el-descriptions :column="1" border width="50px">
+                  <el-descriptions-item
+                    label-class-name="my-content"
+                    content-class-name="my-content"
+                    v-if="!step.result"
+                    :contentStyle="{ 'text-align': 'center' }"
+                    label="错误信息"
+                  >
+                    {{step.err_info}}
+                    <!-- <el-tag :type="step.result?'success':'danger'">{{step.result?"成功":"失败"}}</el-tag> -->
+                  </el-descriptions-item>
+                </el-descriptions>
               </el-col>
             </el-row>
           </div>
@@ -423,9 +441,14 @@ export default {
     },
     //调试
     debug(id) {
-      RunUseCase("post", { id }).then(res => {
-        this.$message.success(res.message);
-      });
+      this.saveUseCase(this.useCase_id, this.UseCaseData);
+      RunUseCase("post", { id })
+        .then(res => {
+          this.$message.success(res.message);
+        })
+        .catch(err => {
+          this.$message.error(err.message);
+        });
     },
     //hover元素操作时的事件
     hoverAction(item) {
@@ -510,13 +533,14 @@ export default {
         message.forEach(v => {
           temp += `<li>${v}</li>`;
         });
-        return this.$notify({
-          title: "元素列表提示",
+        this.$notify({
+          title: "步骤详情提示",
           dangerouslyUseHTMLString: true,
           type: "error",
           duration: 3000,
           message: `<ul>${temp}</ul>`
         });
+        return false;
       }
       UseCaseStep("post", { id: useCase_id, case_step: UseCaseData }).then(
         res => {
@@ -855,24 +879,17 @@ export default {
 </script>
 
 <style >
-/* .el-tree-node__content {
-  background-color: #ffffff;
-  height: 25px;
-} */
-
-/* .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
-  background-color: #E4E7ED !important;
-} */
-
-/* .el-tree-node:focus > .el-tree-node__content {
-  background-color: rgb(158, 213, 250) !important;
-} */
 .el-tree--highlight-current .el-tree-node.is-current > .el-tree-node__content {
   background-color: #bac8e5 !important;
 }
 .el-table__body tr.current-row > td {
   background: #409eff !important;
   color: rgb(255, 255, 255);
+}
+
+
+.my-content {
+  background: #fde2e2;
 }
 </style>
 <style >

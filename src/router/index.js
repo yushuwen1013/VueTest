@@ -153,31 +153,56 @@ export const constantRoutes = [
         name: 'TestPlan',
         component: () => import('@/views/InterfaceTest/testPlan/index'),
         meta: { title: '测试计划', icon: 'el-icon-user-solid' },
+
       },
       //执行结果
       {
         path: 'ExecutiveOutcomes',
         name: 'ExecutiveOutcomes',
         meta: { title: '测试报告', icon: 'el-icon-user-solid' },
-        // redirect: 'ExecutiveOutcomes/list',
+        redirect: '/interface/ExecutiveOutcomes/list',
         component: () => import('@/views/InterfaceTest/executiveOutcomes/index'),
         children: [
           {
             path: 'list',
             component: () => import('@/views/InterfaceTest/executiveOutcomes/list'),
             meta: { title: '报告列表' },
-            // hidden: true,
           },
           {
             path: 'testReport',
             name: 'testReport',
             component: () => import('@/views/InterfaceTest/executiveOutcomes/testReport'),
-            meta: { title: '报告详情' },
+            meta: { title: '报告详情', guidePath: true, jumpPath: '/interface/ExecutiveOutcomes/list' },
             hidden: true,
-            activeMenu: '/ExecutiveOutcomes/list',
+            // activeMenu: '/interface/TestPlan',
           }
+
         ]
       },
+      // //执行结果
+      // {
+      //   path: 'ExecutiveOutcomes',
+      //   name: 'ExecutiveOutcomes',
+      //   meta: { title: '测试报告', icon: 'el-icon-user-solid' },
+      //   redirect: '/interface/ExecutiveOutcomes/list',
+      //   component: () => import('@/views/InterfaceTest/executiveOutcomes/index'),
+      //   children: [
+      //     {
+      //       path: 'list',
+      //       component: () => import('@/views/InterfaceTest/executiveOutcomes/list'),
+      //       meta: { title: '报告列表' },
+      //       // hidden: true,
+      //     },
+      //     {
+      //       path: 'testReport',
+      //       name: 'testReport',
+      //       component: () => import('@/views/InterfaceTest/executiveOutcomes/testReport'),
+      //       meta: { title: '报告详情' },
+      //       hidden: true,
+      //       activeMenu: '/interface/ExecutiveOutcomes/list',
+      //     }
+      //   ]
+      // },
 
     ]
   },
@@ -239,20 +264,35 @@ export const constantRoutes = [
         component: () => import('@/views/WebUiTest/CaseManagement'),
         meta: { title: '用例管理', icon: 'form' }
       },
-      // //测试页面
-      // {
-      //   path: 'test',
-      //   name: 'test',
-      //   component: () => import('@/views/tools/test/index'),
-      //   meta: { title: '测试页面', icon: 'form' }
-      // }
-      // //定时任务
-      // {
-      //   path: 'testPlan',
-      //   name: 'PerformanceTestPlan',
-      //   component: () => import('@/views/PerformanceTest/testPlan/index'),
-      //   meta: { title: '测试计划', icon: 'form' }
-      // }
+      //定时任务
+      {
+        path: 'testPlan',
+        name: 'webuiTestPlan',
+        component: () => import('@/views/WebUiTest/testPlan/index'),
+        meta: { title: '测试计划', icon: 'form' }
+      },
+      //执行结果
+      {
+        path: 'ExecutiveOutcomes',
+        name: 'WebuiExecutiveOutcomes',
+        meta: { title: '测试报告', icon: 'el-icon-user-solid' },
+        component: () => import('@/views/WebUiTest/executiveOutcomes/index'),
+        children: [
+          {
+            path: 'list',
+            component: () => import('@/views/WebUiTest/executiveOutcomes/list'),
+            meta: { title: '报告列表' },
+          },
+          {
+            path: 'testReport',
+            name: 'webuiTestReport',
+            component: () => import('@/views/WebUiTest/executiveOutcomes/testReport'),
+            meta: { title: '报告详情', guidePath: true, jumpPath: '/webui/ExecutiveOutcomes/list' },
+            hidden: true,
+            // activeMenu: '/webui/ExecutiveOutcomes/list',
+          }
+        ]
+      }
     ]
   },
   //工具
@@ -276,13 +316,6 @@ export const constantRoutes = [
         component: () => import('@/views/tools/test/index'),
         meta: { title: '测试页面', icon: 'form' }
       }
-      // //定时任务
-      // {
-      //   path: 'testPlan',
-      //   name: 'PerformanceTestPlan',
-      //   component: () => import('@/views/PerformanceTest/testPlan/index'),
-      //   meta: { title: '测试计划', icon: 'form' }
-      // }
     ]
   },
 

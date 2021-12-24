@@ -34,13 +34,14 @@ export default {
       return this.$router.options.routes
     },
     activeMenu() {
-      const route = this.$route
-      const { meta, path } = route
-      // if set path, the sidebar will highlight the path you set
-      if (meta.activeMenu) {
-        return meta.activeMenu
-      }
-      return path
+      // const route = this.$route
+      // const { meta, path } = route
+      // // if set path, the sidebar will highlight the path you set
+      // if (meta.activeMenu) {
+      //   return meta.activeMenu
+      // }
+      // return path
+      return this.$route.meta.guidePath? this.$route.meta.jumpPath:this.$route.path
     },
     showLogo() {
       return this.$store.state.settings.sidebarLogo
