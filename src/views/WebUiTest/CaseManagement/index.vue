@@ -229,7 +229,7 @@
           </el-table>
         </div>
       </el-card>
-      <el-drawer title="调试详情" :visible.sync="debugRecordVisible" size="80%">
+      <el-drawer title="调试详情" :visible.sync="debugRecordVisible" size="85%">
         <el-card class="box-card" style="width:25%;height:100%;float:left">
           <div slot="header" class="clearfix">
             <span>调试记录</span>
@@ -254,9 +254,10 @@
               @row-click="btn"
               highlight-current-row
               :cell-style="{ padding: '4px 0' }"
+              size="mini"
             >
               <el-table-column header-align="center" label="执行时间" prop="create_time"></el-table-column>
-              <el-table-column align="right" width="150">
+              <el-table-column align="right" width="100">
                 <template slot-scope="scope">
                   <el-tag
                     size="mini"
@@ -291,13 +292,13 @@
               </el-descriptions>
               <el-col v-for="(step,index) in stepData" :key="index">
                 <el-card
-                  style="width:29%;float:left"
+                  style="width:35%;float:left"
                   :body-style="{ padding: '0px', width:'100%' }"
                 >
                   <!-- <div style="padding: 14px;">
                     <span>{{step.result}}</span>
                   </div>-->
-                  <el-descriptions :column="1" border width="50px">
+                  <el-descriptions :column="1" border width="50px" size="mini" labelStyle="width: 70px">
                     <el-descriptions-item
                       :contentStyle="{ 'text-align': 'center' }"
                       label="步骤"
@@ -327,7 +328,7 @@
                   </el-descriptions>
                 </el-card>
                 <!--  v-for="(index,1  ) in 5" :key="o" :offset="1" -->
-                <el-card style="width:70%" :body-style="{ padding: '0px', width:'100%' }">
+                <el-card style="width:64%" :body-style="{ padding: '0px', width:'100%' }">
                   <!-- <div style="padding: 14px;">
                     <span>{{step.result}}</span>
                   </div>-->
@@ -335,7 +336,7 @@
                     <!-- <img v-for="src in imgArr" :src="src" :key="src" width="200"> -->
                     <img
                       v-show="step.picture_path"
-                      style="height: 300px;"
+                      style="height: 250px;"
                       :src="baseURL + 'media/webui/' + step.picture_path"
                       class="image"
                     />
